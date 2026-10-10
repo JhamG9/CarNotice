@@ -7,7 +7,7 @@ categoria: electricos
 etiquetas: ["SUV", "Carga rápida", "Autonomía"]
 imagenPie: "Imagen de ejemplo: aquí irá la foto principal del modelo."
 imagenCredito: "Sala de prensa del fabricante"
-destacada: true
+destacada: false
 ---
 
 *Nota de ejemplo. El texto es de relleno y no describe un vehículo ni un hecho real.*

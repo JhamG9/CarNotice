@@ -61,7 +61,7 @@ export default function MenuMovil({ enlaces }: Props) {
       >
         <ul className="mx-auto max-w-pagina px-4 py-2">
           {enlaces.map((enlace) => (
-            <li key={enlace.href} className="borde  r-b border-border last:border-b-0">
+            <li key={enlace.href} className="border-b border-border last:border-b-0">
               <a
                 href={enlace.href}
                 aria-current={enlace.activo ? 'page' : undefined}

@@ -1,38 +1,47 @@
 @import 'tailwindcss';
 
-/* Tokens de color: fuente de verdad en CLAUDE.md */
+/* Tokens de color: fuente de verdad en CLAUDE.md.
+   El tema claro es el predeterminado; el oscuro solo con data-theme="dark" en <html>. */
 :root {
   --bg: #f7f6f2;
   --surface: #ffffff;
   --ink: #14171c;
+  --heading: #14284b;
   --muted: #5a616b;
   --border: #e3e1da;
   --accent: #c23508;
   --accent-bright: #e8430a;
   --ev: #0b7a5b;
   --on-accent: #ffffff;
+  --tint: #e4e9f1;
 
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1114;
-    --surface: #181b20;
-    --ink: #eceae4;
-    --muted: #9ba1aa;
-    --border: #2a2e35;
-    --accent: #ff6a33;
-    --accent-bright: #ff6a33;
-    --ev: #35c69a;
-    --on-accent: #0f1114;
-  }
+:root[data-theme='dark'] {
+  --bg: #0f1114;
+  --surface: #181b20;
+  --ink: #eceae4;
+  --heading: #eceae4;
+  --muted: #9ba1aa;
+  --border: #2a2e35;
+  --accent: #ff6a33;
+  --accent-bright: #ff6a33;
+  --ev: #35c69a;
+  --on-accent: #0f1114;
+  --tint: #1f242c;
+
+  color-scheme: dark;
 }
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-ink: var(--ink);
+  --color-heading: var(--heading);
+  --color-tint: var(--tint);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
@@ -67,6 +76,7 @@
   h2,
   h3,
   h4 {
+    color: var(--heading);
     overflow-wrap: break-word;
     word-break: normal;
     hyphens: manual;
@@ -160,10 +170,173 @@
   font-weight: 700;
 }
 
+/* Enlace de titular: en --heading, sin subrayado; al pasar el cursor cambia a --accent */
+@utility enlace-titular {
+  color: var(--heading);
+  text-decoration: none;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+/* Barra corta de 32x3 px bajo categorías y títulos de barra lateral */
+@utility barra-corta {
+  &::after {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 3px;
+    margin-top: 8px;
+    background-color: var(--accent-bright);
+  }
+}
+
 @utility enlace {
   transition: color 150ms ease;
 
   &:hover {
     color: var(--accent);
+  }
+}
+
+/* Cuerpo de la nota: estilos para el HTML que sale del Markdown */
+@layer components {
+  .cuerpo-nota {
+    font-family: var(--font-texto);
+    font-size: 20px;
+    line-height: 30px;
+    overflow-wrap: break-word;
+
+    & > * + * {
+      margin-top: 24px;
+    }
+
+    & h2 {
+      font-family: var(--font-titular);
+      font-size: 26px;
+      line-height: 32px;
+      font-weight: 700;
+      margin-top: 48px;
+    }
+
+    & h3 {
+      font-family: var(--font-titular);
+      font-size: 22px;
+      line-height: 28px;
+      font-weight: 700;
+      margin-top: 40px;
+    }
+
+    & h2 + *,
+    & h3 + * {
+      margin-top: 12px;
+    }
+
+    & a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    & strong {
+      font-weight: 700;
+    }
+
+    & ul,
+    & ol {
+      padding-left: 28px;
+    }
+
+    & ul {
+      list-style: disc;
+    }
+
+    & ol {
+      list-style: decimal;
+    }
+
+    & li + li {
+      margin-top: 8px;
+    }
+
+    & li::marker {
+      color: var(--accent-bright);
+      font-weight: 700;
+    }
+
+    & blockquote {
+      border-left: 3px solid var(--accent-bright);
+      padding-left: 20px;
+      font-family: var(--font-titular);
+      font-size: 22px;
+      line-height: 32px;
+      font-weight: 600;
+      color: var(--heading);
+      margin-block: 36px;
+    }
+
+    /* Atribución de la cita: último párrafo, si hay más de uno */
+    & blockquote p + p {
+      margin-top: 12px;
+      font-family: var(--font-texto);
+      font-size: 15px;
+      line-height: 22px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* Imagen intermedia; el pie va en cursiva en la línea siguiente */
+    & img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background-color: var(--tint);
+    }
+
+    & p:has(> img) {
+      margin-block: 36px;
+    }
+
+    & p:has(> img) em {
+      display: block;
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 20px;
+      font-style: normal;
+      color: var(--muted);
+    }
+
+    /* La tabla se desplaza dentro de su caja en pantallas angostas, sin desbordar la página */
+    & table {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      font-size: 17px;
+      line-height: 24px;
+      margin-block: 36px;
+    }
+
+    & th,
+    & td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    & th {
+      font-weight: 700;
+      color: var(--heading);
+      border-bottom: 2px solid var(--heading);
+    }
+
+    & hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin-block: 40px;
+    }
   }
 }

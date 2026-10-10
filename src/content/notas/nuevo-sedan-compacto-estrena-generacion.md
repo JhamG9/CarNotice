@@ -1,10 +1,10 @@
 ---
 titulo: "Un sedán compacto estrena generación con más espacio y menos botones"
 resumen: "Crece seis centímetros entre ejes, gana baúl y cambia el tablero por dos pantallas unidas. Llegará con dos motores y tres niveles de equipamiento."
+autor: "Diego Salazar"
 fecha: 2026-10-06
 categoria: lanzamientos
 etiquetas: ["Sedán", "Nueva generación"]
-imagen: ../../assets/marcadores/lanzamientos.svg
 destacada: false
 ---
 

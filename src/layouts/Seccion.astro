@@ -1,0 +1,117 @@
+---
+import Base from './Base.astro';
+import BarraLateral from '../components/BarraLateral.astro';
+import NotaDestacada from '../components/NotaDestacada.astro';
+import TarjetaNota from '../components/TarjetaNota.astro';
+import type { ClaveCategoria } from '../data/categorias';
+import { obtenerNotas, type Nota } from '../lib/notas';
+import { rutaInicio } from '../lib/rutas';
+
+interface Props {
+  /** Nombre de la categoría o etiqueta: es el h1. */
+  nombre: string;
+  /** Texto pequeño sobre el h1, p. ej. "Etiqueta". */
+  antetitulo?: string;
+  descripcion: string;
+  /** Notas de esta página. */
+  notas: Nota[];
+  /** Total de notas de la sección, en todas las páginas. */
+  total: number;
+  pagina: number;
+  totalPaginas: number;
+  /** Ruta de la página n de esta sección. */
+  rutaPagina: (pagina: number) => string;
+  seccionActiva?: ClaveCategoria;
+}
+
+const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva } =
+  Astro.props;
+
+const todas = await obtenerNotas();
+// La más reciente va destacada, solo en la primera página
+const destacada = pagina === 1 ? notas[0] : undefined;
+const resto = destacada ? notas.slice(1) : notas;
+
+const sufijo = pagina > 1 ? `, página ${pagina}` : '';
+const titulo = `${nombre}${sufijo} | Garash`;
+const descripcionSeo = pagina > 1 ? `${descripcion} Página ${pagina} de ${totalPaginas}.` : descripcion;
+const absoluta = (ruta: string) => new URL(ruta, Astro.site).href;
+const CLASE_PAGINA =
+  'inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-5 text-[15px] font-bold transition-colors duration-150 hover:border-accent hover:text-accent';
+---
+
+<Base titulo={titulo} descripcion={descripcionSeo} seccionActiva={seccionActiva}>
+  <Fragment slot="head">
+    {pagina > 1 && <link rel="prev" href={absoluta(rutaPagina(pagina - 1))} />}
+    {pagina < totalPaginas && <link rel="next" href={absoluta(rutaPagina(pagina + 1))} />}
+  </Fragment>
+
+  <div
+    class="mx-auto grid max-w-pagina gap-12 px-4 pt-6 md:px-6 md:pt-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14"
+  >
+    <div class="min-w-0">
+      <header class="border-b border-border pb-6">
+        {antetitulo && <p class="t-meta mb-2 tracking-[0.5px] text-accent uppercase">{antetitulo}</p>}
+        <h1 class="t-seccion barra-corta">{nombre}</h1>
+        <p class="t-texto mt-4 text-muted">{descripcion}</p>
+        <p class="mt-2 text-[14px] leading-5 text-muted">
+          {total === 1 ? '1 nota' : `${total} notas`}
+          {totalPaginas > 1 && ` · Página ${pagina} de ${totalPaginas}`}
+        </p>
+      </header>
+
+      {
+        total === 0 ? (
+          <div class="py-12">
+            <p class="t-lateral text-heading">Todavía no hay notas aquí.</p>
+            <p class="t-texto mt-3 text-muted">Estamos preparando contenido para esta sección. Mientras tanto, mira lo más reciente en la portada.</p>
+            <a
+              href={rutaInicio()}
+              class="mt-6 inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
+            >
+              Ir a la portada
+            </a>
+          </div>
+        ) : (
+          <>
+            {destacada && (
+              <div class="pt-8">
+                <NotaDestacada nota={destacada} />
+              </div>
+            )}
+            {resto.map((nota) => (
+              <TarjetaNota nota={nota} nivel="h2" />
+            ))}
+          </>
+        )
+      }
+
+      {
+        totalPaginas > 1 && (
+          <nav aria-label="Paginación" class="mt-8 flex items-center justify-between gap-4">
+            {pagina > 1 ? (
+              <a href={rutaPagina(pagina - 1)} rel="prev" class={CLASE_PAGINA}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 8H2M7 3L2 8l5 5" />
+                </svg>
+                Anterior
+              </a>
+            ) : (
+              <span />
+            )}
+            {pagina < totalPaginas && (
+              <a href={rutaPagina(pagina + 1)} rel="next" class={CLASE_PAGINA}>
+                Siguiente
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 8h12M9 3l5 5-5 5" />
+                </svg>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </div>
+
+    <BarraLateral notas={todas} />
+  </div>
+</Base>

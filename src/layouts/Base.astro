@@ -6,14 +6,32 @@ import '@fontsource/lato/700.css';
 import '../styles/global.css';
 import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
+import type { ClaveCategoria } from '../data/categorias';
 
 interface Props {
   titulo: string;
   descripcion: string;
   logoComoTitulo?: boolean;
+  /** Categoría a marcar en el menú cuando no se deduce de la URL (p. ej. en un artículo). */
+  seccionActiva?: ClaveCategoria;
+  /** Tipo Open Graph: "website" en listados, "article" en notas. */
+  tipo?: 'website' | 'article';
+  /** URL absoluta de la imagen para compartir. */
+  imagenSocial?: string;
+  /** Páginas que no deben indexarse (404): llevan noindex y no declaran URL canónica. */
+  sinIndexar?: boolean;
 }
 
-const { titulo, descripcion, logoComoTitulo = false } = Astro.props;
+const {
+  titulo,
+  descripcion,
+  logoComoTitulo = false,
+  seccionActiva,
+  tipo = 'website',
+  imagenSocial,
+  sinIndexar = false,
+} = Astro.props;
+const canonica = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
@@ -27,9 +45,24 @@ const { titulo, descripcion, logoComoTitulo = false } = Astro.props;
     <meta name="description" content={descripcion} />
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descripcion} />
-    <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0F1114" media="(prefers-color-scheme: dark)" />
+    {sinIndexar ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonica} />}
+    <meta property="og:type" content={tipo} />
+    {!sinIndexar && <meta property="og:url" content={canonica} />}
+    <meta property="og:site_name" content="Garash" />
+    <meta property="og:locale" content="es" />
+    {imagenSocial && <meta property="og:image" content={imagenSocial} />}
+    <meta name="twitter:card" content={imagenSocial ? 'summary_large_image' : 'summary'} />
+    <slot name="head" />
+    <meta name="theme-color" content="#F7F6F2" />
+    <!-- Aplica el tema guardado antes del primer pintado, para que no parpadee -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('tema') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0F1114');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <a
@@ -38,7 +71,7 @@ const { titulo, descripcion, logoComoTitulo = false } = Astro.props;
     >
       Saltar al contenido
     </a>
-    <Cabecera logoComoTitulo={logoComoTitulo} />
+    <Cabecera logoComoTitulo={logoComoTitulo} seccionActiva={seccionActiva} />
     <main id="contenido">
       <slot />
     </main>

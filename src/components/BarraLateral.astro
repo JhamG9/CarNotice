@@ -1,8 +1,9 @@
 ---
+import Etiquetas from './Etiquetas.astro';
 import { categorias } from '../data/categorias';
 import type { Nota } from '../lib/notas';
 import { fechaISO, formatearFecha } from '../lib/fechas';
-import { rutaCategoria, rutaEtiqueta, rutaNota } from '../lib/rutas';
+import { rutaCategoria, rutaNota } from '../lib/rutas';
 
 interface Props {
   notas: Nota[];
@@ -18,12 +19,12 @@ const etiquetas = [...new Set(notas.flatMap((nota) => nota.data.etiquetas))].sor
 
 <aside aria-label="Barra lateral" class="grid content-start gap-10 md:grid-cols-2 lg:grid-cols-1">
   <section aria-labelledby="titulo-recientes" class="md:col-span-2 lg:col-span-1">
-    <h2 id="titulo-recientes" class="t-lateral border-b-2 border-ink pb-3">Lo más reciente</h2>
-    <ol>
+    <h2 id="titulo-recientes" class="t-lateral barra-corta">Lo más reciente</h2>
+    <ol class="mt-2">
       {
         recientes.map((nota) => (
           <li class="border-b border-border">
-            <a href={rutaNota(nota.id)} class="t-item enlace block pt-4 pb-1">
+            <a href={rutaNota(nota.id)} class="t-item enlace-titular block pt-4 pb-1">
               {nota.data.titulo}
             </a>
             <time datetime={fechaISO(nota.data.fecha)} class="t-meta block pb-4 text-muted">
@@ -36,8 +37,8 @@ const etiquetas = [...new Set(notas.flatMap((nota) => nota.data.etiquetas))].sor
   </section>
 
   <section aria-labelledby="titulo-categorias">
-    <h2 id="titulo-categorias" class="t-lateral border-b-2 border-ink pb-3">Categorías</h2>
-    <ul>
+    <h2 id="titulo-categorias" class="t-lateral barra-corta">Categorías</h2>
+    <ul class="mt-2">
       {
         categorias.map((categoria) => (
           <li class="border-b border-border">
@@ -57,20 +58,9 @@ const etiquetas = [...new Set(notas.flatMap((nota) => nota.data.etiquetas))].sor
   </section>
 
   <section aria-labelledby="titulo-etiquetas">
-    <h2 id="titulo-etiquetas" class="t-lateral border-b-2 border-ink pb-3">Etiquetas</h2>
-    <ul class="mt-4 flex flex-wrap gap-2">
-      {
-        etiquetas.map((etiqueta) => (
-          <li>
-            <a
-              href={rutaEtiqueta(etiqueta)}
-              class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-[15px] transition-colors duration-150 hover:border-accent hover:text-accent"
-            >
-              {etiqueta}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <h2 id="titulo-etiquetas" class="t-lateral barra-corta">Etiquetas</h2>
+    <div class="mt-4">
+      <Etiquetas etiquetas={etiquetas} />
+    </div>
   </section>
 </aside>

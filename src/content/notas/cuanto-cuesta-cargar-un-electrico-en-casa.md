@@ -1,10 +1,10 @@
 ---
 titulo: "Cuánto cuesta de verdad cargar un carro eléctrico en casa"
 resumen: "Hicimos la cuenta con tres tarifas de energía y dos tipos de cargador. La diferencia frente a la gasolina depende más del horario que del carro."
+autor: "Laura Méndez"
 fecha: 2026-10-04
 categoria: electricos
 etiquetas: ["Carga en casa", "Costos"]
-imagen: ../../assets/marcadores/electricos.svg
 destacada: false
 ---
 

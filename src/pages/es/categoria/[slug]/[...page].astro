@@ -1,0 +1,35 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Seccion from '../../../../layouts/Seccion.astro';
+import { categorias, type Categoria } from '../../../../data/categorias';
+import { NOTAS_POR_PAGINA, obtenerNotas, type Nota } from '../../../../lib/notas';
+import { rutaCategoria } from '../../../../lib/rutas';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const notas = await obtenerNotas();
+  return categorias.flatMap((categoria) =>
+    paginate(
+      notas.filter((nota) => nota.data.categoria === categoria.clave),
+      { params: { slug: categoria.slug }, props: { categoria }, pageSize: NOTAS_POR_PAGINA },
+    ),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  categoria: Categoria;
+  page: Page<Nota>;
+}
+
+const { categoria, page } = Astro.props;
+---
+
+<Seccion
+  nombre={categoria.nombre}
+  descripcion={categoria.descripcion}
+  notas={page.data}
+  total={page.total}
+  pagina={page.currentPage}
+  totalPaginas={page.lastPage}
+  rutaPagina={(pagina) => rutaCategoria(categoria, pagina)}
+  seccionActiva={categoria.clave}
+/>

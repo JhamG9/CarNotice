@@ -1,0 +1,35 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Seccion from '../../../../layouts/Seccion.astro';
+import { NOTAS_POR_PAGINA, obtenerEtiquetas, obtenerNotas, type Nota } from '../../../../lib/notas';
+import { rutaEtiqueta } from '../../../../lib/rutas';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const etiquetas = obtenerEtiquetas(await obtenerNotas());
+  return etiquetas.flatMap((etiqueta) =>
+    paginate(etiqueta.notas, {
+      params: { slug: etiqueta.slug },
+      props: { nombre: etiqueta.nombre },
+      pageSize: NOTAS_POR_PAGINA,
+    }),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  nombre: string;
+  page: Page<Nota>;
+}
+
+const { nombre, page } = Astro.props;
+---
+
+<Seccion
+  nombre={nombre}
+  antetitulo="Etiqueta"
+  descripcion={`Todas las notas de Garash con la etiqueta "${nombre}".`}
+  notas={page.data}
+  total={page.total}
+  pagina={page.currentPage}
+  totalPaginas={page.lastPage}
+  rutaPagina={(pagina) => rutaEtiqueta(nombre, pagina)}
+/>

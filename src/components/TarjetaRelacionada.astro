@@ -1,0 +1,27 @@
+---
+import ImagenNota from './ImagenNota.astro';
+import EtiquetaCategoria from './EtiquetaCategoria.astro';
+import type { Nota } from '../lib/notas';
+import { fechaISO, formatearFecha } from '../lib/fechas';
+import { rutaNota } from '../lib/rutas';
+
+interface Props {
+  nota: Nota;
+}
+
+const { nota } = Astro.props;
+const { titulo, fecha, categoria, electrico, imagen, imagenAlt } = nota.data;
+---
+
+<article class="relative">
+  <ImagenNota imagen={imagen} alt={imagenAlt} />
+  <div class="mt-3">
+    <EtiquetaCategoria clave={categoria} electrico={electrico} />
+    <h3 class="t-lateral mt-3 md:font-titular md:text-[18px] md:leading-[23px]">
+      <a href={rutaNota(nota.id)} class="enlace-titular after:absolute after:inset-0">
+        {titulo}
+      </a>
+    </h3>
+    <time datetime={fechaISO(fecha)} class="t-meta mt-2 block text-muted">{formatearFecha(fecha)}</time>
+  </div>
+</article>

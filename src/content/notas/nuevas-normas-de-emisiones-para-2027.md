@@ -1,10 +1,10 @@
 ---
 titulo: "Qué cambia con las nuevas normas de emisiones que rigen desde 2027"
 resumen: "Los límites más estrictos obligarán a varios modelos a sumar hibridación ligera o a salir del catálogo. Esto es lo que debe saber quien piensa comprar."
+autor: "Camila Torres"
 fecha: 2026-09-29
 categoria: noticias
 etiquetas: ["Regulación", "Emisiones"]
-imagen: ../../assets/marcadores/noticias.svg
 destacada: false
 ---
 

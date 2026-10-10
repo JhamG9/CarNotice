@@ -1,45 +1,61 @@
 ---
+import BotonTema from './BotonTema.tsx';
 import MenuMovil from './MenuMovil.tsx';
-import { categorias } from '../data/categorias';
+import { categorias, type ClaveCategoria } from '../data/categorias';
 import { rutaCategoria, rutaInicio } from '../lib/rutas';
 
 interface Props {
   /** En la portada el logo es el único h1 de la página. */
   logoComoTitulo?: boolean;
+  /** Categoría a marcar cuando no se deduce de la URL (p. ej. en un artículo). */
+  seccionActiva?: ClaveCategoria;
 }
 
-const { logoComoTitulo = false } = Astro.props;
+const { logoComoTitulo = false, seccionActiva } = Astro.props;
 const Logo = logoComoTitulo ? 'h1' : 'p';
-const enlaces = categorias.map((categoria) => ({
-  nombre: categoria.nombre,
-  href: rutaCategoria(categoria),
-}));
+const ruta = Astro.url.pathname;
+const enlaces = [
+  { nombre: 'Inicio', href: rutaInicio(), activo: ruta === rutaInicio() },
+  ...categorias.map((categoria) => ({
+    nombre: categoria.nombre,
+    href: rutaCategoria(categoria),
+    activo: seccionActiva === categoria.clave || ruta.startsWith(rutaCategoria(categoria)),
+  })),
+];
 ---
 
 <header class="relative border-b border-border bg-surface">
-  <div class="mx-auto flex max-w-pagina items-center justify-between gap-6 px-4 py-3 md:px-6 md:py-4">
-    <Logo class="font-titular text-[28px] leading-none font-bold">
+  <div class="mx-auto flex max-w-pagina items-center justify-between gap-4 px-4 py-3 md:px-6 md:py-4">
+    <Logo class="font-titular text-[28px] leading-none font-bold text-heading">
       <a href={rutaInicio()} class="flex min-h-11 items-center" aria-label="Garash, inicio">
         Garash<span class="text-accent-bright" aria-hidden="true">.</span>
       </a>
     </Logo>
 
-    <nav aria-label="Categorías" class="hidden md:block">
-      <ul class="flex items-center gap-8">
-        {
-          enlaces.map((enlace) => (
-            <li>
-              <a href={enlace.href} class="t-menu enlace flex min-h-11 items-center">
-                {enlace.nombre}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <div class="flex items-center gap-3 lg:gap-6">
+      <nav aria-label="Principal" class="hidden md:block">
+        <ul class="flex items-center gap-4 lg:gap-8">
+          {
+            enlaces.map((enlace) => (
+              <li>
+                <a
+                  href={enlace.href}
+                  aria-current={enlace.activo ? 'page' : undefined}
+                  class="t-menu enlace flex min-h-11 items-center border-y-2 border-transparent aria-[current=page]:border-b-accent"
+                >
+                  {enlace.nombre}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
 
-    <div class="md:hidden">
-      <MenuMovil enlaces={enlaces} client:media="(max-width: 767px)" />
+      <BotonTema client:load />
+
+      <div class="md:hidden">
+        <MenuMovil enlaces={enlaces} client:media="(max-width: 767px)" />
+      </div>
     </div>
   </div>
 </header>

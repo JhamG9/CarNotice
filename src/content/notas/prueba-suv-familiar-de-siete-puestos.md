@@ -1,10 +1,10 @@
 ---
 titulo: "Prueba: un SUV familiar de siete puestos, fila por fila"
 resumen: "Viajamos con siete personas y equipaje para comprobar cuánto sirve la tercera fila. Sirve, con condiciones."
+autor: "Andrés Rojas"
 fecha: 2026-09-25
 categoria: pruebas
 etiquetas: ["SUV", "Familiares"]
-imagen: ../../assets/marcadores/pruebas.svg
 destacada: false
 ---
 

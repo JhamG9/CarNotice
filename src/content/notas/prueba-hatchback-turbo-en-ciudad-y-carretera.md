@@ -1,10 +1,10 @@
 ---
 titulo: "Prueba: una semana con un hatchback turbo entre ciudad y carretera"
 resumen: "Lo manejamos 900 kilómetros para saber si un motor pequeño con turbo alcanza para viajar cargado. El consumo sorprende; el baúl, no tanto."
+autor: "Andrés Rojas"
 fecha: 2026-10-08
 categoria: pruebas
 etiquetas: ["Hatchback", "Turbo", "Consumo"]
-imagen: ../../assets/marcadores/pruebas.svg
 destacada: false
 ---
 

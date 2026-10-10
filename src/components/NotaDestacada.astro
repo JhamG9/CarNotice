@@ -1,8 +1,8 @@
 ---
-import { Image } from 'astro:assets';
+import ImagenNota from './ImagenNota.astro';
 import EtiquetaCategoria from './EtiquetaCategoria.astro';
+import PieNota from './PieNota.astro';
 import type { Nota } from '../lib/notas';
-import { fechaISO, formatearFecha } from '../lib/fechas';
 import { rutaNota } from '../lib/rutas';
 
 interface Props {
@@ -10,25 +10,19 @@ interface Props {
 }
 
 const { nota } = Astro.props;
-const { titulo, resumen, fecha, categoria, imagen, imagenAlt } = nota.data;
+const { titulo, resumen, autor, fecha, categoria, electrico, imagen, imagenAlt } = nota.data;
 ---
 
-<article class="group relative border-b border-border pb-8">
-  <Image
-    src={imagen}
-    alt={imagenAlt}
-    loading="eager"
-    fetchpriority="high"
-    class="aspect-video w-full bg-border object-cover"
-  />
+<article class="relative border-b border-border pb-6">
+  <ImagenNota imagen={imagen} alt={imagenAlt} prioritaria />
   <div class="mt-4">
-    <EtiquetaCategoria clave={categoria} />
-    <h2 class="t-tarjeta md:t-articulo mt-1">
-      <a href={rutaNota(nota.id)} class="enlace after:absolute after:inset-0">
+    <EtiquetaCategoria clave={categoria} electrico={electrico} />
+    <h2 class="t-tarjeta md:t-articulo mt-3">
+      <a href={rutaNota(nota.id)} class="enlace-titular after:absolute after:inset-0">
         {titulo}
       </a>
     </h2>
     <p class="t-texto mt-3 text-muted">{resumen}</p>
-    <time datetime={fechaISO(fecha)} class="t-meta mt-3 block text-muted">{formatearFecha(fecha)}</time>
+    <PieNota autor={autor} fecha={fecha} href={rutaNota(nota.id)} />
   </div>
 </article>

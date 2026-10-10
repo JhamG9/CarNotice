@@ -1,10 +1,10 @@
 ---
 titulo: "Una pickup mediana renueva motor y cabina sin perder capacidad de carga"
 resumen: "El nuevo diésel de 2,2 litros entrega más torque a menos revoluciones y la cabina adopta un tablero más cercano al de un SUV."
+autor: "Diego Salazar"
 fecha: 2026-10-02
 categoria: lanzamientos
 etiquetas: ["Pickup", "Diésel"]
-imagen: ../../assets/marcadores/lanzamientos.svg
 destacada: false
 ---
 

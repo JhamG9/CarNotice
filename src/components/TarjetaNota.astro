@@ -1,28 +1,30 @@
 ---
-import { Image } from 'astro:assets';
+import ImagenNota from './ImagenNota.astro';
 import EtiquetaCategoria from './EtiquetaCategoria.astro';
+import PieNota from './PieNota.astro';
 import type { Nota } from '../lib/notas';
-import { fechaISO, formatearFecha } from '../lib/fechas';
 import { rutaNota } from '../lib/rutas';
 
 interface Props {
   nota: Nota;
+  /** h3 bajo un título de bloque (portada); h2 cuando cuelga directo del h1 (secciones). */
+  nivel?: 'h2' | 'h3';
 }
 
-const { nota } = Astro.props;
-const { titulo, resumen, fecha, categoria, imagen, imagenAlt } = nota.data;
+const { nota, nivel: Titular = 'h3' } = Astro.props;
+const { titulo, resumen, autor, fecha, categoria, electrico, imagen, imagenAlt } = nota.data;
 ---
 
-<article class="relative grid gap-4 border-b border-border py-8 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-6">
-  <Image src={imagen} alt={imagenAlt} loading="lazy" class="aspect-video w-full bg-border object-cover" />
+<article class="relative grid gap-4 border-b border-border pt-8 pb-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-6">
+  <ImagenNota imagen={imagen} alt={imagenAlt} />
   <div class="min-w-0">
-    <EtiquetaCategoria clave={categoria} />
-    <h3 class="t-tarjeta mt-1">
-      <a href={rutaNota(nota.id)} class="enlace after:absolute after:inset-0">
+    <EtiquetaCategoria clave={categoria} electrico={electrico} />
+    <Titular class="t-tarjeta mt-3">
+      <a href={rutaNota(nota.id)} class="enlace-titular after:absolute after:inset-0">
         {titulo}
       </a>
-    </h3>
+    </Titular>
     <p class="t-texto mt-2 line-clamp-3 text-muted">{resumen}</p>
-    <time datetime={fechaISO(fecha)} class="t-meta mt-3 block text-muted">{formatearFecha(fecha)}</time>
+    <PieNota autor={autor} fecha={fecha} href={rutaNota(nota.id)} />
   </div>
 </article>

@@ -4,17 +4,27 @@ import { rutaCategoria } from '../lib/rutas';
 
 interface Props {
   clave: ClaveCategoria;
+  /** Muestra la etiqueta "Eléctrico", el único uso de --ev. */
+  electrico?: boolean;
 }
 
-const categoria = buscarCategoria(Astro.props.clave);
+const { clave, electrico = false } = Astro.props;
+const categoria = buscarCategoria(clave);
 ---
 
-<a
-  href={rutaCategoria(categoria)}
-  class:list={[
-    't-meta relative z-10 -my-3.5 inline-flex min-h-11 items-center tracking-[0.5px] uppercase hover:underline',
-    categoria.electrica ? 'text-ev' : 'text-accent',
-  ]}
->
-  {categoria.nombre}
-</a>
+<div>
+  <div class="flex items-center gap-3">
+    <a
+      href={rutaCategoria(categoria)}
+      class="t-meta relative z-10 -my-3.5 inline-flex min-h-11 items-center tracking-[0.5px] text-accent uppercase hover:underline"
+    >
+      {categoria.nombre}
+    </a>
+    {
+      (electrico || categoria.electrica) && (
+        <span class="t-meta rounded-full border border-ev px-2 py-0.5 text-ev">Eléctrico</span>
+      )
+    }
+  </div>
+  <span class="mt-1.5 block h-[3px] w-8 bg-accent-bright" aria-hidden="true"></span>
+</div>

@@ -1,0 +1,29 @@
+---
+import { fechaISO, formatearFecha } from '../lib/fechas';
+
+interface Props {
+  autor: string;
+  fecha: Date;
+  href: string;
+}
+
+const { autor, fecha, href } = Astro.props;
+---
+
+<p class="t-meta mt-3 text-muted">
+  Por <span class="font-bold text-heading">{autor}</span>
+  <span aria-hidden="true"> · </span>
+  <time datetime={fechaISO(fecha)}>{formatearFecha(fecha)}</time>
+</p>
+{/* El titular ya enlaza la nota: este enlace es un refuerzo visual y queda fuera del orden de tabulación */}
+<a
+  href={href}
+  aria-hidden="true"
+  tabindex="-1"
+  class="relative z-10 mt-1 inline-flex min-h-11 items-center gap-2 text-[15px] font-bold text-accent hover:underline"
+>
+  Leer nota
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 8h12M9 3l5 5-5 5"></path>
+  </svg>
+</a>

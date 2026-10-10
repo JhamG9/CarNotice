@@ -1,0 +1,127 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import BarraLateral from '../../../components/BarraLateral.astro';
+import Compartir from '../../../components/Compartir.tsx';
+import EtiquetaCategoria from '../../../components/EtiquetaCategoria.astro';
+import Etiquetas from '../../../components/Etiquetas.astro';
+import ImagenNota from '../../../components/ImagenNota.astro';
+import TarjetaRelacionada from '../../../components/TarjetaRelacionada.astro';
+import { buscarCategoria } from '../../../data/categorias';
+import { fechaISO, formatearFecha } from '../../../lib/fechas';
+import { notasRelacionadas, obtenerNotas, tiempoDeLectura, type Nota } from '../../../lib/notas';
+import { rutaNota } from '../../../lib/rutas';
+
+export async function getStaticPaths() {
+  const notas = await obtenerNotas();
+  return notas.map((nota) => ({ params: { slug: nota.id }, props: { nota } }));
+}
+
+interface Props {
+  nota: Nota;
+}
+
+const { nota } = Astro.props;
+const { titulo, resumen, autor, fecha, categoria, etiquetas, electrico, imagen, imagenAlt, imagenPie, imagenCredito } =
+  nota.data;
+const { Content } = await render(nota);
+
+const notas = await obtenerNotas();
+const relacionadas = notasRelacionadas(nota, notas);
+const minutos = tiempoDeLectura(nota);
+const url = new URL(rutaNota(nota.id), Astro.site).href;
+const imagenSocial = imagen
+  ? new URL((await getImage({ src: imagen, width: 1200, height: 630, format: 'jpeg' })).src, Astro.site).href
+  : undefined;
+
+const datosEstructurados = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: titulo,
+  description: resumen,
+  datePublished: fecha.toISOString(),
+  dateModified: fecha.toISOString(),
+  inLanguage: 'es',
+  articleSection: buscarCategoria(categoria).nombre,
+  keywords: etiquetas.join(', '),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  author: { '@type': 'Person', name: autor },
+  publisher: { '@type': 'Organization', name: 'Garash', url: new URL('/', Astro.site).href },
+  ...(imagenSocial && { image: [imagenSocial] }),
+};
+// "<" escapado para que el texto de una nota no pueda cerrar la etiqueta <script>
+const jsonLd = JSON.stringify(datosEstructurados).replace(/</g, '\\u003c');
+---
+
+<Base titulo={`${titulo} | Garash`} descripcion={resumen} seccionActiva={categoria} tipo="article" imagenSocial={imagenSocial}>
+  <Fragment slot="head">
+    <meta property="article:published_time" content={fecha.toISOString()} />
+    <meta property="article:author" content={autor} />
+    <meta property="article:section" content={buscarCategoria(categoria).nombre} />
+    {etiquetas.map((etiqueta) => <meta property="article:tag" content={etiqueta} />)}
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+
+  <div
+    class="mx-auto grid max-w-pagina gap-12 px-4 pt-6 md:px-6 md:pt-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14"
+  >
+    <div class="min-w-0">
+      <article class="max-w-articulo">
+        <header>
+          <EtiquetaCategoria clave={categoria} electrico={electrico} />
+          <h1 class="mt-4 font-titular text-[30px] leading-[38px] font-semibold md:t-articulo">{titulo}</h1>
+          <p class="t-texto mt-4 text-muted">{resumen}</p>
+          <p class="mt-4 text-[14px] leading-5 text-muted">
+            Por <span class="font-bold text-heading">{autor}</span>
+            <span aria-hidden="true"> · </span>
+            <time datetime={fechaISO(fecha)}>{formatearFecha(fecha)}</time>
+            <span aria-hidden="true"> · </span>
+            {minutos} min de lectura
+          </p>
+        </header>
+
+        <figure class="mt-6">
+          <ImagenNota imagen={imagen} alt={imagenAlt} prioritaria />
+          {
+            (imagenPie || imagenCredito) && (
+              <figcaption class="mt-2 text-[14px] leading-5 text-muted">
+                {imagenPie}
+                {imagenCredito && <span class="whitespace-nowrap"> Foto: {imagenCredito}.</span>}
+              </figcaption>
+            )
+          }
+        </figure>
+
+        <div class="cuerpo-nota mt-8">
+          <Content />
+        </div>
+
+        <footer class="mt-12 grid gap-8 border-t border-border pt-8">
+          <section aria-labelledby="titulo-etiquetas-nota">
+            <h2 id="titulo-etiquetas-nota" class="t-lateral barra-corta">Etiquetas</h2>
+            <div class="mt-4">
+              <Etiquetas etiquetas={etiquetas} />
+            </div>
+          </section>
+
+          <section aria-labelledby="titulo-compartir">
+            <h2 id="titulo-compartir" class="t-lateral barra-corta">Compartir</h2>
+            <div class="mt-4">
+              <Compartir titulo={titulo} url={url} client:visible />
+            </div>
+          </section>
+        </footer>
+      </article>
+
+      <section aria-labelledby="titulo-relacionadas" class="mt-14 max-w-articulo border-t border-border pt-10">
+        <h2 id="titulo-relacionadas" class="t-seccion">Notas relacionadas</h2>
+        <div class="mt-6 grid gap-8 md:grid-cols-3 md:gap-6">
+          {relacionadas.map((relacionada) => <TarjetaRelacionada nota={relacionada} />)}
+        </div>
+      </section>
+    </div>
+
+    <BarraLateral notas={notas} />
+  </div>
+</Base>

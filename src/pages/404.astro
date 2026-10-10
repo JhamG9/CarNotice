@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import TarjetaRelacionada from '../components/TarjetaRelacionada.astro';
+import { categorias } from '../data/categorias';
+import { obtenerNotas } from '../lib/notas';
+import { rutaCategoria, rutaInicio } from '../lib/rutas';
+
+const recientes = (await obtenerNotas()).slice(0, 3);
+---
+
+<Base
+  titulo="Página no encontrada | Garash"
+  descripcion="La página que buscas no existe o cambió de dirección."
+  sinIndexar
+>
+  <div class="mx-auto max-w-pagina px-4 py-12 md:px-6 md:py-20">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14">
+      <div class="max-w-articulo">
+        <p class="font-titular text-[88px] leading-none font-bold text-accent-bright md:text-[128px]" aria-hidden="true">
+          404
+        </p>
+        <h1 class="t-seccion barra-corta mt-4">Página no encontrada</h1>
+        <p class="t-texto mt-6 text-muted">
+          La página que buscas no existe o cambió de dirección. Revisa que la dirección esté bien escrita, vuelve a la
+          portada o entra a una de las secciones.
+        </p>
+        <a
+          href={rutaInicio()}
+          class="mt-8 inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
+        >
+          Ir a la página principal
+        </a>
+      </div>
+
+      <nav aria-labelledby="titulo-secciones-404" class="content-start">
+        <h2 id="titulo-secciones-404" class="t-lateral barra-corta">Secciones</h2>
+        <ul class="mt-2">
+          {
+            categorias.map((categoria) => (
+              <li class="border-b border-border">
+                <a href={rutaCategoria(categoria)} class="t-item enlace flex min-h-12 items-center">
+                  {categoria.nombre}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    {
+      recientes.length > 0 && (
+        <section aria-labelledby="titulo-recientes-404" class="mt-14 border-t border-border pt-10">
+          <h2 id="titulo-recientes-404" class="t-seccion">Lo más reciente</h2>
+          <div class="mt-6 grid gap-8 md:grid-cols-3 md:gap-6">
+            {recientes.map((nota) => <TarjetaRelacionada nota={nota} />)}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>

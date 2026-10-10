@@ -1,0 +1,42 @@
+---
+import { categorias } from '../data/categorias';
+import { rutaCategoria, rutaInicio } from '../lib/rutas';
+
+const anio = new Date().getFullYear();
+---
+
+<footer class="mt-16 border-t border-border bg-surface">
+  <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr] md:px-6">
+    <div>
+      <p class="font-titular text-[24px] leading-none font-bold">
+        <a href={rutaInicio()} class="inline-flex min-h-11 items-center">
+          Garash<span class="text-accent-bright" aria-hidden="true">.</span>
+        </a>
+      </p>
+      <p class="mt-2 max-w-[46ch] text-muted">
+        Revista de carros: noticias, lanzamientos, eléctricos y pruebas para quienes disfrutan manejar.
+      </p>
+    </div>
+
+    <nav aria-label="Categorías en el pie">
+      <h2 class="t-menu text-muted">Categorías</h2>
+      <ul class="mt-2">
+        {
+          categorias.map((categoria) => (
+            <li>
+              <a href={rutaCategoria(categoria)} class="enlace flex min-h-11 items-center">
+                {categoria.nombre}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="border-t border-border">
+    <p class="t-meta mx-auto max-w-pagina px-4 py-4 text-muted md:px-6">
+      © {anio} Garash. Todos los derechos reservados.
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,76 @@
+---
+import { categorias } from '../data/categorias';
+import type { Nota } from '../lib/notas';
+import { fechaISO, formatearFecha } from '../lib/fechas';
+import { rutaCategoria, rutaEtiqueta, rutaNota } from '../lib/rutas';
+
+interface Props {
+  notas: Nota[];
+}
+
+const { notas } = Astro.props;
+const recientes = notas.slice(0, 5);
+const conteo = (clave: string) => notas.filter((nota) => nota.data.categoria === clave).length;
+const etiquetas = [...new Set(notas.flatMap((nota) => nota.data.etiquetas))].sort((a, b) =>
+  a.localeCompare(b, 'es'),
+);
+---
+
+<aside aria-label="Barra lateral" class="grid content-start gap-10 md:grid-cols-2 lg:grid-cols-1">
+  <section aria-labelledby="titulo-recientes" class="md:col-span-2 lg:col-span-1">
+    <h2 id="titulo-recientes" class="t-lateral border-b-2 border-ink pb-3">Lo más reciente</h2>
+    <ol>
+      {
+        recientes.map((nota) => (
+          <li class="border-b border-border">
+            <a href={rutaNota(nota.id)} class="t-item enlace block pt-4 pb-1">
+              {nota.data.titulo}
+            </a>
+            <time datetime={fechaISO(nota.data.fecha)} class="t-meta block pb-4 text-muted">
+              {formatearFecha(nota.data.fecha)}
+            </time>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section aria-labelledby="titulo-categorias">
+    <h2 id="titulo-categorias" class="t-lateral border-b-2 border-ink pb-3">Categorías</h2>
+    <ul>
+      {
+        categorias.map((categoria) => (
+          <li class="border-b border-border">
+            <a
+              href={rutaCategoria(categoria)}
+              class="t-item enlace flex min-h-12 items-center justify-between gap-4"
+            >
+              {categoria.nombre}
+              <span class="t-meta text-muted" aria-label={`${conteo(categoria.clave)} notas`}>
+                {conteo(categoria.clave)}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="titulo-etiquetas">
+    <h2 id="titulo-etiquetas" class="t-lateral border-b-2 border-ink pb-3">Etiquetas</h2>
+    <ul class="mt-4 flex flex-wrap gap-2">
+      {
+        etiquetas.map((etiqueta) => (
+          <li>
+            <a
+              href={rutaEtiqueta(etiqueta)}
+              class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-[15px] transition-colors duration-150 hover:border-accent hover:text-accent"
+            >
+              {etiqueta}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</aside>

@@ -1,0 +1,45 @@
+---
+import MenuMovil from './MenuMovil.tsx';
+import { categorias } from '../data/categorias';
+import { rutaCategoria, rutaInicio } from '../lib/rutas';
+
+interface Props {
+  /** En la portada el logo es el único h1 de la página. */
+  logoComoTitulo?: boolean;
+}
+
+const { logoComoTitulo = false } = Astro.props;
+const Logo = logoComoTitulo ? 'h1' : 'p';
+const enlaces = categorias.map((categoria) => ({
+  nombre: categoria.nombre,
+  href: rutaCategoria(categoria),
+}));
+---
+
+<header class="relative border-b border-border bg-surface">
+  <div class="mx-auto flex max-w-pagina items-center justify-between gap-6 px-4 py-3 md:px-6 md:py-4">
+    <Logo class="font-titular text-[28px] leading-none font-bold">
+      <a href={rutaInicio()} class="flex min-h-11 items-center" aria-label="Garash, inicio">
+        Garash<span class="text-accent-bright" aria-hidden="true">.</span>
+      </a>
+    </Logo>
+
+    <nav aria-label="Categorías" class="hidden md:block">
+      <ul class="flex items-center gap-8">
+        {
+          enlaces.map((enlace) => (
+            <li>
+              <a href={enlace.href} class="t-menu enlace flex min-h-11 items-center">
+                {enlace.nombre}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="md:hidden">
+      <MenuMovil enlaces={enlaces} client:media="(max-width: 767px)" />
+    </div>
+  </div>
+</header>

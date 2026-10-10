@@ -1,0 +1,20 @@
+---
+import { buscarCategoria, type ClaveCategoria } from '../data/categorias';
+import { rutaCategoria } from '../lib/rutas';
+
+interface Props {
+  clave: ClaveCategoria;
+}
+
+const categoria = buscarCategoria(Astro.props.clave);
+---
+
+<a
+  href={rutaCategoria(categoria)}
+  class:list={[
+    't-meta relative z-10 -my-3.5 inline-flex min-h-11 items-center tracking-[0.5px] uppercase hover:underline',
+    categoria.electrica ? 'text-ev' : 'text-accent',
+  ]}
+>
+  {categoria.nombre}
+</a>

@@ -27,7 +27,7 @@ Eso se traduce en ventajas concretas para el uso diario:
 - Un centro de gravedad más bajo, que reduce el balanceo en curvas.
 - Radio de giro de 10,4 metros, cómodo para maniobrar en parqueaderos.
 
-![Vista lateral del SUV eléctrico, en una imagen de ejemplo](../../assets/notas/ejemplo-marcador.svg)
+![Vista lateral del SUV eléctrico, en una imagen de ejemplo](../../assets/images/ejemplo-marcador.svg)
 *Imagen de ejemplo: la silueta conserva proporciones de SUV pese al piso plano. Foto: sala de prensa del fabricante.*
 
 ## Cuánto rinde en la práctica

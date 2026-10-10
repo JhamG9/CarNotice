@@ -15,7 +15,7 @@ const notas = defineCollection({
       etiquetas: z.array(z.string().min(1)).min(1).max(5),
       // Marca la nota con la etiqueta "Eléctrico" aunque esté en otra categoría (p. ej. un híbrido en Lanzamientos).
       electrico: z.boolean().default(false),
-      // Foto en src/assets/notas/, en 16:9. Sin imagen, la plantilla pinta un marcador de posición.
+      // Foto en src/assets/images/, en 16:9. Sin imagen, la plantilla pinta un marcador de posición.
       imagen: image().optional(),
       imagenAlt: z.string().default(''),
       // Pie de foto y crédito de la imagen principal (p. ej. "Foto: sala de prensa de la marca").

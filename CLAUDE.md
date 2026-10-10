@@ -31,6 +31,28 @@ Sitio web tipo revista de carros: últimas noticias, lanzamientos, eléctricos y
 - La skill `ui-ux-pro-max` (en `.claude/skills/`) se usa para UX, accesibilidad y pautas de Astro. Su paleta, sus fuentes y su patrón de página no se usan: si contradice este archivo, gana este archivo. No usar su `--persist`.
 - El detalle de diseño de cada plantilla está en `design-system/MASTER.md`.
 
+## Imágenes de las notas
+
+Quien publica suele pasar las imágenes por el chat, junto con el texto de la nota. Todas se guardan en `src/assets/images/`.
+
+Al recibir una imagen:
+
+1. Guardarla en `src/assets/images/` con el slug de la nota como nombre y en formato WebP (`suv-electrico-compacto.webp`). Si la nota lleva varias, añadir un sufijo: `-2`, `-interior`.
+2. Convertirla a WebP y reducirla antes de guardarla: unos 2.000 px de ancho y menos de 300 KB por imagen. Si no baja de 300 KB, bajar la calidad o el ancho (mínimo 1.600 px) hasta que cumpla. No guardar el original (JPG o PNG) en el proyecto.
+
+   Se convierte con `sharp`, que ya viene con Astro:
+
+   ```bash
+   node -e "require('sharp')(process.argv[1]).rotate().resize({width:2000,withoutEnlargement:true}).webp({quality:80}).toFile(process.argv[2])" entrada.jpg src/assets/images/slug-de-la-nota.webp
+   ``` Las de sala de prensa suelen pesar entre 5 y 20 MB, y git las guarda para siempre.
+3. Enlazarla en el Markdown de la nota con `imagen` e `imagenAlt` (obligatorio), y con `imagenPie` e `imagenCredito` si se conocen. Las imágenes intermedias van en el cuerpo, con su pie en cursiva en la línea siguiente.
+4. Preguntar de dónde viene la foto si no lo dicen: el crédito no se inventa.
+5. Compilar con `npm run build` para comprobar que la nota pasa el esquema.
+
+Si la imagen llega pegada en el chat y no hay un archivo en disco para copiar, pedir la ruta del archivo o que la dejen en `src/assets/images/`.
+
+No guardar imágenes en `public/` ni enlazar directo a la web del fabricante: desde `src/assets/` Astro las optimiza, y los enlaces externos se rompen.
+
 ## Entorno de desarrollo
 
 - El puerto 4321 lo ocupa otro proyecto. Garash corre en el 4330, en segundo plano:
@@ -161,4 +183,4 @@ Marcadores de imagen (notas sin foto): fondo `--tint`, borde `--border` e icono 
 - Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable.
 - Probar cada plantilla a 375, 768, 1024 y 1440 px.
 - Fotos con proporción fija por tipo de tarjeta, para que la lista no salte al cargar.
-- Fotos de vehículos: salas de prensa oficiales de los fabricantes, no fotos de stock. Se guardan en `src/assets/notas/` y se enlazan con los campos `imagen` e `imagenAlt` de la nota.
+- Fotos de vehículos: salas de prensa oficiales de los fabricantes, no fotos de stock. Se guardan en `src/assets/images/` y se enlazan con los campos `imagen` e `imagenAlt` de la nota.

@@ -80,7 +80,7 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 - Tarjeta de nota: foto arriba en móvil; foto a la izquierda (2/5) y texto a la derecha (3/5) desde 768 px.
 - Fotos siempre en 16:9 (`aspect-video`), con `<Image />` de Astro, a través de `ImagenNota.astro`.
 - Nota sin foto: `ImagenNota.astro` pinta un marcador 16:9 con fondo `--tint`, borde `--border` e icono en `--muted`.
-- Fotos reales: van en `src/assets/notas/` (ver su `LEEME.md`) y se enlazan con `imagen` e `imagenAlt`. `imagen` es opcional; si está, `imagenAlt` es obligatorio.
+- Fotos reales: van en `src/assets/images/` (ver su `LEEME.md`) y se enlazan con `imagen` e `imagenAlt`. `imagen` es opcional; si está, `imagenAlt` es obligatorio.
 
 ## Reglas de componentes
 

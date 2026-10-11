@@ -66,28 +66,48 @@ Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown
 - Toda tabla lleva seguridad por fila (RLS) activada. El sitio solo puede leer; escribir queda para quien administra.
 - Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación.
 
-### Insertar un carro en la tabla `cars`
+### Tabla `vehicles`
 
-Quien administra suele pedir por el chat que se inserte un carro. Para hacerlo se necesitan estos cuatro datos:
+Guarda las fichas técnicas del comparador: una fila por versión, año modelo y mercado. La estructura completa está en `supabase/migrations/`. Nombres de columna y valores guardados van en inglés; la traducción la pone la interfaz.
 
-| Dato que se pide | Columna | Unidad | Ejemplo |
-|---|---|---|---|
-| Nombre: marca, modelo y versión | `name` | Texto | Deepal S05 620 Premium LiDAR |
-| Peso | `weight_kg` | Kilogramos | 1880 |
-| Torque | `torque_nm` | Newton metro | 290 |
-| Autonomía | `range_km` | Kilómetros | 620 |
+- No tiene precio: por ahora no se guardan precios.
+- La autonomía tiene una columna por ciclo (`range_wltp_km`, `range_cltc_km`, `range_epa_km`, `range_nedc_km`). Solo se comparan cifras del mismo ciclo.
+- La potencia se guarda en kW (`power_kw`); `power_hp` se calcula sola y no se escribe.
+- `updated_at` se actualiza sola con cada cambio.
+- En los equipamientos (sí o no), vacío significa "no se sabe" y `false` significa "no lo tiene".
+- El sitio solo lee las filas con `published = true`.
+
+### Insertar un vehículo en `vehicles`
+
+Quien administra suele pedir por el chat que se inserte un carro. Estos datos son obligatorios:
+
+| Dato que se pide | Columna | Valores |
+|---|---|---|
+| Marca | `brand` | Texto, siempre escrita igual ("BYD", no "Byd") |
+| Modelo | `model` | Texto |
+| Versión | `version` | Texto |
+| Año modelo | `model_year` | Número |
+| Mercado de la ficha | `market` | Código de país de dos letras: `CN`, `CO`, `DE`. `EU` para una ficha europea |
+| Tamaño | `segment` | `mini`, `small`, `compact`, `midsize`, `large`, `luxury` |
+| Carrocería | `body_style` | `hatchback`, `sedan`, `suv`, `coupe_suv`, `wagon`, `coupe`, `convertible`, `pickup`, `minivan`, `van` |
+| Motorización | `powertrain` | `electric`, `range_extender`, `plug_in_hybrid`, `hybrid`, `mild_hybrid`, `gasoline`, `diesel` |
+
+El `slug` también es obligatorio, pero no se pide: se arma con marca, modelo, versión, año y mercado (`deepal-s05-620-premium-lidar-2027-cn`).
 
 Reglas:
 
-- Si falta alguno de los cuatro, pedirlo antes de insertar. No insertar filas incompletas.
-- No inventar ni estimar datos. Si quien pide no conoce un valor, preguntar si se deja pendiente el carro o se busca la fuente.
-- Convertir a las unidades de la tabla si llegan en otras (libras, lb-ft, millas) y decir qué conversión se hizo.
-- En la autonomía, preguntar bajo qué ciclo se midió (CLTC, WLTP o EPA) si no lo dicen, y anotarlo en la respuesta: la tabla aún no tiene columna para eso.
-- Antes de insertar, buscar si ya existe un carro con el mismo nombre. Si existe, preguntar si se actualiza en vez de crear otro.
+- Si falta alguno de los obligatorios, pedirlo antes de insertar.
+- Los demás datos son opcionales: se llenan los que se conozcan y el resto queda vacío. No inventar ni estimar ninguno.
+- Preguntar siempre de qué mercado es la ficha: la misma versión cambia de batería y equipamiento según el país.
+- Preguntar bajo qué ciclo se midió cada autonomía y guardarla en su columna. No pasar una cifra de un ciclo a otro.
+- Convertir a las unidades de la tabla si llegan en otras (hp o CV a kW, libras a kilos, lb-ft a Nm, millas a kilómetros) y decir qué conversión se hizo.
+- Guardar en `source_url` de dónde salió la ficha.
+- Antes de insertar, buscar si ya existe la misma marca, modelo, versión, año y mercado. Si existe, preguntar si se actualiza.
+- Insertar con `published = false`. Se publica solo cuando quien administra lo pida.
 - Mostrar la fila que se va a insertar y esperar confirmación.
-- Después de insertar, leer la fila y confirmar el resultado con su `id`.
+- Después de insertar, leer la fila y confirmar el resultado con su `slug`.
 
-Cuando la tabla gane columnas, actualizar esta lista en el mismo cambio.
+Cuando la tabla cambie de columnas o de valores permitidos, actualizar esta sección en el mismo cambio.
 
 ## Entorno de desarrollo
 

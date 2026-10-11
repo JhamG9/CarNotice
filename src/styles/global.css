@@ -9,9 +9,9 @@
   --heading: #14284b;
   --muted: #5a616b;
   --border: #e3e1da;
-  --accent: #c23508;
-  --accent-bright: #e8430a;
-  --ev: #0b7a5b;
+  --accent: #1b6b43;
+  --accent-bright: #23955c;
+  --ev: #1d5fb8;
   --on-accent: #ffffff;
   --tint: #e4e9f1;
   /* Series de los gráficos: carro 1 y carro 2 del comparador */
@@ -28,9 +28,9 @@
   --heading: #eceae4;
   --muted: #9ba1aa;
   --border: #2a2e35;
-  --accent: #ff6a33;
-  --accent-bright: #ff6a33;
-  --ev: #35c69a;
+  --accent: #4cc38a;
+  --accent-bright: #4cc38a;
+  --ev: #5ea2f2;
   --on-accent: #0f1114;
   --tint: #1f242c;
   --chart-a: #e8632f;

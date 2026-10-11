@@ -26,9 +26,9 @@ Variables CSS en `:root`. El tema claro es el predeterminado siempre; el oscuro 
 | `--heading` | `#14284B` | `#ECEAE4` | Titulares, logo y nombre del autor |
 | `--muted` | `#5A616B` | `#9BA1AA` | Resúmenes, fechas, metadatos |
 | `--border` | `#E3E1DA` | `#2A2E35` | Líneas y bordes |
-| `--accent` | `#C23508` | `#FF6A33` | Categoría, enlaces, botón principal |
-| `--accent-bright` | `#E8430A` | `#FF6A33` | Solo decoración y texto grande |
-| `--ev` | `#0B7A5B` | `#35C69A` | Solo la etiqueta "Eléctrico" |
+| `--accent` | `#1B6B43` | `#4CC38A` | Categoría, enlaces, botón principal |
+| `--accent-bright` | `#23955C` | `#4CC38A` | Solo decoración y texto grande |
+| `--ev` | `#1D5FB8` | `#5EA2F2` | Solo la etiqueta "Eléctrico" |
 | `--tint` | `#E4E9F1` | `#1F242C` | Fondo de los marcadores de imagen |
 | `--on-accent` | `#FFFFFF` | `#0F1114` | Texto sobre `--accent` |
 
@@ -40,11 +40,11 @@ Contraste medido (mínimo AA 4.5:1):
 |---|---|---|
 | `--ink` sobre `--bg` | 16.61 | 15.72 |
 | `--muted` sobre `--bg` | 5.78 | 7.27 |
-| `--accent` sobre `--bg` | 5.10 | 6.63 |
-| `--ev` sobre `--bg` | 4.92 | 8.73 |
-| `--on-accent` sobre `--accent` | 5.52 | 6.63 |
+| `--accent` sobre `--bg` | 6.01 | 8.54 |
+| `--ev` sobre `--bg` | 5.74 | 7.14 |
+| `--on-accent` sobre `--accent` | 6.50 | 8.54 |
 
-`--accent-bright` sobre `--surface` da 4.01 en claro: por eso no se usa en texto pequeño.
+`--accent-bright` sobre `--surface` da 3.80 en claro: por eso no se usa en texto pequeño.
 
 ## Cambio de tema
 
@@ -74,8 +74,8 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 
 - Contenedor de página: 1240 px (`max-w-pagina`). Columna de artículo: 710 px (`max-w-articulo`).
 - Márgenes laterales: 16 px en móvil, 24 px desde 768 px.
-- Portada: lista a la izquierda y barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final.
-- Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Antes era desde 768 px; cambió al añadir "Comparador", porque seis ítems ya no caben en ese ancho.
+- Portada: primero el comparador a todo el ancho de la página. Debajo, separado por una línea, "Blog y noticias": lista a la izquierda y barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final.
+- Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Tiene tres ítems: Inicio, Comparador y Blog y noticias. Las categorías salieron del menú y viven en "Blog y noticias".
 - Islas de React: `MenuMovil.tsx`, `BotonTema.tsx`, `Compartir.tsx` y `Comparador.tsx` (que usa `GraficoRadar.tsx`).
 - Tarjeta de nota: foto arriba en móvil; foto a la izquierda (2/5) y texto a la derecha (3/5) desde 768 px.
 - Fotos siempre en 16:9 (`aspect-video`), con `<Image />` de Astro, a través de `ImagenNota.astro`.
@@ -85,11 +85,11 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 ## Reglas de componentes
 
 - Un solo `h1` por página. En la portada es el logo; en las demás, el titular.
-- Jerarquía en la portada: nota destacada y títulos de bloque en `h2`, tarjetas en `h3`.
+- Jerarquía en la portada: "Comparador de carros" y "Blog y noticias" en `h2`; nota destacada y tarjetas en `h3` (prop `nivel` de `NotaDestacada.astro`).
 - Todos los titulares van en `--heading`. Sus enlaces usan `enlace-titular`: sin subrayado; al pasar el cursor cambian a `--accent`.
 - Barra corta de 32 × 3 px en `--accent-bright`: bajo la categoría de cada nota y bajo los títulos de la barra lateral (utilidad `barra-corta`).
 - Pie de tarjeta (`PieNota.astro`): "Por" y autor en `--heading`, fecha en `--muted`, y enlace "Leer nota" con flecha en `--accent`. Ese enlace repite el del titular, así que va con `aria-hidden` y fuera del orden de tabulación.
-- Menú: el ítem de la sección activa lleva `aria-current="page"` y una línea inferior de 2 px en `--accent`. Se deduce de la URL o de la prop `seccionActiva` de `Base.astro`. El menú incluye "Inicio".
+- Menú: el ítem de la sección activa (en categorías y artículos, "Blog y noticias") lleva `aria-current="page"` y una línea inferior de 2 px en `--accent`. Se deduce de la URL o de la prop `seccionActiva` de `Base.astro`. El menú incluye "Inicio".
 - `enlace` (cambio a `--accent` al pasar el cursor) queda para menú, categorías y enlaces que no son titulares.
 - La categoría se pinta siempre con `--accent`. La etiqueta "Eléctrico" (en `--ev`) aparece junto a ella si la categoría es eléctrica o si la nota lleva `electrico: true`.
 - Toda la tarjeta es clicable por el enlace del titular; la categoría es un enlace aparte.
@@ -122,7 +122,7 @@ Plantilla: `src/pages/es/notas/[slug].astro`. Genera una página por cada nota d
 
 - Compartir (`Compartir.tsx`, isla): WhatsApp, X, Facebook y "Copiar enlace", como botones de texto con borde.
 - Notas relacionadas: `notasRelacionadas()` en `src/lib/notas.ts`. Primero las de la misma categoría; si son menos de 3, completa con las más recientes. Tres columnas desde 768 px.
-- Menú: marca la categoría de la nota con `seccionActiva`.
+- Menú: con `seccionActiva`, marca "Blog y noticias" como activo.
 - SEO: `Base.astro` pone título, descripción, canónica, Open Graph y `twitter:card`. La nota añade `article:*` y el JSON-LD `NewsArticle` por el slot `head`. `og:image` solo sale si la nota tiene foto.
 - El dominio se define en `astro.config.mjs` (`SITIO`). Hoy es un marcador (`https://www.example.com`) y hay que cambiarlo por el real.
 
@@ -166,3 +166,4 @@ Todo bajo prefijo de idioma. Por ahora solo existe `/es/`, y `/` redirige ahí.
 | 404 | `/404.html` | Construida |
 
 El slug de la nota es el nombre de su archivo Markdown.
+- Blog y noticias: `src/pages/es/blog/[...page].astro`, con la plantilla `Seccion.astro`. La fila de categorías es `src/components/FiltroCategorias.astro`: botones redondos con borde `--border`; el activo va relleno en `--accent` con texto `--on-accent` y `aria-current="page"`. Se muestra en el blog y en las páginas de categoría (prop `filtro` de `Seccion.astro`), no en las de etiqueta.

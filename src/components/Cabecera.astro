@@ -1,8 +1,8 @@
 ---
 import BotonTema from './BotonTema.tsx';
 import MenuMovil from './MenuMovil.tsx';
-import { categorias, type ClaveCategoria } from '../data/categorias';
-import { rutaCategoria, rutaComparador, rutaInicio } from '../lib/rutas';
+import type { ClaveCategoria } from '../data/categorias';
+import { rutaBlog, rutaComparador, rutaInicio } from '../lib/rutas';
 
 interface Props {
   /** En la portada el logo es el único h1 de la página. */
@@ -16,12 +16,13 @@ const Logo = logoComoTitulo ? 'h1' : 'p';
 const ruta = Astro.url.pathname;
 const enlaces = [
   { nombre: 'Inicio', href: rutaInicio(), activo: ruta === rutaInicio() },
-  ...categorias.map((categoria) => ({
-    nombre: categoria.nombre,
-    href: rutaCategoria(categoria),
-    activo: seccionActiva === categoria.clave || ruta.startsWith(rutaCategoria(categoria)),
-  })),
   { nombre: 'Comparador', href: rutaComparador(), activo: ruta.startsWith(rutaComparador()) },
+  // Las categorías viven dentro de "Blog y noticias": sus páginas y los artículos marcan ese ítem.
+  {
+    nombre: 'Blog y noticias',
+    href: rutaBlog(),
+    activo: Boolean(seccionActiva) || ruta.startsWith(rutaBlog()),
+  },
 ];
 ---
 

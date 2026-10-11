@@ -32,4 +32,5 @@ const { categoria, page } = Astro.props;
   totalPaginas={page.lastPage}
   rutaPagina={(pagina) => rutaCategoria(categoria, pagina)}
   seccionActiva={categoria.clave}
+  filtro={categoria.clave}
 />

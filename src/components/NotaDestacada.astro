@@ -7,9 +7,11 @@ import { rutaNota } from '../lib/rutas';
 
 interface Props {
   nota: Nota;
+  /** Nivel del titular; en la portada va bajo el h2 "Blog y noticias". */
+  nivel?: 'h2' | 'h3';
 }
 
-const { nota } = Astro.props;
+const { nota, nivel: Titular = 'h2' } = Astro.props;
 const { titulo, resumen, autor, fecha, categoria, electrico, imagen, imagenAlt } = nota.data;
 ---
 
@@ -17,11 +19,11 @@ const { titulo, resumen, autor, fecha, categoria, electrico, imagen, imagenAlt }
   <ImagenNota imagen={imagen} alt={imagenAlt} prioritaria />
   <div class="mt-4">
     <EtiquetaCategoria clave={categoria} electrico={electrico} />
-    <h2 class="t-tarjeta md:t-articulo mt-3">
+    <Titular class="t-tarjeta md:t-articulo mt-3">
       <a href={rutaNota(nota.id)} class="enlace-titular after:absolute after:inset-0">
         {titulo}
       </a>
-    </h2>
+    </Titular>
     <p class="t-texto mt-3 text-muted">{resumen}</p>
     <PieNota autor={autor} fecha={fecha} href={rutaNota(nota.id)} />
   </div>

@@ -1,0 +1,41 @@
+---
+import { categorias, type ClaveCategoria } from '../data/categorias';
+import type { Nota } from '../lib/notas';
+import { rutaBlog, rutaCategoria } from '../lib/rutas';
+
+interface Props {
+  notas: Nota[];
+  /** Categoría marcada; 'todas' en la portada del blog. */
+  activa: ClaveCategoria | 'todas';
+}
+
+const { notas, activa } = Astro.props;
+const opciones = [
+  { nombre: 'Todas', href: rutaBlog(), total: notas.length, activa: activa === 'todas' },
+  ...categorias.map((categoria) => ({
+    nombre: categoria.nombre,
+    href: rutaCategoria(categoria),
+    total: notas.filter((nota) => nota.data.categoria === categoria.clave).length,
+    activa: activa === categoria.clave,
+  })),
+];
+---
+
+<nav aria-label="Categorías del blog" class="mt-6">
+  <ul class="flex flex-wrap gap-2">
+    {
+      opciones.map((opcion) => (
+        <li>
+          <a
+            href={opcion.href}
+            aria-current={opcion.activa ? 'page' : undefined}
+            class="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-4 text-[15px] font-bold text-ink transition-colors duration-150 hover:border-accent hover:text-accent aria-[current=page]:border-accent aria-[current=page]:bg-accent aria-[current=page]:text-on-accent"
+          >
+            {opcion.nombre}
+            <span class="text-[13px] font-normal opacity-80">{opcion.total}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

@@ -140,7 +140,7 @@ npx astro dev --background --port 4330
 
 Referencia: elcarrocolombiano.com. Se copia la estructura, no el aspecto.
 
-- Portada: las notas aparecen de inmediato, sin banner ni publicidad antes del contenido.
+- Portada: el comparador es lo principal del sitio y va primero, a todo el ancho (la misma isla de `/es/comparador/`). Debajo, "Blog y noticias": nota destacada, las 6 siguientes y enlace "Ver todas las notas", con la barra lateral a la derecha. Sin banner ni publicidad antes del contenido.
 - Lista de notas a la izquierda y barra lateral a la derecha.
 - Tarjeta de nota: foto, categoría, titular, resumen de 2 o 3 líneas, autor (en `--heading`), fecha y enlace "Leer nota" con flecha (en `--accent`).
 - Barra lateral: "Lo más reciente", categorías y etiquetas.
@@ -156,7 +156,8 @@ Referencia: elcarrocolombiano.com. Se copia la estructura, no el aspecto.
   - Estado vacío cuando no hay notas.
 - Página 404 con enlaces a la portada y a las secciones.
 - Todas las rutas van bajo el prefijo de idioma y terminan en `/`. Por ahora solo existe `/es/`.
-- Las categorías van también en el menú superior.
+- Blog y noticias (`/es/blog/`): listado de todas las notas, con la plantilla de sección y paginado igual. Bajo el encabezado lleva una fila de botones con las categorías ("Todas" más las cuatro, con su número de notas), que también aparece en cada página de categoría con la suya marcada.
+- Las categorías no van en el menú superior: se llega a ellas desde "Blog y noticias" y desde la barra lateral.
 
 ## Tipografía
 
@@ -193,7 +194,7 @@ Excepciones a la tabla:
 
 ## Color
 
-Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema oscuro se activa solo con `data-theme="dark"` en `<html>`. Un solo color de acento (naranja quemado) y un verde reservado para señalar contenido eléctrico. Las fotos ponen el resto del color.
+Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema oscuro se activa solo con `data-theme="dark"` en `<html>`. Un solo color de acento (verde profundo) y un azul reservado para señalar contenido eléctrico. Las fotos ponen el resto del color.
 
 ```css
 :root {
@@ -203,9 +204,9 @@ Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema
   --heading: #14284B;       /* titulares, logo y nombre del autor (azul profundo) */
   --muted: #5A616B;         /* resúmenes, fechas, metadatos */
   --border: #E3E1DA;        /* líneas y bordes */
-  --accent: #C23508;        /* enlaces, categorías, botones (texto blanco encima) */
-  --accent-bright: #E8430A; /* solo decoración y texto grande, no texto pequeño */
-  --ev: #0B7A5B;            /* etiqueta "Eléctrico" y datos de eléctricos */
+  --accent: #1B6B43;        /* enlaces, categorías, botones (texto blanco encima) */
+  --accent-bright: #23955C; /* solo decoración y texto grande, no texto pequeño */
+  --ev: #1D5FB8;            /* etiqueta "Eléctrico" y datos de eléctricos */
   --tint: #E4E9F1;          /* fondo de los marcadores de imagen */
   --on-accent: #FFFFFF;     /* texto sobre --accent */
   --chart-a: #C23508;       /* gráficos: carro 1 del comparador */
@@ -219,9 +220,9 @@ Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema
   --heading: #ECEAE4;       /* en oscuro, igual que --ink */
   --muted: #9BA1AA;
   --border: #2A2E35;
-  --accent: #FF6A33;        /* texto oscuro (#0F1114) encima en botones */
-  --accent-bright: #FF6A33;
-  --ev: #35C69A;
+  --accent: #4CC38A;        /* texto oscuro (#0F1114) encima en botones */
+  --accent-bright: #4CC38A;
+  --ev: #5EA2F2;
   --tint: #1F242C;
   --on-accent: #0F1114;
   --chart-a: #E8632F;
@@ -236,8 +237,9 @@ Reglas de uso:
 - La categoría de cada nota va en `--accent`, con una barra corta de 32 × 3 px en `--accent-bright` debajo.
 - Los títulos de la barra lateral llevan la misma barra corta debajo, no una línea de ancho completo.
 - El menú marca la sección activa con una línea inferior en `--accent`.
-- El verde `--ev` no es decorativo: solo se usa en la etiqueta "Eléctrico" (contenido eléctrico o híbrido), nunca en el nombre de la categoría.
+- El azul `--ev` no es decorativo: solo se usa en la etiqueta "Eléctrico" (contenido eléctrico o híbrido), nunca en el nombre de la categoría.
 - No usar rojo como color de marca ni fondos degradados.
+- `--chart-a` sigue en naranja aunque el acento sea verde: es un color solo para gráficos y contrasta mejor con `--chart-b`.
 - Todas las combinaciones de texto de la tabla cumplen contraste AA (4.5:1 o más).
 
 Cambio de tema:
@@ -251,7 +253,7 @@ Marcadores de imagen (notas sin foto): fondo `--tint`, borde `--border` e icono 
 
 ## Comparador
 
-Página `/es/comparador/`. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
+Página `/es/comparador/` y primer bloque de la portada. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
 
 - Dos listas para elegir "Carro 1" y "Carro 2", agrupadas por marca y modelo. La comparación elegida queda en la dirección (`?a=<slug>&b=<slug>`) para poder compartirla.
 - Resumen con gráfico de araña de siete ejes: autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort. Al lado va la tabla con los mismos puntajes.
@@ -268,7 +270,8 @@ Página `/es/comparador/`. Es una isla de React (`Comparador.tsx`) que lee la ta
 
 - Un solo `h1` por página.
 - Los titulares nunca se parten a mitad de palabra: nada de `word-break: break-all`, y probar columnas angostas.
-- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable. Hoy el menú tiene seis ítems (Inicio, las cuatro categorías y Comparador) y va en una línea desde 1024 px; por debajo usa el menú desplegable.
+- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable. Hoy el menú tiene tres ítems (Inicio, Comparador y Blog y noticias) y va en una línea desde 1024 px; por debajo usa el menú desplegable. Las páginas de categoría y los artículos marcan "Blog y noticias" como activo.
 - Probar cada plantilla a 375, 768, 1024 y 1440 px.
 - Fotos con proporción fija por tipo de tarjeta, para que la lista no salte al cargar.
 - Fotos de vehículos: salas de prensa oficiales de los fabricantes, no fotos de stock. Se guardan en `src/assets/images/` y se enlazan con los campos `imagen` e `imagenAlt` de la nota.
+- Excepción: las notas de servicio y mercado (costos, impuestos, carga, regulación) pueden usar fotos de Unsplash cuando no muestran un modelo concreto. El crédito va como "Nombre del autor en Unsplash" en `imagenCredito` o en el pie. Si una foto de Unsplash acompaña la nota de un modelo, el pie dice "Imagen de referencia".

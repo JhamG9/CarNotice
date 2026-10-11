@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Seccion from '../../../layouts/Seccion.astro';
+import { NOTAS_POR_PAGINA, obtenerNotas, type Nota } from '../../../lib/notas';
+import { rutaBlog } from '../../../lib/rutas';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const notas = await obtenerNotas();
+  return paginate(notas, { pageSize: NOTAS_POR_PAGINA });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Nota>;
+}
+
+const { page } = Astro.props;
+---
+
+<Seccion
+  nombre="Blog y noticias"
+  descripcion="Todas las notas de Garash: lanzamientos, mercado, eléctricos y pruebas de manejo."
+  notas={page.data}
+  total={page.total}
+  pagina={page.currentPage}
+  totalPaginas={page.lastPage}
+  rutaPagina={(pagina) => rutaBlog(pagina)}
+  filtro="todas"
+/>

@@ -1,6 +1,7 @@
 ---
 import Base from './Base.astro';
 import BarraLateral from '../components/BarraLateral.astro';
+import FiltroCategorias from '../components/FiltroCategorias.astro';
 import NotaDestacada from '../components/NotaDestacada.astro';
 import TarjetaNota from '../components/TarjetaNota.astro';
 import type { ClaveCategoria } from '../data/categorias';
@@ -22,9 +23,11 @@ interface Props {
   /** Ruta de la página n de esta sección. */
   rutaPagina: (pagina: number) => string;
   seccionActiva?: ClaveCategoria;
+  /** Muestra la fila de categorías de "Blog y noticias", con esta marcada. */
+  filtro?: ClaveCategoria | 'todas';
 }
 
-const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva } =
+const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva, filtro } =
   Astro.props;
 
 const todas = await obtenerNotas();
@@ -58,6 +61,7 @@ const CLASE_PAGINA =
           {total === 1 ? '1 nota' : `${total} notas`}
           {totalPaginas > 1 && ` · Página ${pagina} de ${totalPaginas}`}
         </p>
+        {filtro && <FiltroCategorias notas={todas} activa={filtro} />}
       </header>
 
       {

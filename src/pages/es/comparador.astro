@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import Comparador from '../../components/Comparador.tsx';
+---
+
+<Base
+  titulo="Comparador de carros | Garash"
+  descripcion="Compara dos carros lado a lado: autonomía, potencia, carga, espacio, seguridad y equipamiento, con un gráfico que resume las diferencias."
+>
+  <div class="mx-auto max-w-pagina px-4 pt-6 md:px-6 md:pt-8">
+    <header class="border-b border-border pb-6">
+      <h1 class="t-seccion barra-corta">Comparador de carros</h1>
+      <p class="t-texto mt-4 max-w-articulo text-muted">
+        Elige dos carros y míralos lado a lado: un resumen en gráfico, las ventajas de cada uno y la ficha técnica
+        completa.
+      </p>
+    </header>
+
+    <div class="pt-8">
+      <Comparador client:load />
+      <noscript>
+        <p class="t-texto text-muted">El comparador necesita JavaScript para cargar los carros.</p>
+      </noscript>
+    </div>
+  </div>
+</Base>

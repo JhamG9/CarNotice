@@ -14,6 +14,9 @@
   --ev: #0b7a5b;
   --on-accent: #ffffff;
   --tint: #e4e9f1;
+  /* Series de los gráficos: carro 1 y carro 2 del comparador */
+  --chart-a: #c23508;
+  --chart-b: #2563c9;
 
   color-scheme: light;
 }
@@ -30,6 +33,8 @@
   --ev: #35c69a;
   --on-accent: #0f1114;
   --tint: #1f242c;
+  --chart-a: #e8632f;
+  --chart-b: #4f8fea;
 
   color-scheme: dark;
 }

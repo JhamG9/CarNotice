@@ -1,6 +1,6 @@
 # Garash
 
-Revista de carros: noticias, lanzamientos, eléctricos y pruebas. Más adelante tendrá un comparador de carros, que lee sus datos de la tabla `vehicles` descrita en este documento.
+Revista de carros: noticias, lanzamientos, eléctricos y pruebas. Incluye un comparador de carros (`/es/comparador/`), que lee sus datos de la tabla `vehicles` descrita en este documento.
 
 - Reglas del proyecto, diseño y forma de trabajo: [CLAUDE.md](CLAUDE.md).
 - Detalle de diseño de cada plantilla: [design-system/MASTER.md](design-system/MASTER.md).

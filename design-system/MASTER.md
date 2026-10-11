@@ -75,8 +75,8 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 - Contenedor de página: 1240 px (`max-w-pagina`). Columna de artículo: 710 px (`max-w-articulo`).
 - Márgenes laterales: 16 px en móvil, 24 px desde 768 px.
 - Portada: lista a la izquierda y barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final.
-- Menú en una línea desde 768 px; por debajo, menú desplegable (`MenuMovil.tsx`).
-- Islas de React: `MenuMovil.tsx`, `BotonTema.tsx` y `Compartir.tsx`.
+- Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Antes era desde 768 px; cambió al añadir "Comparador", porque seis ítems ya no caben en ese ancho.
+- Islas de React: `MenuMovil.tsx`, `BotonTema.tsx`, `Compartir.tsx` y `Comparador.tsx` (que usa `GraficoRadar.tsx`).
 - Tarjeta de nota: foto arriba en móvil; foto a la izquierda (2/5) y texto a la derecha (3/5) desde 768 px.
 - Fotos siempre en 16:9 (`aspect-video`), con `<Image />` de Astro, a través de `ImagenNota.astro`.
 - Nota sin foto: `ImagenNota.astro` pinta un marcador 16:9 con fondo `--tint`, borde `--border` e icono en `--muted`.
@@ -139,6 +139,19 @@ Plantilla compartida: `src/layouts/Seccion.astro`. La usan `src/pages/es/categor
 - Etiquetas: se agrupan por slug con `obtenerEtiquetas()`.
 - 404: `src/pages/404.astro`. Número "404" grande en `--accent-bright` (decorativo, oculto a lectores de pantalla), `h1`, botón principal a la portada, lista de secciones y las 3 notas más recientes. Usa `sinIndexar` de `Base.astro`: lleva `noindex` y no declara URL canónica.
 
+## Página del comparador
+
+Plantilla: `src/pages/es/comparador.astro`, con la isla `Comparador.tsx`. Datos y cálculos en `src/lib/vehiculos.ts`.
+
+- Ancho completo, sin barra lateral.
+- Arriba: dos listas desplegables y, debajo de cada una, la tarjeta del carro (foto 16:9, modelo, versión y enlace a la nota). Una línea de 3 px del color de su serie une tarjeta, ventajas y barras.
+- Resumen: gráfico de araña en SVG (`GraficoRadar.tsx`) y su tabla de puntajes, lado a lado desde 1024 px y apilados por debajo.
+- Gráfico: anillos y ejes en `--border`; carro 1 con línea continua y puntos redondos en `--chart-a`; carro 2 con línea punteada y puntos cuadrados en `--chart-b`. Los puntos llevan un anillo del color del fondo para distinguirse cuando se superponen. Al pasar el cursor por un eje se resaltan sus puntajes.
+- Veredicto: caja en `--surface` con borde, debajo del gráfico. Una frase principal con el ganador en negrita, dos columnas con el puntaje promedio y el motivo para elegir cada carro, y una nota en `--muted` con el método y sus límites. El cálculo está en `calcularVeredicto()`.
+- Colores de serie validados con el verificador de la skill `dataviz` (separación para daltonismo y contraste) en claro y en oscuro.
+- Ficha técnica: tres columnas (dato, carro 1, carro 2) desde 768 px; en móvil, el nombre del dato va arriba y los dos valores debajo. Las filas numéricas con ganador llevan una barra proporcional y la marca "Mejor".
+- Estados: cargando, error con botón "Reintentar", sin carros publicados, y aviso cuando se elige el mismo carro en los dos lados.
+
 ## URL
 
 Todo bajo prefijo de idioma. Por ahora solo existe `/es/`, y `/` redirige ahí.
@@ -146,6 +159,7 @@ Todo bajo prefijo de idioma. Por ahora solo existe `/es/`, y `/` redirige ahí.
 | Página | Ruta | Estado |
 |---|---|---|
 | Portada | `/es/` | Construida |
+| Comparador | `/es/comparador/?a=<slug>&b=<slug>` | Construida (primera versión) |
 | Nota | `/es/notas/<slug>/` | Construida |
 | Categoría | `/es/categoria/<slug>/` y `/es/categoria/<slug>/2/` | Construida |
 | Etiqueta | `/es/etiqueta/<slug>/` y `/es/etiqueta/<slug>/2/` | Construida |

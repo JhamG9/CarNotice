@@ -2,7 +2,7 @@
 import BotonTema from './BotonTema.tsx';
 import MenuMovil from './MenuMovil.tsx';
 import { categorias, type ClaveCategoria } from '../data/categorias';
-import { rutaCategoria, rutaInicio } from '../lib/rutas';
+import { rutaCategoria, rutaComparador, rutaInicio } from '../lib/rutas';
 
 interface Props {
   /** En la portada el logo es el único h1 de la página. */
@@ -21,6 +21,7 @@ const enlaces = [
     href: rutaCategoria(categoria),
     activo: seccionActiva === categoria.clave || ruta.startsWith(rutaCategoria(categoria)),
   })),
+  { nombre: 'Comparador', href: rutaComparador(), activo: ruta.startsWith(rutaComparador()) },
 ];
 ---
 
@@ -33,8 +34,8 @@ const enlaces = [
     </Logo>
 
     <div class="flex items-center gap-3 lg:gap-6">
-      <nav aria-label="Principal" class="hidden md:block">
-        <ul class="flex items-center gap-4 lg:gap-8">
+      <nav aria-label="Principal" class="hidden lg:block">
+        <ul class="flex items-center gap-5 xl:gap-8">
           {
             enlaces.map((enlace) => (
               <li>
@@ -53,8 +54,8 @@ const enlaces = [
 
       <BotonTema client:load />
 
-      <div class="md:hidden">
-        <MenuMovil enlaces={enlaces} client:media="(max-width: 767px)" />
+      <div class="lg:hidden">
+        <MenuMovil enlaces={enlaces} client:media="(max-width: 1023px)" />
       </div>
     </div>
   </div>

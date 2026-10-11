@@ -5,7 +5,7 @@ Sitio web tipo revista de carros: últimas noticias, lanzamientos, eléctricos y
 ## Alcance actual
 
 - Fase 1 (construida): la revista. Portada, página de artículo, página de sección (categorías y etiquetas) y página 404.
-- Fase 2 (después): el comparador. No construir nada del comparador todavía.
+- Fase 2 (en construcción): el comparador de carros, en `/es/comparador/`. Ya existe la primera versión: elegir dos carros, gráfico de araña, ventajas de cada uno y ficha técnica.
 
 ## Público
 
@@ -208,6 +208,8 @@ Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema
   --ev: #0B7A5B;            /* etiqueta "Eléctrico" y datos de eléctricos */
   --tint: #E4E9F1;          /* fondo de los marcadores de imagen */
   --on-accent: #FFFFFF;     /* texto sobre --accent */
+  --chart-a: #C23508;       /* gráficos: carro 1 del comparador */
+  --chart-b: #2563C9;       /* gráficos: carro 2 del comparador */
 }
 
 :root[data-theme="dark"] {
@@ -222,6 +224,8 @@ Tema claro por defecto siempre, sin importar la preferencia del sistema. El tema
   --ev: #35C69A;
   --tint: #1F242C;
   --on-accent: #0F1114;
+  --chart-a: #E8632F;
+  --chart-b: #4F8FEA;
 }
 ```
 
@@ -245,11 +249,26 @@ Cambio de tema:
 
 Marcadores de imagen (notas sin foto): fondo `--tint`, borde `--border` e icono en `--muted`, para que se adapten a los dos temas.
 
+## Comparador
+
+Página `/es/comparador/`. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
+
+- Dos listas para elegir "Carro 1" y "Carro 2", agrupadas por marca y modelo. La comparación elegida queda en la dirección (`?a=<slug>&b=<slug>`) para poder compartirla.
+- Resumen con gráfico de araña de siete ejes: autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort. Al lado va la tabla con los mismos puntajes.
+- Los puntajes van de 0 a 100 y se calculan contra rangos fijos (en `src/lib/vehiculos.ts`), no contra el otro carro: el puntaje de un carro no cambia según con cuál se compare.
+- La autonomía solo se puntúa con un ciclo que tengan los dos carros (WLTP, luego CLTC, EPA y NEDC).
+- Veredicto, debajo del gráfico: dice cuál conviene más según el promedio de los puntajes, y para qué conviene cada uno. Con menos de 2 puntos de diferencia dice que están parejos; con menos de 7, que gana "por poco". Siempre aclara que no tiene en cuenta el precio y qué categorías quedaron por fuera por falta de datos. No se muestra si hay menos de tres categorías comparables.
+- "Ventajas de cada uno": frases calculadas a partir de las filas que tienen un ganador claro.
+- Ficha técnica por secciones. Solo aparecen las filas donde al menos un carro tiene el dato; el que falta dice "Sin dato".
+- Los dos carros se distinguen con `--chart-a` y `--chart-b`, que son colores solo para gráficos, y nunca solo por color: la leyenda lleva el nombre, el carro 2 usa línea punteada y marcas cuadradas, y el ganador de cada fila lleva la palabra "Mejor".
+- Los valores guardados en inglés (`electric`, `rwd`) se traducen al español en `src/lib/vehiculos.ts`.
+- Al agregar una columna a `vehicles`, añadirla también a la lista de filas de ese archivo para que aparezca en el comparador.
+
 ## Reglas de calidad
 
 - Un solo `h1` por página.
 - Los titulares nunca se parten a mitad de palabra: nada de `word-break: break-all`, y probar columnas angostas.
-- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable.
+- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable. Hoy el menú tiene seis ítems (Inicio, las cuatro categorías y Comparador) y va en una línea desde 1024 px; por debajo usa el menú desplegable.
 - Probar cada plantilla a 375, 768, 1024 y 1440 px.
 - Fotos con proporción fija por tipo de tarjeta, para que la lista no salte al cargar.
 - Fotos de vehículos: salas de prensa oficiales de los fabricantes, no fotos de stock. Se guardan en `src/assets/images/` y se enlazan con los campos `imagen` e `imagenAlt` de la nota.

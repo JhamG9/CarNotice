@@ -12,6 +12,7 @@ export function slugificar(texto: string): string {
 }
 
 export const rutaInicio = () => `/${IDIOMA}/`;
+export const rutaComparador = () => `/${IDIOMA}/comparador/`;
 export const rutaNota = (id: string) => `/${IDIOMA}/notas/${id}/`;
 /** La página 1 no lleva número: /categoria/<slug>/, /categoria/<slug>/2/, ... */
 const sufijoPagina = (pagina: number) => (pagina > 1 ? `${pagina}/` : '');

@@ -61,6 +61,7 @@ Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown
 - El archivo `.mcp.json` define el conector `supabase-garash`, limitado a ese proyecto. Es el que se debe usar.
 - Variables en `.env` (no se sube a git; la plantilla es `.env.example`): `SUPABASE_PROJECT_REF`, `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 - En `.env` solo va la clave publicable. La clave secreta y la contraseña de la base de datos no se guardan en el proyecto ni se pegan en el chat.
+- Permisos de Claude sobre la base de datos: van en `.claude/settings.local.json`, que es personal y no se sube a git. La plantilla es `.claude/settings.local.example.json`: se copia con ese nombre y permite a Claude leer y escribir datos y aplicar migraciones con el conector `supabase-garash`, sin que la app pregunte cada vez. No incluye crear, pausar ni borrar proyectos.
 - Los cambios de estructura (tablas, columnas, políticas) se hacen como migraciones, no con SQL suelto.
 - Toda tabla lleva seguridad por fila (RLS) activada. El sitio solo puede leer; escribir queda para quien administra.
 - Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación.

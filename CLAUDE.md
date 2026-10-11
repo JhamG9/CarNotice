@@ -51,7 +51,7 @@ Al recibir una imagen:
 
 Si la imagen llega pegada en el chat y no hay un archivo en disco para copiar, pedir la ruta del archivo o que la dejen en `src/assets/images/`.
 
-No guardar imágenes en `public/` ni enlazar directo a la web del fabricante: desde `src/assets/` Astro las optimiza, y los enlaces externos se rompen.
+No guardar imágenes de notas en `public/` ni enlazar directo a la web del fabricante: desde `src/assets/` Astro las optimiza, y los enlaces externos se rompen. La única excepción son las imágenes de los vehículos del comparador (ver "Imagen del vehículo").
 
 ## Base de datos (Supabase)
 
@@ -68,8 +68,9 @@ Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown
 
 ### Tabla `vehicles`
 
-Guarda las fichas técnicas del comparador: una fila por versión, año modelo y mercado. La estructura completa está en `supabase/migrations/`. Nombres de columna y valores guardados van en inglés; la traducción la pone la interfaz.
+Guarda las fichas técnicas del comparador: una fila por versión, año modelo y mercado. La estructura completa está en `supabase/migrations/`. La explicación de cada campo, en lenguaje sencillo, está en `README.md`, en la raíz del proyecto. Nombres de columna y valores guardados van en inglés; la traducción la pone la interfaz.
 
+- Antes de insertar, modificar o consultar vehículos, o de cambiar la tabla, leer la sección "Base de datos: tabla `vehicles`" del `README.md`: dice qué guarda cada campo, en qué unidad y qué valores acepta.
 - No tiene precio: por ahora no se guardan precios.
 - La autonomía tiene una columna por ciclo (`range_wltp_km`, `range_cltc_km`, `range_epa_km`, `range_nedc_km`). Solo se comparan cifras del mismo ciclo.
 - La potencia se guarda en kW (`power_kw`); `power_hp` se calcula sola y no se escribe.
@@ -107,7 +108,19 @@ Reglas:
 - Mostrar la fila que se va a insertar y esperar confirmación.
 - Después de insertar, leer la fila y confirmar el resultado con su `slug`.
 
-Cuando la tabla cambie de columnas o de valores permitidos, actualizar esta sección en el mismo cambio.
+Cuando la tabla cambie de columnas o de valores permitidos, actualizar esta sección y el `README.md` en el mismo cambio.
+
+### Imagen del vehículo
+
+Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y la tabla solo guarda la ruta en `image_url`.
+
+- Van en `public/` y no en `src/assets/` porque la base de datos necesita una ruta que no cambie; Astro les cambia el nombre a los archivos de `src/assets/` en cada compilación.
+- Una imagen por vehículo, con su `slug` como nombre: `public/vehicles/<slug>.webp`.
+- En `image_url` va la ruta sin dominio: `/vehicles/<slug>.webp`. Así funciona igual en desarrollo y en producción.
+- Astro no optimiza lo que está en `public/`: convertir antes a WebP, unos 1.600 px de ancho, menos de 300 KB y proporción 16:9, con el mismo comando de `sharp` de las notas.
+- No renombrar ni mover un archivo ya referenciado sin actualizar `image_url` en el mismo cambio.
+- La imagen solo se ve en el sitio publicado después de hacer commit y desplegar. Insertar la fila no basta.
+- Mismas reglas de origen que las notas: fotos de sala de prensa del fabricante, y el crédito no se inventa.
 
 ## Entorno de desarrollo
 

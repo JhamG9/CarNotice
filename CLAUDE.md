@@ -53,6 +53,41 @@ Si la imagen llega pegada en el chat y no hay un archivo en disco para copiar, p
 
 No guardar imágenes en `public/` ni enlazar directo a la web del fabricante: desde `src/assets/` Astro las optimiza, y los enlaces externos se rompen.
 
+## Base de datos (Supabase)
+
+Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown, no en la base de datos.
+
+- El único proyecto de Supabase de este sitio es `garash` (ref `sfdwbgmydjfwmtdkarmi`). No leer ni modificar ningún otro proyecto de la organización, aunque el conector lo permita.
+- El archivo `.mcp.json` define el conector `supabase-garash`, limitado a ese proyecto. Es el que se debe usar.
+- Variables en `.env` (no se sube a git; la plantilla es `.env.example`): `SUPABASE_PROJECT_REF`, `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- En `.env` solo va la clave publicable. La clave secreta y la contraseña de la base de datos no se guardan en el proyecto ni se pegan en el chat.
+- Los cambios de estructura (tablas, columnas, políticas) se hacen como migraciones, no con SQL suelto.
+- Toda tabla lleva seguridad por fila (RLS) activada. El sitio solo puede leer; escribir queda para quien administra.
+- Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación.
+
+### Insertar un carro en la tabla `cars`
+
+Quien administra suele pedir por el chat que se inserte un carro. Para hacerlo se necesitan estos cuatro datos:
+
+| Dato que se pide | Columna | Unidad | Ejemplo |
+|---|---|---|---|
+| Nombre: marca, modelo y versión | `name` | Texto | Deepal S05 620 Premium LiDAR |
+| Peso | `weight_kg` | Kilogramos | 1880 |
+| Torque | `torque_nm` | Newton metro | 290 |
+| Autonomía | `range_km` | Kilómetros | 620 |
+
+Reglas:
+
+- Si falta alguno de los cuatro, pedirlo antes de insertar. No insertar filas incompletas.
+- No inventar ni estimar datos. Si quien pide no conoce un valor, preguntar si se deja pendiente el carro o se busca la fuente.
+- Convertir a las unidades de la tabla si llegan en otras (libras, lb-ft, millas) y decir qué conversión se hizo.
+- En la autonomía, preguntar bajo qué ciclo se midió (CLTC, WLTP o EPA) si no lo dicen, y anotarlo en la respuesta: la tabla aún no tiene columna para eso.
+- Antes de insertar, buscar si ya existe un carro con el mismo nombre. Si existe, preguntar si se actualiza en vez de crear otro.
+- Mostrar la fila que se va a insertar y esperar confirmación.
+- Después de insertar, leer la fila y confirmar el resultado con su `id`.
+
+Cuando la tabla gane columnas, actualizar esta lista en el mismo cambio.
+
 ## Entorno de desarrollo
 
 - El puerto 4321 lo ocupa otro proyecto. Garash corre en el 4330, en segundo plano:

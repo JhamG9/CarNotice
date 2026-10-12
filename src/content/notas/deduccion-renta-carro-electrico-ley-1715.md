@@ -24,7 +24,7 @@ Las condiciones principales:
 - La deducción puede repartirse **hasta en 15 años**.
 - Cada año no puede superar el **50 % de la renta líquida** del contribuyente.
 - Para personas naturales, la DIAN aclaró que también queda sujeta al límite general del **numeral 3 del artículo 336** del Estatuto Tributario.
-- Según el Oficio 178 de 2026 de la DIAN, se aplica desde el año gravable siguiente a la entrada en operación de la inversión [VERIFICAR cómo se fija esa fecha en su caso con su contador].
+- Según el Oficio 178 de 2026 de la DIAN, se aplica desde el año gravable siguiente a la entrada en operación de la inversión. Cómo se fija esa fecha depende de cada caso: confírmelo con su contador.
 
 ## El tope que casi nadie menciona
 

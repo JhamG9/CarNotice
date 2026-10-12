@@ -74,7 +74,7 @@ Tesla, con 41,6 % del acumulado del año, seguida por BYD con 20,7 % y Chery con
 
 ### ¿Cuántos eléctricos hay en Colombia?
 
-El RUNT registraba 77.215 vehículos eléctricos a mayo de 2026. Con las ventas de junio a septiembre, la cifra ya debe superar los 90.000 [VERIFICAR dato actualizado del RUNT].
+El RUNT registraba 77.215 vehículos eléctricos a mayo de 2026.
 
 Compare los más vendidos en el [comparador de Garash](/es/comparador/).
 

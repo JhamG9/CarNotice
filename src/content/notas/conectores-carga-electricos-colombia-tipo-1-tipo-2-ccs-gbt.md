@@ -42,7 +42,7 @@ Eso tiene tres consecuencias prácticas:
 
 ## Lo que viene: la norma de interoperabilidad
 
-El Ministerio de Minas y Energía propuso que todo operador de carga tenga **al menos un conector Tipo 2** en sus estaciones de nivel 2 y 3, y **al menos un CCS Combo 2** en las de nivel 3, que son las de carga rápida. Si la norma se adopta como está planteada, el estándar europeo quedaría como el mínimo común en las electrolineras públicas [VERIFICAR estado de la reglamentación].
+El Ministerio de Minas y Energía propuso que todo operador de carga tenga **al menos un conector Tipo 2** en sus estaciones de nivel 2 y 3, y **al menos un CCS Combo 2** en las de nivel 3, que son las de carga rápida. Si la norma se adopta como está planteada, el estándar europeo quedaría como el mínimo común en las electrolineras públicas.
 
 Para quien compra hoy un carro con CCS1 o GB/T, eso no significa que se quede sin carga, pero sí que dependerá más de adaptadores o de estaciones que mantengan otras mangueras.
 
@@ -60,7 +60,7 @@ Está en la ficha técnica y en la tapa del puerto de carga. Si son dos tomas se
 
 ### ¿Qué conector usa Tesla en Colombia?
 
-Tesla instala sus propios supercargadores. Confirme con la marca el tipo de toma de la versión colombiana y su compatibilidad con estaciones de otros operadores [VERIFICAR].
+Tesla instala sus propios supercargadores. Confirme con la marca el tipo de toma de la versión colombiana y su compatibilidad con estaciones de otros operadores.
 
 Revise el conector y la potencia de carga de cada modelo en el [comparador de Garash](/es/comparador/).
 

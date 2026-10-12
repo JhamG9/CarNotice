@@ -17,7 +17,7 @@ La **Chery E5** es el fenómeno de 2026 entre los eléctricos de precio medio. S
 
 ## Lo esencial
 
-- **Precio:** desde $79.990.000 en la versión Comfort, a mayo de 2026. En la preventa se anunció desde $74,9 millones [VERIFICAR precio vigente y precio de la versión Luxury].
+- **Precio:** desde $79.990.000 en la versión Comfort, a mayo de 2026.
 - **Batería:** LFP de 50,6 kWh, de la marca Gotion.
 - **Autonomía:** 350 km WLTP, 422 km NEDC.
 - **Motor:** hasta 208 hp y 288 Nm.

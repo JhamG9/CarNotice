@@ -61,11 +61,7 @@ No hay una respuesta única, pero sí argumentos de los dos lados:
 
 ### ¿Cuánto cuesta un Tesla en Colombia?
 
-En su lanzamiento, el Model 3 de entrada quedó en $114,9 millones y el Model Y desde $119,9 millones. Los precios pueden haber cambiado; confírmelos en la página de la marca [VERIFICAR precio vigente].
-
-### ¿Cuál es el eléctrico más barato de Colombia?
-
-Los cuadriciclos eléctricos arrancan por debajo de $50 millones. Entre los carros eléctricos de cinco puestos, los más económicos rondan los $65 a $80 millones [VERIFICAR lista vigente].
+En su lanzamiento, el Model 3 de entrada quedó en $114,9 millones y el Model Y desde $119,9 millones. Los precios pueden haber cambiado; confírmelos en la página de la marca
 
 ### ¿Por qué bajan los precios de los eléctricos?
 

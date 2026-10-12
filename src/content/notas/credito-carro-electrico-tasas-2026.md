@@ -22,7 +22,7 @@ Los bancos encontraron en los eléctricos un nicho para competir, y la diferenci
 | Combustión | 23,5 % a 26,5 % |
 | Híbridos y eléctricos | 12 % a 16,6 % |
 
-Por entidad, las cifras reportadas fueron estas [VERIFICAR tasas vigentes, cambian cada mes]:
+Por entidad, las cifras reportadas fueron estas. Las tasas cambian cada mes: confírmelas con la entidad antes de firmar.
 
 - **Bancolombia (Sufi):** cerca de 12,5 % EA para eléctricos.
 - **Davivienda:** alrededor de 15,25 % EA.
@@ -48,7 +48,7 @@ Entre la mejor tasa para eléctricos y la mejor para combustión hay **unos $24 
 
 1. **Seguros obligatorios del crédito.** El seguro de vida y el todo riesgo del carro se suman a la cuota y pueden cambiar mucho el costo final. En eléctricos, el todo riesgo suele ser más caro.
 2. **Condiciones de la tasa verde.** Algunas aplican solo a ciertas marcas, concesionarios aliados o porcentajes mínimos de cuota inicial.
-3. **Tasa fija o variable.** La Junta del Banco de la República tenía la tasa de política en 12,25 % en octubre de 2026 [VERIFICAR en banrep.gov.co]. Si baja, un crédito de tasa variable podría abaratarse; si sube, encarecerse.
+3. **Tasa fija o variable.** Si la tasa de política del Banco de la República baja, un crédito de tasa variable podría abaratarse; si sube, encarecerse.
 4. **Prepagos.** Confirme que puede abonar a capital sin penalidad, por ejemplo con la devolución del IVA de la DIAN.
 
 > Una idea útil: si va a pedir la [devolución del IVA del carro](/es/notas/devolucion-iva-carro-electrico-dian-paso-a-paso/), planee usar esa plata para abonar a capital. Reduce los intereses de todo el crédito.

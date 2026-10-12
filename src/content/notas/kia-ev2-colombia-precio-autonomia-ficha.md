@@ -13,7 +13,7 @@ imagenCredito: "Alexander Migl, CC BY-SA 4.0, recortada, vía Wikimedia Commons"
 destacada: false
 ---
 
-Kia puso a la venta en Colombia, en junio de 2026, el **EV2**, su SUV eléctrico más pequeño y, por ahora, el más barato de la marca en el país. Llega en una sola versión, **Air**, por **$89.990.000** [VERIFICAR precio vigente], para competir en el segmento donde están la Chery E5, el BYD Yuan Up y varios SUV urbanos chinos.
+Kia puso a la venta en Colombia, en junio de 2026, el **EV2**, su SUV eléctrico más pequeño y, por ahora, el más barato de la marca en el país. Llega en una sola versión, **Air**, por **$89.990.000**, para competir en el segmento donde están la Chery E5, el BYD Yuan Up y varios SUV urbanos chinos.
 
 ## Lo esencial
 

@@ -17,7 +17,7 @@ destacada: false
 
 ## Qué le pasa a una batería con los años
 
-Con cada ciclo de carga y descarga, la batería pierde una pequeña parte de su capacidad. En la práctica, eso se traduce en menos kilómetros por carga, no en un carro que deja de arrancar. Los estudios con grandes flotas en Europa y Estados Unidos muestran pérdidas graduales, del orden de 1 % a 2 % por año en promedio [VERIFICAR y enlazar un estudio de flota], aunque varían mucho según el modelo, la química y el uso.
+Con cada ciclo de carga y descarga, la batería pierde una pequeña parte de su capacidad. En la práctica, eso se traduce en menos kilómetros por carga, no en un carro que deja de arrancar. Los estudios con grandes flotas en Europa y Estados Unidos muestran pérdidas graduales, que varían mucho según el modelo, la química y el uso.
 
 Dos químicas dominan el mercado colombiano:
 

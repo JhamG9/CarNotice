@@ -42,7 +42,6 @@ Un eléctrico compacto o un SUV mediano consume entre 14 y 17 kWh cada 100 km en
 |---|---|---|
 | Casa, estrato 4 | $864 | **$142.500** |
 | Casa, estrato 6 | $1.036 | **$171.000** |
-| Electrolinera de carga rápida | Cerca de $1.450 [VERIFICAR] | Unos $217.500 |
 | Carro a gasolina de 40 km por galón | $16.331 el galón en Bogotá | **$408.300** |
 
 Con esos datos, el kilómetro en un eléctrico cargado en casa sale en unos **$142**, frente a unos **$408** en un carro de gasolina eficiente. Si el carro de gasolina rinde 35 km por galón, la diferencia crece: el mes sale en $466.600.

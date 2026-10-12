@@ -59,7 +59,7 @@ Solo si esa toma está conectada a su propio contador. Usar una toma de zona com
 
 ### ¿Cuánto cuesta la instalación en un conjunto?
 
-Enel calculaba alrededor de $3 millones para un cargador doméstico, pero en edificios el valor sube si hay que llevar cableado desde lejos del contador [VERIFICAR con una cotización].
+Enel calculaba alrededor de $3 millones para un cargador doméstico, pero en edificios el valor sube si hay que llevar cableado desde lejos del contador. Pida una cotización antes de empezar la obra.
 
 ### ¿Necesito licencia de construcción?
 

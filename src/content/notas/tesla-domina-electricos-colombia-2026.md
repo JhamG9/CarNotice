@@ -61,7 +61,7 @@ El Model Y, con 14.381 unidades en el año. El Model 3 suma 2.161.
 
 ### ¿Dónde hay tiendas de Tesla en Colombia?
 
-Abrió en Bogotá y Medellín, y anunció planes de expansión a Barranquilla y Cali durante 2026 [VERIFICAR estado de la expansión].
+Tesla tiene tiendas en Bogotá y Medellín.
 
 Compare el Model Y con sus rivales en el [comparador de Garash](/es/comparador/).
 

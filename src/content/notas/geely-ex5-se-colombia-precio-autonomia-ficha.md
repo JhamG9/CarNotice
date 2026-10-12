@@ -17,7 +17,7 @@ Geely lanzó en julio de 2026 en Colombia la **EX5 SE** (Special Edition), un SU
 
 ## Lo esencial
 
-- **Precio:** $92.990.000 para las primeras 200 unidades, solo en línea [VERIFICAR precio actual tras la preventa].
+- **Precio:** $92.990.000 para las primeras 200 unidades, solo en línea.
 - **Batería:** 49,52 kWh.
 - **Autonomía:** 345 km WLTP, 410 km NEDC.
 - **Motor:** 215 hp (160 kW) y 320 Nm.

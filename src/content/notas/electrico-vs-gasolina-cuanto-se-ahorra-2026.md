@@ -35,7 +35,7 @@ Dos advertencias. Si carga casi siempre en electrolineras de carga rápida, el c
 
 ## Lo que se ahorra fuera del tanque
 
-- **Impuesto vehicular:** por ley no puede superar el 1 % del avalúo comercial en un eléctrico. En Bogotá, además, los eléctricos particulares nuevos tienen 60 % de descuento durante cinco años. En un carro de $100 millones eso deja el impuesto en unos $400.000, cuando uno de gasolina de igual valor paga varias veces más [VERIFICAR la tarifa del avalúo en la Secretaría de Hacienda].
+- **Impuesto vehicular:** por ley no puede superar el 1 % del avalúo comercial en un eléctrico. En Bogotá, además, los eléctricos particulares nuevos tienen 60 % de descuento durante cinco años. En un carro de $100 millones eso deja el impuesto en unos $400.000, cuando uno de gasolina de igual valor paga varias veces más.
 - **SOAT:** la Ley 1964 de 2019 ordena un descuento del 10 % en la prima para eléctricos.
 - **Revisión técnico-mecánica:** hay descuento para eléctricos, y no pagan la prueba de gases.
 - **Mantenimiento:** no hay cambios de aceite, filtros de motor, bujías ni correa de repartición. Los frenos duran más gracias al frenado regenerativo.
@@ -45,7 +45,7 @@ Dos advertencias. Si carga casi siempre en electrolineras de carga rápida, el c
 
 - **Precio de compra:** sigue siendo el factor que decide. Si el eléctrico cuesta $20 millones más que su equivalente a gasolina, el ahorro de energía tarda unos seis años en pagar esa diferencia.
 - **Seguro todo riesgo:** las primas de los eléctricos suelen ser más altas, porque las reparaciones de carrocería con batería y sensores son costosas. Cotice antes de firmar.
-- **Cargador en casa:** instalar uno de pared cuesta alrededor de $3 millones según Enel [VERIFICAR precio actual].
+- **Cargador en casa:** instalar uno de pared cuesta alrededor de $3 millones según Enel.
 
 > La regla práctica: el eléctrico gana con claridad cuando el precio de compra es parecido al del carro de gasolina que estaba mirando y puede cargar en casa. Si alguna de las dos condiciones falla, haga la cuenta con sus propios números.
 

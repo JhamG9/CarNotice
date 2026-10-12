@@ -50,7 +50,7 @@ Los eléctricos pesan más que un carro de gasolina equivalente, y su torque ins
 
 Esto cambia la cuenta frente a un carro nuevo:
 
-- **La devolución del IVA y la deducción en renta** son para quien compró el carro nuevo con certificado de la UPME. Usted no los recibe al comprar usado [VERIFICAR con un contador si hay casos excepcionales].
+- **La devolución del IVA y la deducción en renta** son para quien compró el carro nuevo con certificado de la UPME. Usted no los recibe al comprar usado.
 - **El descuento del 60 % en el impuesto vehicular de Bogotá** dura cinco años desde la matrícula. Si el carro ya tiene tres años, a usted le quedan dos.
 - **La tarifa máxima del 1 %, el descuento del SOAT y la exención del pico y placa** sí siguen al carro.
 

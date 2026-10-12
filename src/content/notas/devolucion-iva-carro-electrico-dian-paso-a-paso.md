@@ -21,7 +21,7 @@ Todo arranca con el certificado de la Unidad de Planeación Minero Energética (
 
 ## Los documentos
 
-Según la DIAN y los contadores que han acompañado el trámite, el paquete básico es este [VERIFICAR la lista vigente en la DIAN antes de la cita]:
+Según la DIAN y los contadores que han acompañado el trámite, el paquete básico es este. Confirme la lista vigente con la DIAN antes de la cita:
 
 1. **Formulario 010** de solicitud de devolución o compensación.
 2. **Certificado de la UPME** del vehículo.
@@ -58,7 +58,7 @@ El IVA que pagó en la compra del carro y que aparece en la factura. Si el carro
 
 ### ¿Cuánto tarda la DIAN en devolver el dinero?
 
-El plazo legal de las devoluciones depende del tipo de solicitud y de que la DIAN no pida información adicional. Cuente con varias semanas después del radicado [VERIFICAR plazo aplicable].
+El plazo legal de las devoluciones depende del tipo de solicitud y de que la DIAN no pida información adicional. Cuente con varias semanas después del radicado.
 
 ### ¿Puedo hacerlo yo o necesito contador?
 

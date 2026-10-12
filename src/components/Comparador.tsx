@@ -15,6 +15,7 @@ import {
   nombreMercado,
   nombreModelo,
   obtenerVehiculos,
+  textoOtroNombre,
   type Fila,
   type Vehiculo,
   type Veredicto,
@@ -89,9 +90,7 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
       <div className="mt-3 flex items-start gap-3 border-t-[3px] pt-3" style={{ borderColor: COLOR[lado] }}>
         <div className="min-w-0 flex-1">
           <h2 className="t-lateral">{nombreModelo(vehiculo)}</h2>
-          {vehiculo.latam_name && (
-            <p className="mt-1 text-[15px] font-bold text-heading">En Latinoamérica: {vehiculo.latam_name}</p>
-          )}
+          {vehiculo.latam_name && <p className="mt-1 text-[15px] font-bold text-heading">{textoOtroNombre(vehiculo)}</p>}
           <p className="mt-1 text-[15px] text-muted">
             {vehiculo.version} · {vehiculo.model_year} · Ficha de {nombreMercado(vehiculo.market)}
           </p>

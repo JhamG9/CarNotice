@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { buscarVehiculos, nombreMercado, nombreModelo, type Vehiculo } from '../lib/vehiculos';
+import { buscarVehiculos, marcas, muestraVariada, nombreMercado, nombreModelo, textoOtroNombre, type Vehiculo } from '../lib/vehiculos';
 
 const MAX_RESULTADOS = 8;
 
@@ -24,8 +24,14 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
   const contenedor = useRef<HTMLDivElement>(null);
   const campo = useRef<HTMLInputElement>(null);
 
+  const vacia = consulta.trim() === '';
   const resultados = useMemo(() => buscarVehiculos(vehiculos, consulta), [vehiculos, consulta]);
-  const visibles = resultados.slice(0, MAX_RESULTADOS);
+  // Sin texto se muestra una muestra de varias marcas, no los primeros del abecedario
+  const visibles = useMemo(
+    () => (vacia ? muestraVariada(vehiculos, MAX_RESULTADOS) : resultados.slice(0, MAX_RESULTADOS)),
+    [vacia, vehiculos, resultados],
+  );
+  const listaMarcas = useMemo(() => marcas(vehiculos), [vehiculos]);
 
   // Al hacer clic fuera se cierra la lista y vuelve a mostrarse el carro elegido
   useEffect(() => {
@@ -69,8 +75,9 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
   return (
     <div ref={contenedor} className="relative">
       <label htmlFor={`${id}-campo`} className="t-meta flex items-center gap-2 tracking-[0.5px] text-muted uppercase">
-        <span className="inline-block size-3 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
-        {etiqueta}
+        <span className="inline-block size-3 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
+        <span className="sr-only">{etiqueta}: </span>
+        <span className="truncate">{elegido ? nombreModelo(elegido) : etiqueta}</span>
       </label>
       <div className="relative mt-2">
         <svg
@@ -115,11 +122,38 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
       </div>
 
       {abierto && (
+        <div className="absolute right-0 left-0 z-20 mt-1 max-h-[480px] overflow-y-auto rounded-lg border border-border bg-surface shadow-lg md:right-auto md:w-[min(460px,calc(100vw-2rem))]">
+          {vacia && (
+            <div className="border-b border-border px-3 pt-3 pb-2">
+              <p className="text-[13px] text-muted">
+                {vehiculos.length} carros de {listaMarcas.length} marcas. Escribe o elige una marca:
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {listaMarcas.map(({ marca, total }) => (
+                  <button
+                    key={marca}
+                    type="button"
+                    onMouseDown={(evento) => evento.preventDefault()}
+                    onClick={() => {
+                      setConsulta(marca);
+                      setActivo(0);
+                      campo.current?.focus();
+                    }}
+                    className="inline-flex min-h-8 cursor-pointer items-center gap-1 rounded-full border border-border px-2.5 text-[13px] hover:border-accent hover:text-accent"
+                  >
+                    {marca}
+                    <span className="text-muted">{total}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[13px] font-bold text-heading">Algunos para empezar</p>
+            </div>
+          )}
         <ul
           id={idLista}
           role="listbox"
           aria-label={`Resultados para ${etiqueta}`}
-          className="absolute right-0 left-0 z-20 mt-1 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg md:right-auto md:w-[min(440px,calc(100vw-2rem))]"
+          className="py-1"
         >
           {visibles.length === 0 ? (
             <li className="px-4 py-3 text-[15px] text-muted" role="presentation">
@@ -146,18 +180,19 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
                   <span className="block truncate text-[15px] font-bold text-heading">{nombreModelo(v)}</span>
                   <span className="block truncate text-[13px] text-muted">
                     {detalle(v)}
-                    {v.latam_name && ` · en Latinoamérica: ${v.latam_name}`}
+                    {v.latam_name && ` · ${textoOtroNombre(v)}`}
                   </span>
                 </span>
               </li>
             ))
           )}
-          {resultados.length > MAX_RESULTADOS && (
+          {!vacia && resultados.length > MAX_RESULTADOS && (
             <li className="px-4 py-2 text-[13px] text-muted" role="presentation">
               {resultados.length - MAX_RESULTADOS} más. Escribe más para afinar.
             </li>
           )}
         </ul>
+        </div>
       )}
     </div>
   );

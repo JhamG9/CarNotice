@@ -530,5 +530,37 @@ export function buscarVehiculos(vehiculos: Vehiculo[], consulta: string): Vehicu
   return resultados.sort((x, y) => x.orden - y.orden).map((r) => r.v);
 }
 
+/**
+ * Muestra para la lista vacía del buscador: un carro por modelo, alternando marcas,
+ * para que se vea la variedad y no solo la primera marca del abecedario.
+ */
+export function muestraVariada(vehiculos: Vehiculo[], cantidad: number): Vehiculo[] {
+  const porMarca = new Map<string, Vehiculo[]>();
+  const modelos = new Set<string>();
+  for (const v of vehiculos) {
+    const modelo = nombreModelo(v);
+    if (modelos.has(modelo)) continue;
+    modelos.add(modelo);
+    porMarca.set(v.brand, [...(porMarca.get(v.brand) ?? []), v]);
+  }
+  const colas = [...porMarca.values()];
+  const muestra: Vehiculo[] = [];
+  for (let ronda = 0; muestra.length < cantidad && colas.some((cola) => cola.length > ronda); ronda++) {
+    for (const cola of colas) if (cola[ronda] && muestra.length < cantidad) muestra.push(cola[ronda]);
+  }
+  return muestra;
+}
+
+/** Marcas con su número de carros, de la que tiene más a la que tiene menos. */
+export function marcas(vehiculos: Vehiculo[]): { marca: string; total: number }[] {
+  const conteo = new Map<string, number>();
+  for (const v of vehiculos) conteo.set(v.brand, (conteo.get(v.brand) ?? 0) + 1);
+  return [...conteo.entries()].map(([marca, total]) => ({ marca, total })).sort((x, y) => y.total - x.total || x.marca.localeCompare(y.marca));
+}
+
+/** Cómo presentar el otro nombre: en una ficha de fuera, el de Latinoamérica; en una latinoamericana, el alterno. */
+export const textoOtroNombre = (v: Vehiculo) =>
+  v.latam_name ? (['CO', 'MX', 'BR', 'CL', 'AR', 'PE', 'EC'].includes(v.market) ? `También se conoce como ${v.latam_name}` : `En Latinoamérica: ${v.latam_name}`) : null;
+
 /** Une una lista en una frase: "a, b y c". */
 export const enumerar = (lista: string[]) => new Intl.ListFormat('es', { type: 'conjunction' }).format(lista);

@@ -131,11 +131,20 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 
 ## Publicación
 
-El sitio es estático y se publica en Cloudflare Pages, conectado al repositorio de GitHub. El dominio `mejorelectrico.com` también está en Cloudflare.
+El sitio es estático y se publica en Cloudflare Pages, en el proyecto `mejorelectrico`. El dominio `mejorelectrico.com` también está en Cloudflare. Se compila en el computador y se sube el resultado; Cloudflare no compila ni está conectado a GitHub.
 
-- Compilación: `npm run build`; carpeta de salida: `dist`. La versión de Node sale de `.nvmrc`.
-- En el panel de Cloudflare hay que definir `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Sin ellas el sitio se publica, pero el comparador sale vacío.
-- Cada `git push` a `main` publica una versión nueva. Lo que no está en GitHub no se publica, incluidas las imágenes de `public/vehicles/`.
+```bash
+npm run build
+npm run deploy:pages
+```
+
+- `npm run deploy:pages` sube la carpeta `dist` con `wrangler`. `npm run deploy` hace las dos cosas seguidas.
+- Publicar es una acción hacia afuera: Claude no ejecuta `deploy:pages` ni `deploy` sin que se lo pidan en ese momento.
+- La primera vez hay que iniciar sesión con `npx wrangler login`. Eso lo hace la persona, no Claude.
+- Detener el servidor de desarrollo antes de compilar (`npx astro dev stop`).
+- La compilación toma `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY` del `.env` local. Sin ese archivo el sitio se publica, pero el comparador sale vacío.
+- Se publica lo que hay en el computador, esté o no en git. Conviene hacer commit y `git push` antes, para que GitHub y el sitio publicado coincidan.
+- Desde la rama `main` se publica en producción; desde otra rama, Cloudflare crea una versión de prueba con su propia dirección.
 - `public/_redirects` lleva la raíz `/` a `/es/` con una redirección de servidor. `public/_headers` da caché larga a `/_astro/`. Son archivos propios de Cloudflare Pages.
 - El mapa del sitio (`sitemap-index.xml`) lo genera `@astrojs/sitemap` en cada compilación; `public/robots.txt` apunta a él. Si cambia el dominio, cambiarlo también en `robots.txt`.
 

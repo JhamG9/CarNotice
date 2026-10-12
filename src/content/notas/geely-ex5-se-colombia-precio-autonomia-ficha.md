@@ -1,7 +1,7 @@
 ---
 titulo: "Geely EX5 SE en Colombia: SUV eléctrico de 215 hp por $92,9 millones, solo en línea"
 resumen: "Geely lanzó la EX5 SE con un precio especial para las primeras 200 unidades, vendidas solo en su página web. Tiene 345 km WLTP, cinco estrellas Euro NCAP y 461 litros de baúl."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-01
 categoria: lanzamientos
 etiquetas: ["SUV", "Autonomía", "Familiares", "Colombia"]
@@ -79,7 +79,7 @@ La EX5 SE se lanzó en $92.990.000 para las primeras 200 unidades vendidas en la
 
 En la página web oficial de Geely Colombia, durante el lanzamiento.
 
-Compárela con la Chery E5 en el [comparador de Garash](/es/comparador/).
+Compárela con la Chery E5 en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

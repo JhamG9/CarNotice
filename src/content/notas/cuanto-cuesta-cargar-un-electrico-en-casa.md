@@ -1,7 +1,7 @@
 ---
 titulo: "Cuánto cuesta cargar un carro eléctrico en casa en Bogotá: la cuenta por estrato"
 resumen: "Con la tarifa de Enel de agosto de 2026, mil kilómetros al mes le cuestan unos $142.000 en estrato 4. El subsidio de los estratos 1 a 3 ayuda menos de lo que parece."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-11
 categoria: electricos
 etiquetas: ["Carga en casa", "Costos", "Consumo", "Colombia"]
@@ -72,7 +72,7 @@ No es obligatorio en una casa. En un conjunto residencial sí suele exigirse par
 
 Para la mayoría de hogares no. Enel menciona opciones tarifarias que requieren cambiar el sistema de medida, y hay que coordinarlas directamente con la empresa.
 
-Para ver cuánto consume cada modelo, compárelos en el [comparador de Garash](/es/comparador/).
+Para ver cuánto consume cada modelo, compárelos en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

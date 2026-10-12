@@ -1,7 +1,7 @@
 ---
 titulo: "Eléctrico o gasolina: cuánto se ahorra de verdad al año en Colombia en 2026"
 resumen: "Con 12.000 km al año, un eléctrico cargado en casa ahorra cerca de $3,2 millones solo en energía. Sumamos impuestos, SOAT y mantenimiento para ver la cifra completa."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-10
 categoria: electricos
 etiquetas: ["Costos", "Consumo", "Carga en casa", "Colombia"]
@@ -63,7 +63,7 @@ No. La tarifa de energía y el precio de la gasolina cambian por ciudad, y los d
 
 No. Un híbrido sigue usando gasolina en todos los trayectos. Ahorra frente a un carro convencional, pero bastante menos que un eléctrico.
 
-Compare consumo, autonomía y equipamiento modelo por modelo en el [comparador de Garash](/es/comparador/).
+Compare consumo, autonomía y equipamiento modelo por modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

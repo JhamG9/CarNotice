@@ -1,7 +1,7 @@
 ---
 titulo: "¿Me pueden negar el cargador del carro eléctrico en el conjunto? Lo que dice la ley en Colombia"
 resumen: "El conjunto no puede prohibir un cargador en un parqueadero privado, pero sí regularlo. Si la obra toca zonas comunes, decide la asamblea con el 70 % de los coeficientes."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-08
 categoria: electricos
 etiquetas: ["Carga en casa", "Regulación", "Colombia"]
@@ -65,7 +65,7 @@ Enel calculaba alrededor de $3 millones para un cargador doméstico, pero en edi
 
 Depende de la obra. El Ministerio de Vivienda señala que una reparación menor no la requiere, pero una modificación significativa del edificio puede necesitar licencia de modificación.
 
-Revise cuánto tarda en cargar cada modelo en el [comparador de Garash](/es/comparador/).
+Revise cuánto tarda en cargar cada modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 *Esta nota es informativa y no reemplaza la asesoría de un abogado.*
 

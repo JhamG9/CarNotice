@@ -1,7 +1,7 @@
 ---
 titulo: "Los eléctricos ya son el 17,4 % de los carros nuevos en Colombia: así cerró septiembre de 2026"
 resumen: "En septiembre se matricularon 5.895 eléctricos, 217 % más que hace un año. En lo corrido de 2026 ya van 39.784, más del triple que en el mismo periodo de 2025."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-05
 categoria: noticias
 etiquetas: ["Ventas", "Mercado", "SUV", "Colombia"]
@@ -76,7 +76,7 @@ Tesla, con 41,6 % del acumulado del año, seguida por BYD con 20,7 % y Chery con
 
 El RUNT registraba 77.215 vehículos eléctricos a mayo de 2026.
 
-Compare los más vendidos en el [comparador de Garash](/es/comparador/).
+Compare los más vendidos en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

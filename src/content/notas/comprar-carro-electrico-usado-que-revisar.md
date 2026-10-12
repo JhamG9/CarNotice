@@ -1,7 +1,7 @@
 ---
 titulo: "Comprar un carro eléctrico usado en Colombia: las siete cosas que debe revisar antes de pagar"
 resumen: "La caída de precios de los eléctricos nuevos en 2026 también golpeó a los usados. Hay oportunidades, pero la batería, la garantía y los beneficios tributarios cambian la cuenta."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-06
 categoria: electricos
 etiquetas: ["Costos", "Autonomía", "Mercado", "Colombia"]
@@ -70,7 +70,7 @@ El kilometraje importa menos que el estado de la batería. Un carro con muchos k
 
 En el concesionario de la marca o en talleres especializados en eléctricos con equipos de diagnóstico. Pida el reporte por escrito.
 
-Compare la ficha de los modelos que está mirando en el [comparador de Garash](/es/comparador/).
+Compare la ficha de los modelos que está mirando en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

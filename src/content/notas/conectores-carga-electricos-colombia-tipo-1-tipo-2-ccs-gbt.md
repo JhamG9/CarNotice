@@ -1,7 +1,7 @@
 ---
 titulo: "Tipo 1, Tipo 2, CCS1, CCS2 o GB/T: el conector que debe revisar antes de comprar un eléctrico en Colombia"
 resumen: "En Colombia conviven cinco tipos de conector y no todos los carros sirven en todas las electrolineras. Cómo saber cuál trae su carro y qué cambiará con la norma de interoperabilidad."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-08
 categoria: electricos
 etiquetas: ["Carga rápida", "Carga en casa", "Regulación", "Colombia"]
@@ -62,7 +62,7 @@ Está en la ficha técnica y en la tapa del puerto de carga. Si son dos tomas se
 
 Tesla instala sus propios supercargadores. Confirme con la marca el tipo de toma de la versión colombiana y su compatibilidad con estaciones de otros operadores.
 
-Revise el conector y la potencia de carga de cada modelo en el [comparador de Garash](/es/comparador/).
+Revise el conector y la potencia de carga de cada modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 titulo: "Crédito para carro eléctrico en 2026: tasas desde 12,5 % y cuánto se ahorra frente a uno de gasolina"
 resumen: "Financiar $80 millones a 60 meses cuesta $26 millones en intereses a 12,5 % EA y $51 millones a 23,5 %. Las tasas verdes cambian la cuenta tanto como el IVA."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-01
 categoria: noticias
 etiquetas: ["Costos", "Mercado", "Colombia"]
@@ -67,7 +67,7 @@ Sí, la mayoría de las líneas de crédito verde incluye híbridos, aunque algu
 
 Para personas naturales con ingresos de independientes o para empresas, el leasing puede tener ventajas tributarias. Compárelo con un crédito tradicional con la ayuda de un asesor.
 
-Antes de pedir el crédito, compare modelos en el [comparador de Garash](/es/comparador/).
+Antes de pedir el crédito, compare modelos en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 *Los cálculos son ilustrativos y no incluyen seguros ni costos adicionales. No constituyen una recomendación financiera.*
 

@@ -1,7 +1,7 @@
 ---
 titulo: "CLTC, NEDC o WLTP: por qué la autonomía de un eléctrico cambia tanto según el ciclo y cuál creerle"
 resumen: "El mismo carro puede anunciar 422 km o 350 km según cómo se mida. Explicamos los tres ciclos, cuánto se aleja cada uno de la realidad y cómo comparar sin caer en la trampa."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-07
 categoria: electricos
 etiquetas: ["Autonomía", "Consumo"]
@@ -57,7 +57,7 @@ Ningún ciclo reemplaza el uso diario, pero hay patrones que se repiten:
 3. **Mire el consumo, no solo la autonomía.** Un carro que gasta 14 kWh cada 100 km es más eficiente que uno que gasta 18, aunque el segundo tenga una batería más grande y anuncie más kilómetros.
 4. **Calcule con margen.** Planee viajes usando el 70 % de la autonomía WLTP y llegue a cargar con al menos 15 % de batería.
 
-> En el comparador de Garash las autonomías solo se comparan dentro del mismo ciclo de medición, por eso a veces verá "Sin dato" aunque la marca publique una cifra en otro ciclo.
+> En el comparador de Mejor Eléctrico las autonomías solo se comparan dentro del mismo ciclo de medición, por eso a veces verá "Sin dato" aunque la marca publique una cifra en otro ciclo.
 
 ## Preguntas frecuentes
 
@@ -73,8 +73,8 @@ Sí, porque la batería pierde capacidad con el uso. La pérdida suele ser gradu
 
 La altura no afecta a un motor eléctrico como a uno de gasolina. Lo que más influye en Bogotá es el tráfico, que en general favorece a los eléctricos.
 
-Compare la autonomía de dos modelos en el mismo ciclo en el [comparador de Garash](/es/comparador/).
+Compare la autonomía de dos modelos en el mismo ciclo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 
-**Fuentes:** [El Carro Colombiano: Chery E5 en Colombia](https://www.elcarrocolombiano.com/resenas/chery-e5-primer-contacto-suv-electrica-precio-colombia/) · [Portafolio: Geely EX5 SE en Colombia](https://www.portafolio.co/negocios/vehiculo/nueva-suv-electrica-llega-a-colombia-este-es-el-precio-de-lanzamiento-y-las-caracteristicas-de-la-geely-ex5-se-497330) · [Garash: Deepal S05 con LiDAR](/es/notas/deepal-s05-lidar-2027/)
+**Fuentes:** [El Carro Colombiano: Chery E5 en Colombia](https://www.elcarrocolombiano.com/resenas/chery-e5-primer-contacto-suv-electrica-precio-colombia/) · [Portafolio: Geely EX5 SE en Colombia](https://www.portafolio.co/negocios/vehiculo/nueva-suv-electrica-llega-a-colombia-este-es-el-precio-de-lanzamiento-y-las-caracteristicas-de-la-geely-ex5-se-497330) · [Mejor Eléctrico: Deepal S05 con LiDAR](/es/notas/deepal-s05-lidar-2027/)

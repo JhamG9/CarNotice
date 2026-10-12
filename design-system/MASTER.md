@@ -1,4 +1,4 @@
-# Sistema de diseño de Garash
+# Sistema de diseño de Mejor Eléctrico
 
 Resumen de trabajo para las próximas sesiones. La fuente de verdad es `CLAUDE.md`: si algo de aquí lo contradice, gana `CLAUDE.md` y este archivo se corrige.
 
@@ -74,7 +74,7 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 
 - Contenedor de página: 1240 px (`max-w-pagina`). Columna de artículo: 710 px (`max-w-articulo`).
 - Márgenes laterales: 16 px en móvil, 24 px desde 768 px.
-- Portada: primero el comparador a todo el ancho de la página. Debajo, separado por una línea, "Blog y noticias": lista a la izquierda y barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final.
+- Portada: "Blog y noticias", con la lista a la izquierda y la barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final. El comparador no va en la portada.
 - Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Tiene tres ítems: Inicio, Comparador y Blog y noticias. Las categorías salieron del menú y viven en "Blog y noticias".
 - Islas de React: `MenuMovil.tsx`, `BotonTema.tsx`, `Compartir.tsx` y `Comparador.tsx` (que usa `GraficoRadar.tsx`).
 - Tarjeta de nota: foto arriba en móvil; foto a la izquierda (2/5) y texto a la derecha (3/5) desde 768 px.
@@ -85,7 +85,7 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 ## Reglas de componentes
 
 - Un solo `h1` por página. En la portada es el logo; en las demás, el titular.
-- Jerarquía en la portada: "Comparador de carros" y "Blog y noticias" en `h2`; nota destacada y tarjetas en `h3` (prop `nivel` de `NotaDestacada.astro`).
+- Jerarquía en la portada: "Blog y noticias" en `h2`; nota destacada y tarjetas en `h3` (prop `nivel` de `NotaDestacada.astro` y `TarjetaNota.astro`).
 - Todos los titulares van en `--heading`. Sus enlaces usan `enlace-titular`: sin subrayado; al pasar el cursor cambian a `--accent`.
 - Barra corta de 32 × 3 px en `--accent-bright`: bajo la categoría de cada nota y bajo los títulos de la barra lateral (utilidad `barra-corta`).
 - Pie de tarjeta (`PieNota.astro`): "Por" y autor en `--heading`, fecha en `--muted`, y enlace "Leer nota" con flecha en `--accent`. Ese enlace repite el del titular, así que va con `aria-hidden` y fuera del orden de tabulación.
@@ -124,7 +124,7 @@ Plantilla: `src/pages/es/notas/[slug].astro`. Genera una página por cada nota d
 - Notas relacionadas: `notasRelacionadas()` en `src/lib/notas.ts`. Primero las de la misma categoría; si son menos de 3, completa con las más recientes. Tres columnas desde 768 px.
 - Menú: con `seccionActiva`, marca "Blog y noticias" como activo.
 - SEO: `Base.astro` pone título, descripción, canónica, Open Graph y `twitter:card`. La nota añade `article:*` y el JSON-LD `NewsArticle` por el slot `head`. `og:image` solo sale si la nota tiene foto.
-- El dominio se define en `astro.config.mjs` (`SITIO`). Hoy es un marcador (`https://www.example.com`) y hay que cambiarlo por el real.
+- El dominio se define en `astro.config.mjs` (`SITIO`): `https://mejorelectrico.com`, sin `www`.
 
 ## Página de sección
 
@@ -134,7 +134,7 @@ Plantilla compartida: `src/layouts/Seccion.astro`. La usan `src/pages/es/categor
 - La descripción de cada categoría está en `src/data/categorias.ts`. La de las etiquetas se genera sola.
 - Primera página: la nota más reciente va con `NotaDestacada` y el resto con `TarjetaNota` (`nivel="h2"`, porque cuelgan directo del `h1`). Las demás páginas solo llevan tarjetas.
 - Paginación: `NOTAS_POR_PAGINA = 10` en `src/lib/notas.ts`. El parámetro de la ruta debe llamarse `page` (lo exige `paginate()` de Astro). Los enlaces "Anterior" y "Siguiente" solo aparecen si hay más de una página.
-- SEO: título "Nombre | Garash" o "Nombre, página 2 | Garash"; la descripción añade "Página 2 de N". Cada página es su propia canónica y lleva `rel="prev"` y `rel="next"`.
+- SEO: título "Nombre | Mejor Eléctrico" o "Nombre, página 2 | Mejor Eléctrico"; la descripción añade "Página 2 de N". Cada página es su propia canónica y lleva `rel="prev"` y `rel="next"`.
 - Estado vacío: mensaje y botón principal "Ir a la portada". Una categoría sin notas sigue generando su página; una etiqueta sin notas no existe.
 - Etiquetas: se agrupan por slug con `obtenerEtiquetas()`.
 - 404: `src/pages/404.astro`. Número "404" grande en `--accent-bright` (decorativo, oculto a lectores de pantalla), `h1`, botón principal a la portada, lista de secciones y las 3 notas más recientes. Usa `sinIndexar` de `Base.astro`: lleva `noindex` y no declara URL canónica.

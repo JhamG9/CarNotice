@@ -1,7 +1,7 @@
 ---
 titulo: "Devolución del IVA de un carro eléctrico: el paso a paso ante la DIAN y los errores que la frenan"
 resumen: "Con el certificado de la UPME se puede recuperar el 5 % de IVA pagado en la compra. El trámite es por cita y por correo, y un archivo mal enviado obliga a empezar de nuevo."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-09
 categoria: electricos
 etiquetas: ["Impuestos", "Regulación", "Costos", "Colombia"]

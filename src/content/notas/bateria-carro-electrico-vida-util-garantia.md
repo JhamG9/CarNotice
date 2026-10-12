@@ -1,7 +1,7 @@
 ---
 titulo: "¿Cuánto dura la batería de un carro eléctrico? Garantías en Colombia y cómo cuidarla"
 resumen: "Las marcas que venden en Colombia ofrecen 8 años de garantía en la batería, con topes de 160.000 a 200.000 km. Qué cubre de verdad esa garantía y qué hábitos la desgastan."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-07
 categoria: electricos
 etiquetas: ["Autonomía", "Costos", "Carga rápida"]
@@ -66,7 +66,7 @@ En muchos modelos sí: se reemplazan los módulos dañados y no la batería ente
 
 El clima templado de Bogotá es favorable. El frío extremo y el calor intenso son los que más afectan, y ninguno es habitual en la ciudad.
 
-Revise la capacidad de batería y la garantía de cada modelo en el [comparador de Garash](/es/comparador/).
+Revise la capacidad de batería y la garantía de cada modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

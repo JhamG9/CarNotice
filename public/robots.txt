@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mejorelectrico.com/sitemap-index.xml

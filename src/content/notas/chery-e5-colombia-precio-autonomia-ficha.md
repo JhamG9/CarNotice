@@ -1,7 +1,7 @@
 ---
 titulo: "Chery E5 en Colombia: el SUV eléctrico de $79,9 millones que ya es el segundo más vendido"
 resumen: "Llegó en mayo y en septiembre ya era el segundo eléctrico más vendido del país. Batería LFP de 50,6 kWh, 350 km WLTP, 442 litros de baúl y 8 años de garantía. Qué trae cada versión."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-02
 categoria: lanzamientos
 etiquetas: ["SUV", "Autonomía", "Familiares", "Colombia"]
@@ -87,7 +87,7 @@ Desde $79.990.000 en la versión Comfort, según el precio de mayo de 2026.
 
 No. Las asistencias avanzadas solo vienen en la versión Luxury.
 
-Compárela con el Kia EV2 o el Tesla Model Y en el [comparador de Garash](/es/comparador/).
+Compárela con el Kia EV2 o el Tesla Model Y en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

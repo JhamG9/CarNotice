@@ -1,6 +1,10 @@
-# Revista de carros
+# Mejor Eléctrico
 
-Sitio web tipo revista de carros: últimas noticias, lanzamientos, eléctricos y de combustión. Más adelante tendrá un comparador de carros.
+Sitio web de carros: un comparador de carros y una revista con noticias, lanzamientos, eléctricos y de combustión.
+
+- Nombre del sitio: **Mejor Eléctrico**, dos palabras, con tilde. Así va en el logo, los títulos de página ("… | Mejor Eléctrico"), el pie y los datos estructurados.
+- Dominio: `https://mejorelectrico.com`, sin `www`. Se define en `astro.config.mjs` (`SITIO`).
+- El proyecto se llamó "Garash" durante el desarrollo. Ese nombre ya no se muestra en el sitio, pero sigue en identificadores internos que no se renombran: la carpeta del proyecto, el proyecto de Supabase (`garash`) y el conector (`supabase-garash`).
 
 ## Alcance actual
 
@@ -125,9 +129,19 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 - Si no hay foto del modelo exacto, sirve la de un modelo hermano (el mismo carro con otro nombre en otro país, como el Baojun Yep Plus para el Chevrolet Spark EUV), y `image_credit` empieza por el nombre de ese modelo. Si no hay ninguna, `image_url` queda vacío.
 - Varias versiones del mismo modelo pueden usar la misma foto: se copia con el `slug` de cada una.
 
+## Publicación
+
+El sitio es estático y se publica en Cloudflare Pages, conectado al repositorio de GitHub. El dominio `mejorelectrico.com` también está en Cloudflare.
+
+- Compilación: `npm run build`; carpeta de salida: `dist`. La versión de Node sale de `.nvmrc`.
+- En el panel de Cloudflare hay que definir `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Sin ellas el sitio se publica, pero el comparador sale vacío.
+- Cada `git push` a `main` publica una versión nueva. Lo que no está en GitHub no se publica, incluidas las imágenes de `public/vehicles/`.
+- `public/_redirects` lleva la raíz `/` a `/es/` con una redirección de servidor. `public/_headers` da caché larga a `/_astro/`. Son archivos propios de Cloudflare Pages.
+- El mapa del sitio (`sitemap-index.xml`) lo genera `@astrojs/sitemap` en cada compilación; `public/robots.txt` apunta a él. Si cambia el dominio, cambiarlo también en `robots.txt`.
+
 ## Entorno de desarrollo
 
-- El puerto 4321 lo ocupa otro proyecto. Garash corre en el 4330, en segundo plano:
+- El puerto 4321 lo ocupa otro proyecto. El sitio corre en el 4330, en segundo plano:
 
 ```bash
 npx astro dev --background --port 4330
@@ -143,7 +157,7 @@ npx astro dev --background --port 4330
 
 Referencia: elcarrocolombiano.com. Se copia la estructura, no el aspecto.
 
-- Portada: el comparador es lo principal del sitio y va primero, a todo el ancho (la misma isla de `/es/comparador/`). Debajo, "Blog y noticias": nota destacada, las 6 siguientes y enlace "Ver todas las notas", con la barra lateral a la derecha. Sin banner ni publicidad antes del contenido.
+- Portada: solo la revista. Bajo el título "Blog y noticias" van la nota destacada, las 6 siguientes y el enlace "Ver todas las notas", con la barra lateral a la derecha. El comparador no va en la portada: tiene su propia página y su enlace en el menú. Sin banner ni publicidad antes del contenido.
 - Lista de notas a la izquierda y barra lateral a la derecha.
 - Tarjeta de nota: foto, categoría, titular, resumen de 2 o 3 líneas, autor (en `--heading`), fecha y enlace "Leer nota" con flecha (en `--accent`).
 - Barra lateral: "Lo más reciente", categorías y etiquetas.
@@ -256,7 +270,7 @@ Marcadores de imagen (notas sin foto): fondo `--tint`, borde `--border` e icono 
 
 ## Comparador
 
-Página `/es/comparador/` y primer bloque de la portada. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
+Página `/es/comparador/`. No aparece en la portada. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
 
 - Estructura inspirada en versus.com (se toma la estructura, no el aspecto): buscadores, encabezado "A vs B", veredicto, gráfico, mayores diferencias, ficha técnica y barra fija abajo.
 - Dos buscadores, "Carro 1" y "Carro 2" (`BuscadorCarro.tsx`, patrón combobox de ARIA): se escribe marca, modelo, versión, año, mercado o nombre en Latinoamérica, sin importar tildes ni mayúsculas, y se elige con el ratón o con flechas y Enter. Muestran hasta 8 resultados con foto. La comparación elegida queda en la dirección (`?a=<slug>&b=<slug>`) para poder compartirla.

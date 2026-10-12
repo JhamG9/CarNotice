@@ -1,7 +1,7 @@
 ---
 titulo: "Kia EV2 en Colombia: precio, autonomía de 312 km y lo que trae la versión Air"
 resumen: "El SUV eléctrico más pequeño de Kia llegó en una sola versión, por $89.990.000. Tiene batería LFP de 42,2 kWh, carga rápida en 29 minutos y 8 años de garantía."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-03
 categoria: lanzamientos
 etiquetas: ["SUV", "Autonomía", "Carga rápida", "Colombia"]
@@ -91,7 +91,7 @@ Unas 4,1 horas en un cargador de 11 kW, y 29 minutos del 10 % al 80 % en carga r
 
 Como eléctrico, paga IVA del 5 % y puede acceder a la devolución del IVA y a la deducción en renta con el certificado de la UPME.
 
-Compárelo con la Chery E5 o el BYD Yuan Up en el [comparador de Garash](/es/comparador/).
+Compárelo con la Chery E5 o el BYD Yuan Up en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

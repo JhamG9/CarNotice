@@ -36,7 +36,7 @@ const destacada = pagina === 1 ? notas[0] : undefined;
 const resto = destacada ? notas.slice(1) : notas;
 
 const sufijo = pagina > 1 ? `, página ${pagina}` : '';
-const titulo = `${nombre}${sufijo} | Garash`;
+const titulo = `${nombre}${sufijo} | Mejor Eléctrico`;
 const descripcionSeo = pagina > 1 ? `${descripcion} Página ${pagina} de ${totalPaginas}.` : descripcion;
 const absoluta = (ruta: string) => new URL(ruta, Astro.site).href;
 const CLASE_PAGINA =

@@ -1,7 +1,7 @@
 ---
 titulo: "Deducción en renta por carro eléctrico: por qué el 50 % no siempre vale lo que promete"
 resumen: "La Ley 1715 permite deducir hasta la mitad del valor del carro, pero el tope de 1.340 UVT y el límite del 40 % pueden dejar el ahorro real muy por debajo. Hicimos la cuenta."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-09
 categoria: electricos
 etiquetas: ["Impuestos", "Costos", "Regulación", "Colombia"]
@@ -74,7 +74,7 @@ Sí, son dos beneficios distintos. La condición es que el IVA que le devuelvan 
 
 Según la DIAN, aplica para híbridos HEV y PHEV con certificado de la UPME, no para los híbridos ligeros que no cumplan las condiciones técnicas.
 
-Si está comparando eléctricos e híbridos, revise sus fichas en el [comparador de Garash](/es/comparador/).
+Si está comparando eléctricos e híbridos, revise sus fichas en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 *Esta nota es informativa y no reemplaza la asesoría de un contador.*
 

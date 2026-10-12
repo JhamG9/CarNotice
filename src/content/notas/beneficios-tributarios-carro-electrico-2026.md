@@ -1,7 +1,7 @@
 ---
 titulo: "Beneficios de comprar un carro eléctrico en Colombia en 2026: la lista completa y sus letras pequeñas"
 resumen: "IVA del 5 %, arancel cero, impuesto vehicular de máximo 1 %, SOAT con descuento, deducción en renta y devolución del IVA. Qué aplica a todos y qué exige papeleo."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-10
 categoria: electricos
 etiquetas: ["Costos", "Regulación", "Impuestos", "Colombia"]
@@ -68,7 +68,7 @@ No. El 5 % es la tarifa que se paga al comprar. La devolución es un trámite po
 
 El IVA reducido y la devolución aplican a la compra de un carro nuevo. El impuesto vehicular de máximo 1 %, el SOAT con descuento y la exención del pico y placa sí siguen al carro cuando cambia de dueño.
 
-Antes de decidir, compare modelos en el [comparador de Garash](/es/comparador/).
+Antes de decidir, compare modelos en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

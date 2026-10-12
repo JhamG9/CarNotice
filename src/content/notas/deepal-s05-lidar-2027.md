@@ -1,7 +1,7 @@
 ---
 titulo: "Deepal S05 con LiDAR: 620 km de autonomía y precio"
 resumen: "El Deepal S05 se renueva con sensor LiDAR, hasta 620 km de autonomía y carga rápida en 15 minutos. Precio, versiones y cuándo llegaría a Colombia."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-10
 categoria: electricos
 etiquetas: ["Deepal", "Deepal S05", "SUV", "LiDAR", "Rango extendido"]

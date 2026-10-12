@@ -1,7 +1,7 @@
 ---
 titulo: "Un punto de carga por cada 148 eléctricos: el cuello de botella de la movilidad eléctrica en Colombia"
 resumen: "Colombia tiene unos 520 puntos de carga públicos y necesitará cerca de 20.000 en 2030. Quién está construyendo electrolineras, cuánto cuestan y qué cambió en la norma."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-03
 categoria: noticias
 etiquetas: ["Carga rápida", "Mercado", "Regulación", "Colombia"]
@@ -67,7 +67,7 @@ Los operadores tienen aplicaciones con mapas y disponibilidad en tiempo real, co
 
 Sí, en los corredores principales, pero exige planear las paradas y revisar que los conectores sean compatibles con su carro.
 
-Revise la potencia de carga de cada modelo en el [comparador de Garash](/es/comparador/).
+Revise la potencia de carga de cada modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

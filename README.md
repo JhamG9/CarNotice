@@ -1,4 +1,6 @@
-# Garash
+# Mejor Eléctrico
+
+Sitio: [mejorelectrico.com](https://mejorelectrico.com). El proyecto se llamó "Garash" durante el desarrollo; por eso la carpeta, el proyecto de Supabase y el conector conservan ese nombre.
 
 Revista de carros: noticias, lanzamientos, eléctricos y pruebas. Incluye un comparador de carros (`/es/comparador/`), que lee sus datos de la tabla `vehicles` descrita en este documento.
 

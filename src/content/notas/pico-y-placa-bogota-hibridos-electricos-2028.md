@@ -1,7 +1,7 @@
 ---
 titulo: "Pico y placa en Bogotá: los híbridos podrían perder la exención en 2028, los eléctricos no"
 resumen: "La excepción para híbridos en Bogotá vence el 31 de diciembre de 2027 y la decidirá el próximo alcalde. La de los eléctricos sale de una ley nacional y no depende de la ciudad."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-04
 categoria: noticias
 etiquetas: ["Regulación", "Mercado", "Colombia"]
@@ -67,7 +67,7 @@ Sí. La Ley 1964 de 2019 los exime de las restricciones de circulación locales,
 
 Para los eléctricos, la ley es nacional. Para los híbridos, depende de cada ciudad, así que revise el decreto local.
 
-Compare híbridos y eléctricos en el [comparador de Garash](/es/comparador/).
+Compare híbridos y eléctricos en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

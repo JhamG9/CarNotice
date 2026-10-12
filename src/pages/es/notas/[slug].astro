@@ -47,14 +47,18 @@ const datosEstructurados = {
   keywords: etiquetas.join(', '),
   mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   author: { '@type': 'Person', name: autor },
-  publisher: { '@type': 'Organization', name: 'Garash', url: new URL('/', Astro.site).href },
+  publisher: { '@type': 'Organization', name: 'Mejor Eléctrico', url: new URL('/', Astro.site).href },
   ...(imagenSocial && { image: [imagenSocial] }),
 };
 // "<" escapado para que el texto de una nota no pueda cerrar la etiqueta <script>
+// El nombre del sitio solo se añade si el título completo no pasa de 60 caracteres, que es lo que muestra Google
+const conMarca = `${titulo} | Mejor Eléctrico`;
+const tituloPagina = conMarca.length <= 60 ? conMarca : titulo;
+
 const jsonLd = JSON.stringify(datosEstructurados).replace(/</g, '\\u003c');
 ---
 
-<Base titulo={`${titulo} | Garash`} descripcion={resumen} seccionActiva={categoria} tipo="article" imagenSocial={imagenSocial}>
+<Base titulo={tituloPagina} descripcion={resumen} seccionActiva={categoria} tipo="article" imagenSocial={imagenSocial}>
   <Fragment slot="head">
     <meta property="article:published_time" content={fecha.toISOString()} />
     <meta property="article:author" content={autor} />

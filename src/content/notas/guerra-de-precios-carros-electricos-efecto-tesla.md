@@ -1,7 +1,7 @@
 ---
 titulo: "El efecto Tesla: cómo la guerra de precios abarató los eléctricos en Colombia y si conviene esperar"
 resumen: "Desde la llegada de Tesla, varias marcas recortaron precios y algunos modelos bajaron hasta $80 millones según Fasecolda. Qué cambió, quién bajó y qué significa para quien va a comprar."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-02
 categoria: noticias
 etiquetas: ["Mercado", "Costos", "Ventas", "Colombia"]
@@ -67,7 +67,7 @@ En su lanzamiento, el Model 3 de entrada quedó en $114,9 millones y el Model Y 
 
 Por la competencia de nuevas marcas, el arancel cero, la escala de producción de los fabricantes chinos y la estrategia de precios con la que llegó Tesla.
 
-Compare precios y fichas en el [comparador de Garash](/es/comparador/).
+Compare precios y fichas en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

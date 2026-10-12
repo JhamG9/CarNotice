@@ -1,7 +1,7 @@
 ---
 titulo: "Mantenimiento de un carro eléctrico: qué se revisa, qué desaparece y en qué sí se gasta más"
 resumen: "Sin aceite, filtros de motor ni bujías, el mantenimiento de un eléctrico es más simple. Pero las llantas, el refrigerante de la batería y el seguro tienen sus propias cuentas."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-06
 categoria: electricos
 etiquetas: ["Costos", "Consumo"]
@@ -63,7 +63,7 @@ Para llantas, suspensión o frenos, cualquier taller serio sirve. Para la bater�
 
 Sí. Los eléctricos tienen una batería pequeña de 12 voltios que alimenta luces y sistemas. Si falla, el carro no enciende aunque la batería grande esté cargada.
 
-Compare garantías y datos técnicos de cada modelo en el [comparador de Garash](/es/comparador/).
+Compare garantías y datos técnicos de cada modelo en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

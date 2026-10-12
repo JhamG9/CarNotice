@@ -1,7 +1,7 @@
 ---
 titulo: "Tesla se queda con 4 de cada 10 eléctricos vendidos en Colombia: las cifras de su primer año"
 resumen: "Tesla lleva 16.542 eléctricos matriculados en 2026 y el Model Y suma 14.381 por sí solo. Qué explica el fenómeno y qué riesgos tiene que una marca concentre tanto el mercado."
-autor: "Redacción Garash"
+autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-06
 categoria: noticias
 etiquetas: ["Ventas", "Mercado", "SUV", "Colombia"]
@@ -63,7 +63,7 @@ El Model Y, con 14.381 unidades en el año. El Model 3 suma 2.161.
 
 Tesla tiene tiendas en Bogotá y Medellín.
 
-Compare el Model Y con sus rivales en el [comparador de Garash](/es/comparador/).
+Compare el Model Y con sus rivales en el [comparador de Mejor Eléctrico](/es/comparador/).
 
 ---
 

@@ -146,6 +146,7 @@ npm run deploy:pages
 - Se publica lo que hay en el computador, esté o no en git. Conviene hacer commit y `git push` antes, para que GitHub y el sitio publicado coincidan.
 - Desde la rama `main` se publica en producción; desde otra rama, Cloudflare crea una versión de prueba con su propia dirección.
 - `public/_redirects` lleva la raíz `/` a `/es/` con una redirección de servidor. `public/_headers` da caché larga a `/_astro/`. Son archivos propios de Cloudflare Pages.
+- Google Analytics (propiedad `G-3C05L6ZDMJ`) se carga desde `Base.astro`, solo en el sitio compilado y solo cuenta visitas en `mejorelectrico.com`: ni `localhost` ni las direcciones `.pages.dev`. La página 404 no lo lleva.
 - El mapa del sitio (`sitemap-index.xml`) lo genera `@astrojs/sitemap` en cada compilación; `public/robots.txt` apunta a él. Si cambia el dominio, cambiarlo también en `robots.txt`.
 
 ## Entorno de desarrollo

@@ -32,6 +32,10 @@ const {
   sinIndexar = false,
 } = Astro.props;
 const canonica = new URL(Astro.url.pathname, Astro.site).href;
+
+// Google Analytics. Solo se incluye en el sitio compilado, no en el servidor de desarrollo.
+const ID_ANALYTICS = 'G-3C05L6ZDMJ';
+const conAnalytics = import.meta.env.PROD && !sinIndexar;
 ---
 
 <!doctype html>
@@ -63,6 +67,24 @@ const canonica = new URL(Astro.url.pathname, Astro.site).href;
         }
       } catch (e) {}
     </script>
+    {
+      conAnalytics && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ID_ANALYTICS}`} />
+          <script is:inline define:vars={{ ID_ANALYTICS }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            // define:vars envuelve el script en una función; gtag se expone para poder registrar eventos después
+            window.gtag = gtag;
+            gtag('js', new Date());
+            // Solo cuenta visitas en el dominio real, no en localhost ni en las direcciones de prueba de Cloudflare
+            if (/(^|\.)mejorelectrico\.com$/.test(location.hostname)) gtag('config', ID_ANALYTICS);
+          </script>
+        </>
+      )
+    }
   </head>
   <body>
     <a

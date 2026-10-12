@@ -23,7 +23,7 @@ Para conectarse a la base de datos, copia `.env.example` como `.env` y completa 
 
 Guarda las fichas técnicas del comparador de carros. Vive en Supabase, en el proyecto `garash`.
 
-- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql).
+- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql) y [20261011_add_vehicle_image_credit_and_latam_name.sql](supabase/migrations/20261011_add_vehicle_image_credit_and_latam_name.sql).
 - Reglas para insertar un vehículo: [CLAUDE.md](CLAUDE.md), sección "Base de datos (Supabase)".
 
 Cada fila es una versión de un carro, en un año modelo y para un mercado. El mismo carro puede tener varias filas: una por versión y una por país.
@@ -55,6 +55,9 @@ Si la tabla cambia, este documento se actualiza en el mismo cambio.
 | `warranty_years` | Garantía general del carro, en años. |
 | `warranty_km` | Garantía general del carro, en kilómetros. |
 | `image_url` | Ruta de la imagen del vehículo, sin dominio. Ejemplo: `/vehicles/deepal-s05-620-premium-lidar-2027-cn.webp`. El archivo va en la carpeta `public/vehicles/`. |
+| `image_credit` | Autor y licencia de la foto, por ejemplo `Alexander Migl, CC BY-SA 4.0`. Si la foto muestra un modelo hermano (el mismo carro con otro nombre en otro país), empieza por ese nombre: `Baojun Yep Plus · KitsuneDP, CC0`. El comparador lo muestra bajo la foto como "Foto de referencia". |
+| `image_source_url` | Página donde se publicó la foto (por ejemplo, su página en Wikimedia Commons). El crédito enlaza ahí. |
+| `latam_name` | Nombre con que se vende el carro en Latinoamérica, solo cuando es distinto de marca y modelo. Ejemplo: el BYD Dolphin Surf europeo se vende como `BYD Seagull`. Se deja vacío si el nombre es el mismo o no se conoce. |
 | `source_url` | Enlace de donde salió la ficha, para poder verificarla después. |
 | `article_slug` | Slug de la nota de la revista que habla de este carro, si existe. Ejemplo: `deepal-s05-lidar-2027`. |
 

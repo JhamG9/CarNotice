@@ -7,6 +7,11 @@ export type Vehiculo = {
   model_year: number;
   market: string;
   image_url: string | null;
+  /** Autor y licencia de la foto; si muestra un modelo hermano, empieza por su nombre. */
+  image_credit: string | null;
+  image_source_url: string | null;
+  /** Nombre con que se vende en Latinoamérica, solo si cambia. */
+  latam_name: string | null;
   article_slug: string | null;
 } & Record<string, string | number | boolean | null>;
 
@@ -441,6 +446,88 @@ export function calcularVeredicto(ejes: Eje[]): Veredicto | null {
     ejesSinDato: ejes.filter((eje) => eje.a === null || eje.b === null).map((eje) => eje.nombre),
     ejesComparados: comparables.length,
   };
+}
+
+// --- Áreas del gráfico: qué filas de la ficha explican cada eje
+
+export const CAMPOS_POR_AREA: Record<string, string[]> = {
+  Autonomía: ['range_wltp_km', 'range_cltc_km', 'range_epa_km', 'range_nedc_km', 'battery_kwh', 'consumption_kwh_100km'],
+  Potencia: ['power_kw', 'torque_nm', 'top_speed_kmh', 'motor_count'],
+  Aceleración: ['acceleration_0_100_s', 'power_kw', 'curb_weight_kg'],
+  'Carga rápida': ['dc_charge_kw', 'dc_charge_min', 'ac_charge_kw', 'connector'],
+  Espacio: ['trunk_l', 'front_trunk_l', 'length_mm', 'wheelbase_mm', 'seats'],
+  Seguridad: [...SEGURIDAD, 'airbags', 'ncap_stars'],
+  Confort: [...CONFORT, 'screen_inches'],
+};
+
+const FILAS = SECCIONES.flatMap((seccion) => seccion.filas);
+export const buscarFila = (campo: string) => FILAS.find((fila) => fila.campo === campo);
+
+// --- Mayores diferencias
+
+export interface Diferencia {
+  fila: Fila;
+  ganador: 'a' | 'b';
+  /** Texto de la ventaja: "+120 km" o "1,9×". */
+  ventaja: string;
+  /** Diferencia relativa, para ordenar. */
+  peso: number;
+}
+
+/** Las filas con más diferencia relativa entre los dos carros, de mayor a menor. */
+export function mayoresDiferencias(a: Vehiculo, b: Vehiculo, cantidad = 5): Diferencia[] {
+  const lista: Diferencia[] = [];
+  for (const fila of FILAS) {
+    // La potencia en hp repite la de kW
+    if (fila.campo === 'power_hp') continue;
+    const quien = ganador(fila, a, b);
+    if (!quien) continue;
+    const va = a[fila.campo] as number;
+    const vb = b[fila.campo] as number;
+    const mayor = Math.max(va, vb);
+    const menor = Math.min(va, vb);
+    const peso = menor > 0 ? mayor / menor - 1 : 1;
+    // Desde el doble se lee mejor como "2×"; por debajo, la diferencia con su unidad
+    const ventaja =
+      peso >= 1 && menor > 0
+        ? `${formatearNumero(Math.round((mayor / menor) * 10) / 10)}×`
+        : `${fila.mejor === 'menor' ? '−' : '+'}${formatearNumero(Math.round((mayor - menor) * 10) / 10)}${fila.unidad ? ` ${fila.unidad}` : ''}`;
+    lista.push({ fila, ganador: quien, ventaja, peso });
+  }
+  return lista.sort((x, y) => y.peso - x.peso).slice(0, cantidad);
+}
+
+// --- Buscador
+
+/** Minúsculas y sin tildes, para que "electrico" encuentre "Eléctrico". */
+export const normalizar = (texto: string) =>
+  texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+
+const MERCADOS: Record<string, string> = { CO: 'Colombia', CN: 'China', EU: 'Europa', DE: 'Alemania' };
+export const nombreMercado = (codigo: string) => MERCADOS[codigo] ?? codigo;
+
+/**
+ * Carros que contienen todas las palabras escritas, en marca, modelo, versión, año,
+ * mercado o nombre en Latinoamérica. Primero los que empiezan por lo escrito.
+ */
+export function buscarVehiculos(vehiculos: Vehiculo[], consulta: string): Vehiculo[] {
+  const palabras = normalizar(consulta).split(/\s+/).filter(Boolean);
+  if (palabras.length === 0) return vehiculos;
+  const resultados = vehiculos
+    .map((v) => {
+      const nombre = normalizar(`${v.brand} ${v.model}`);
+      const texto = normalizar(
+        [v.brand, v.model, v.version, v.model_year, v.market, nombreMercado(v.market), v.latam_name ?? ''].join(' '),
+      );
+      if (!palabras.every((palabra) => texto.includes(palabra))) return null;
+      const orden = nombre.startsWith(palabras.join(' ')) ? 0 : normalizar(v.model).startsWith(palabras[0]) ? 1 : 2;
+      return { v, orden };
+    })
+    .filter((r): r is { v: Vehiculo; orden: number } => r !== null);
+  return resultados.sort((x, y) => x.orden - y.orden).map((r) => r.v);
 }
 
 /** Une una lista en una frase: "a, b y c". */

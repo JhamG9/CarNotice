@@ -72,6 +72,7 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 
 - Antes de insertar, modificar o consultar vehículos, o de cambiar la tabla, leer la sección "Base de datos: tabla `vehicles`" del `README.md`: dice qué guarda cada campo, en qué unidad y qué valores acepta.
 - No tiene precio: por ahora no se guardan precios.
+- `latam_name` guarda el nombre con que se vende el carro en Latinoamérica cuando cambia (el Dolphin Surf europeo es el Seagull). Solo se llena con un dato confirmado; el comparador lo muestra bajo el nombre del carro y en la lista.
 - La autonomía tiene una columna por ciclo (`range_wltp_km`, `range_cltc_km`, `range_epa_km`, `range_nedc_km`). Solo se comparan cifras del mismo ciclo.
 - La potencia se guarda en kW (`power_kw`); `power_hp` se calcula sola y no se escribe.
 - `updated_at` se actualiza sola con cada cambio.
@@ -120,7 +121,9 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 - Astro no optimiza lo que está en `public/`: convertir antes a WebP, unos 1.600 px de ancho, menos de 300 KB y proporción 16:9, con el mismo comando de `sharp` de las notas.
 - No renombrar ni mover un archivo ya referenciado sin actualizar `image_url` en el mismo cambio.
 - La imagen solo se ve en el sitio publicado después de hacer commit y desplegar. Insertar la fila no basta.
-- Mismas reglas de origen que las notas: fotos de sala de prensa del fabricante, y el crédito no se inventa.
+- Origen: fotos de sala de prensa del fabricante cuando las haya. Si no, una foto de referencia de Wikimedia Commons con licencia libre (CC0, CC BY o CC BY-SA). El crédito no se inventa: el autor y la licencia van en `image_credit` y la página de la foto en `image_source_url`. El comparador los muestra bajo la foto.
+- Si no hay foto del modelo exacto, sirve la de un modelo hermano (el mismo carro con otro nombre en otro país, como el Baojun Yep Plus para el Chevrolet Spark EUV), y `image_credit` empieza por el nombre de ese modelo. Si no hay ninguna, `image_url` queda vacío.
+- Varias versiones del mismo modelo pueden usar la misma foto: se copia con el `slug` de cada una.
 
 ## Entorno de desarrollo
 
@@ -255,13 +258,16 @@ Marcadores de imagen (notas sin foto): fondo `--tint`, borde `--border` e icono 
 
 Página `/es/comparador/` y primer bloque de la portada. Es una isla de React (`Comparador.tsx`) que lee la tabla `vehicles` desde el navegador con la clave publicable; solo ve los vehículos con `published = true`.
 
-- Dos listas para elegir "Carro 1" y "Carro 2", agrupadas por marca y modelo. La comparación elegida queda en la dirección (`?a=<slug>&b=<slug>`) para poder compartirla.
-- Resumen con gráfico de araña de siete ejes: autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort. Al lado va la tabla con los mismos puntajes.
+- Estructura inspirada en versus.com (se toma la estructura, no el aspecto): buscadores, encabezado "A vs B", veredicto, gráfico, mayores diferencias, ficha técnica y barra fija abajo.
+- Dos buscadores, "Carro 1" y "Carro 2" (`BuscadorCarro.tsx`, patrón combobox de ARIA): se escribe marca, modelo, versión, año, mercado o nombre en Latinoamérica, sin importar tildes ni mayúsculas, y se elige con el ratón o con flechas y Enter. Muestran hasta 8 resultados con foto. La comparación elegida queda en la dirección (`?a=<slug>&b=<slug>`) para poder compartirla.
+- Encabezado: foto, nombre y un puntaje general en anillo por carro, separados por "VS". El puntaje general es el promedio de las áreas comparables (el mismo del veredicto).
+- "¿En qué es mejor cada uno?": gráfico de araña de siete áreas (autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort). Los nombres de las áreas son botones en forma de píldora; al elegir una se abre debajo el detalle con sus filas de la ficha (`CAMPOS_POR_AREA` en `src/lib/vehiculos.ts`). Al lado va la tabla con los mismos puntajes, cuyas filas también eligen el área.
 - Los puntajes van de 0 a 100 y se calculan contra rangos fijos (en `src/lib/vehiculos.ts`), no contra el otro carro: el puntaje de un carro no cambia según con cuál se compare.
 - La autonomía solo se puntúa con un ciclo que tengan los dos carros (WLTP, luego CLTC, EPA y NEDC).
-- Veredicto, debajo del gráfico: dice cuál conviene más según el promedio de los puntajes, y para qué conviene cada uno. Con menos de 2 puntos de diferencia dice que están parejos; con menos de 7, que gana "por poco". Siempre aclara que no tiene en cuenta el precio y qué categorías quedaron por fuera por falta de datos. No se muestra si hay menos de tres categorías comparables.
-- "Ventajas de cada uno": frases calculadas a partir de las filas que tienen un ganador claro.
-- Ficha técnica por secciones. Solo aparecen las filas donde al menos un carro tiene el dato; el que falta dice "Sin dato".
+- Veredicto, debajo del encabezado: "Tu elección: X. Va por delante en N de M áreas", según el promedio de los puntajes, y para qué conviene cada uno. Con menos de 2 puntos de diferencia dice que están parejos; con menos de 7, que gana "por poco". Siempre aclara que no tiene en cuenta el precio y qué categorías quedaron por fuera por falta de datos. No se muestra si hay menos de tres categorías comparables.
+- "Mayores diferencias": las 5 filas donde un carro le saca más ventaja al otro en proporción, con una etiqueta de ventaja ("+120 km" o, desde el doble, "2,2×") del color del carro que gana.
+- Ficha técnica por secciones. Solo aparecen las filas donde al menos un carro tiene el dato; el que falta dice "Sin dato". En los sí o no, el "Sí" lleva un punto del color del carro.
+- Barra fija abajo con los dos carros, su puntaje y un botón "Cambiar" que lleva a los buscadores.
 - Los dos carros se distinguen con `--chart-a` y `--chart-b`, que son colores solo para gráficos, y nunca solo por color: la leyenda lleva el nombre, el carro 2 usa línea punteada y marcas cuadradas, y el ganador de cada fila lleva la palabra "Mejor".
 - Los valores guardados en inglés (`electric`, `rwd`) se traducen al español en `src/lib/vehiculos.ts`.
 - Al agregar una columna a `vehicles`, añadirla también a la lista de filas de ese archivo para que aparezca en el comparador.

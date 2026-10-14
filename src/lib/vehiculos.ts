@@ -448,6 +448,146 @@ export function calcularVeredicto(ejes: Eje[]): Veredicto | null {
   };
 }
 
+// --- Resumen de cada área con datos reales, para la tabla junto al gráfico
+
+export interface ResumenArea {
+  nombre: string;
+  /** Aclaración corta bajo el nombre del área ("Ciclo WLTP", "Baúl trasero y delantero"). */
+  aclaracion: string;
+  /** Dato real de cada carro, con unidad; null si no lo tiene. */
+  a: string | null;
+  b: string | null;
+  /** Dato secundario en letra pequeña (los caballos, el frunk). */
+  extraA: string | null;
+  extraB: string | null;
+  ganador: 'a' | 'b' | null;
+  /** "4× más", "+181 km", "Casi iguales"; null si falta un dato. */
+  diferencia: string | null;
+  /** Puntaje de 0 a 100 de cada carro, para la barra. */
+  puntajeA: number | null;
+  puntajeB: number | null;
+}
+
+const num = (valor: number, decimales = 0) => formatearNumero(Number(valor.toFixed(decimales)));
+
+/** Diferencia en palabras entre dos números, según qué valor es mejor. */
+function textoDiferencia(va: number, vb: number, mejor: 'mayor' | 'menor', unidad: string, decimales = 0) {
+  const mayor = Math.max(va, vb);
+  const menor = Math.min(va, vb);
+  if (mayor === 0 || (mayor - menor) / mayor < 0.05) return { ganador: null, texto: 'Casi iguales' };
+  const ganador: 'a' | 'b' = (va > vb) === (mejor === 'mayor') ? 'a' : 'b';
+  // Desde el doble se lee mejor como multiplicador, pero solo cuando más es mejor
+  if (mejor === 'mayor' && menor > 0 && mayor / menor >= 2) return { ganador, texto: `${num(mayor / menor, 1)}× más` };
+  const signo = mejor === 'mayor' ? '+' : '−';
+  return { ganador, texto: `${signo}${num(mayor - menor, decimales)} ${unidad}` };
+}
+
+const conteo = (v: Vehiculo, campos: string[]) => {
+  const conocidos = campos.map((campo) => v[campo]).filter((valor) => typeof valor === 'boolean');
+  return conocidos.length < 3 ? null : { tiene: conocidos.filter(Boolean).length, de: conocidos.length };
+};
+
+/** El dato real de cada área para los dos carros. Usa los mismos datos que el puntaje del gráfico. */
+export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea[] {
+  const ciclo = CICLOS.find((c) => typeof a[c.campo] === 'number' && typeof b[c.campo] === 'number');
+  const puntaje = (nombre: string) => ejes.find((eje) => eje.nombre === nombre) ?? { a: null, b: null };
+
+  const fila = (
+    nombre: string,
+    aclaracion: string,
+    valores: [number | null, number | null],
+    formato: (valor: number) => string,
+    mejor: 'mayor' | 'menor',
+    unidad: string,
+    extra: (v: Vehiculo) => string | null = () => null,
+    decimales = 0,
+  ): ResumenArea => {
+    const [va, vb] = valores;
+    const diferencia = va !== null && vb !== null ? textoDiferencia(va, vb, mejor, unidad, decimales) : null;
+    return {
+      nombre,
+      aclaracion,
+      a: va === null ? null : formato(va),
+      b: vb === null ? null : formato(vb),
+      extraA: va === null ? null : extra(a),
+      extraB: vb === null ? null : extra(b),
+      ganador: diferencia?.ganador ?? null,
+      diferencia: diferencia?.texto ?? null,
+      puntajeA: puntaje(nombre).a,
+      puntajeB: puntaje(nombre).b,
+    };
+  };
+  const numero = (valor: unknown) => (typeof valor === 'number' ? valor : null);
+  const carga = (v: Vehiculo) =>
+    typeof v.dc_charge_from_pct === 'number' && typeof v.dc_charge_to_pct === 'number' && typeof v.dc_charge_min === 'number'
+      ? v
+      : null;
+  const mismoTramo =
+    carga(a) && carga(b) && a.dc_charge_from_pct === b.dc_charge_from_pct && a.dc_charge_to_pct === b.dc_charge_to_pct;
+  // Equipamiento: "4 de 6"; gana quien trae una proporción mayor de lo conocido
+  const equipamiento = (
+    nombre: string,
+    aclaracion: string,
+    campos: string[],
+    cuentas: ({ tiene: number; de: number } | null)[],
+    texto: string,
+  ): ResumenArea => {
+    const base = fila(nombre, aclaracion, [porcentaje(a, campos), porcentaje(b, campos)], () => '', 'mayor', '');
+    return {
+      ...base,
+      a: cuentas[0] ? `${cuentas[0].tiene} de ${cuentas[0].de}` : null,
+      b: cuentas[1] ? `${cuentas[1].tiene} de ${cuentas[1].de}` : null,
+      diferencia: cuentas[0] && cuentas[1] ? (base.ganador ? texto : 'Parejos') : null,
+    };
+  };
+  const seguridad = [conteo(a, SEGURIDAD), conteo(b, SEGURIDAD)];
+  const confort = [conteo(a, CONFORT), conteo(b, CONFORT)];
+
+  return [
+    ciclo
+      ? fila('Autonomía', `Ciclo ${ciclo.nombre}`, [numero(a[ciclo.campo]), numero(b[ciclo.campo])], (x) => `${num(x)} km`, 'mayor', 'km')
+      : { ...fila('Autonomía', 'Sin un ciclo de medición en común', [null, null], String, 'mayor', 'km') },
+    fila('Potencia', 'Potencia máxima', [numero(a.power_kw), numero(b.power_kw)], (x) => `${num(x)} kW`, 'mayor', 'kW', (v) =>
+      typeof v.power_hp === 'number' ? `${num(v.power_hp)} hp` : null,
+    ),
+    fila('Aceleración', 'De 0 a 100 km/h', [numero(a.acceleration_0_100_s), numero(b.acceleration_0_100_s)], (x) => `${num(x, 1)} s`, 'menor', 's', undefined, 1),
+    // La carga se compara por velocidad; si los dos miden el mismo tramo, la diferencia va en minutos
+    mismoTramo
+      ? fila(
+          'Carga rápida',
+          `Del ${a.dc_charge_from_pct} al ${a.dc_charge_to_pct} %`,
+          [numero(a.dc_charge_min), numero(b.dc_charge_min)],
+          (x) => `${num(x)} min`,
+          'menor',
+          'min',
+        )
+      : (() => {
+          const base = fila('Carga rápida', 'Tiempo de carga rápida', [velocidadDeCarga(a), velocidadDeCarga(b)], () => '', 'mayor', '');
+          return {
+            ...base,
+            diferencia: base.diferencia === null ? null : base.ganador ? textoDiferenciaVelocidad(velocidadDeCarga(a)!, velocidadDeCarga(b)!) : 'Casi iguales',
+          a: carga(a) ? `${num(a.dc_charge_min as number)} min` : null,
+          b: carga(b) ? `${num(b.dc_charge_min as number)} min` : null,
+          extraA: carga(a) ? `del ${a.dc_charge_from_pct} al ${a.dc_charge_to_pct} %` : null,
+          extraB: carga(b) ? `del ${b.dc_charge_from_pct} al ${b.dc_charge_to_pct} %` : null,
+          };
+        })(),
+    fila('Espacio', 'Baúl trasero y delantero', [espacio(a), espacio(b)], (x) => `${num(x)} L`, 'mayor', 'L', (v) =>
+      typeof v.front_trunk_l === 'number' ? `incluye ${num(v.front_trunk_l)} L adelante` : null,
+    ),
+    equipamiento('Seguridad', 'Ayudas a la conducción que trae, entre las conocidas', SEGURIDAD, seguridad, 'Más ayudas'),
+    equipamiento('Confort', 'Equipamiento de confort que trae, entre el conocido', CONFORT, confort, 'Más equipado'),
+  ];
+}
+
+/** Con tramos de carga distintos no se pueden restar minutos: se dice cuál carga más rápido. */
+function textoDiferenciaVelocidad(va: number, vb: number): string {
+  const mayor = Math.max(va, vb);
+  const menor = Math.min(va, vb);
+  if ((mayor - menor) / mayor < 0.05) return 'Casi iguales';
+  return menor > 0 && mayor / menor >= 2 ? `${num(mayor / menor, 1)}× más rápida` : 'Carga más rápido';
+}
+
 // --- Áreas del gráfico: qué filas de la ficha explican cada eje
 
 export const CAMPOS_POR_AREA: Record<string, string[]> = {

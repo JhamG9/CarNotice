@@ -15,6 +15,7 @@ import {
   nombreMercado,
   nombreModelo,
   obtenerVehiculos,
+  resumirAreas,
   textoOtroNombre,
   type Fila,
   type Vehiculo,
@@ -413,6 +414,7 @@ export default function Comparador() {
         <div className="mt-6">
           <GraficoRadar
             ejes={ejes}
+            resumen={resumirAreas(ejes, a, b)}
             nombreA={nombreCompleto(a)}
             nombreB={nombreCompleto(b)}
             seleccion={area}

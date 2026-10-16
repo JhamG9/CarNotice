@@ -13,7 +13,7 @@ Lee `.claude/skills/completar-vehiculos/campos.md` (fuentes aceptadas, reglas de
 
 Lee las filas actuales (proyecto `sfdwbgmydjfwmtdkarmi`, solo `select * from public.vehicles where slug in (…)`; si el conector pide `project_id`, pásalo). Las necesitas para confirmar la generación y para la comprobación final.
 
-Los campos obligatorios van primero. Los opcionales de `campos.md` (airbags, altura libre, techo panorámico, asientos ventilados, etc.) se proponen solo si aparecen de paso en las fuentes que ya abriste: no gastes búsquedas en ellos.
+Los **campos clave del comparador** (tabla en `campos.md`) van primero: si falta uno, haz una segunda búsqueda dirigida solo para él antes de rendirte (catálogos como autocosmos.com.co/catalogo, pruebas de prensa, ADAC). Si al final solo tienes una fuente de prensa, propónlo igual como `dudoso: una fuente`, con la URL; no lo dejes fuera. Después, los demás obligatorios. Los opcionales de `campos.md` (airbags, altura libre, techo panorámico, asientos ventilados, etc.) se proponen solo si aparecen de paso en las fuentes que ya abriste: no gastes búsquedas en ellos.
 
 ## Cómo buscas
 

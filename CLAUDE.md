@@ -131,11 +131,12 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 
 ### Completar fichas incompletas
 
-Para llenar los datos que les faltan a vehículos ya insertados se usa la skill `completar-vehiculos` (`.claude/skills/completar-vehiculos/`). Orquesta cinco agentes de `.claude/agents/`: `vehiculos-auditor` (encuentra fichas incompletas), `vehiculos-investigador` (busca en la web), `vehiculos-verificador` (comprueba cada dato contra su fuente), `vehiculos-escritor` (escribe) y `vehiculos-completitud` (relee y confirma).
+Para llenar los datos que les faltan a vehículos ya insertados, y para crear un carro nuevo con su ficha, se usa la skill `completar-vehiculos` (`.claude/skills/completar-vehiculos/`). Orquesta cinco agentes de `.claude/agents/`: `vehiculos-auditor` (encuentra fichas incompletas), `vehiculos-investigador` (busca en la web), `vehiculos-verificador` (comprueba cada dato contra su fuente), `vehiculos-escritor` (escribe) y `vehiculos-completitud` (relee y confirma).
 
 - Un campo vacío solo es faltante si aplica a la motorización: a un eléctrico no le faltan cilindrada ni tanque. Las reglas están en `campos.md` de la skill y la consulta en `auditoria.sql`.
 - Solo se llenan campos vacíos. Corregir un dato ya guardado necesita aprobación expresa de ese cambio.
 - Nada se escribe sin una fuente comprobada y sin la aprobación de quien administra en el chat. El investigador comprueba cada dato; el verificador revisa solo los dudosos y las correcciones a datos guardados.
+- Los **campos clave del comparador** (los que puntúan sus siete áreas: autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort) van primero. Si solo tienen una fuente de prensa, no se descartan: se le preguntan a quien administra. Antes de aprobar, siempre se dice qué áreas quedarían "sin datos". La lista está en `campos.md`.
 - `airbags`, `ground_clearance_mm`, `panoramic_roof` y `ventilated_seats` son opcionales: se llenan si aparecen, pero no cuentan para que una ficha esté completa.
 - Cada escritura deja su registro, con la fuente de cada dato, en `supabase/completado/AAAA-MM-DD.md`.
 - Si cambian las columnas de `vehicles`, actualizar también `campos.md` y `auditoria.sql`.

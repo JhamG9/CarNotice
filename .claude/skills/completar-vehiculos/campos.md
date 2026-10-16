@@ -25,6 +25,29 @@ Campos opcionales, que nunca cuentan como faltantes: `airbags`, `ground_clearanc
 
 Campos que nunca se escriben: `id`, `slug`, `power_hp` (se calcula sola), `created_at`, `updated_at`, `published`. Tampoco se tocan los obligatorios de identidad (`brand`, `model`, `version`, `model_year`, `market`, `segment`, `body_style`, `powertrain`).
 
+## Campos clave del comparador
+
+El comparador puntúa siete áreas. Si a un carro le falta el dato de un área, esa área sale "sin datos" y el carro queda mal parado frente a cualquier otro. Estos campos tienen prioridad sobre todos los demás:
+
+| Área | Campos que necesita para puntuar |
+|---|---|
+| Autonomía | `electric`: una autonomía en `range_wltp_km`, `range_cltc_km`, `range_epa_km` o `range_nedc_km`. `range_extender` y `plug_in_hybrid`: `electric_range_km` con su `electric_range_cycle`, y `combined_range_km` (hoy el comparador no los puntúa; ver la tarea pendiente). |
+| Potencia | `power_kw` |
+| Aceleración | `acceleration_0_100_s` |
+| Carga rápida | `dc_charge_from_pct`, `dc_charge_to_pct` y `dc_charge_min`, los tres juntos |
+| Espacio | `trunk_l` (`front_trunk_l` suma si existe) |
+| Seguridad | Al menos uno conocido de `autonomous_emergency_braking`, `adaptive_cruise_control`, `lane_keeping_assist`, `blind_spot_monitor`, `camera_360`, `isofix`; mejor los seis |
+| Confort | Al menos uno conocido de `apple_carplay`, `android_auto`, `panoramic_roof`, `ventilated_seats`, `heated_seats`, `wireless_charger` |
+
+Además, `image_url` con `image_credit`: sin foto, el carro se ve vacío en el comparador.
+
+Reglas para los campos clave:
+
+- Si falta uno, el investigador hace una **segunda búsqueda dirigida** solo para ese campo (catálogos como Autocosmos, pruebas de prensa, bases técnicas) antes de rendirse.
+- Si al final solo hay **una fuente de prensa**, o las fuentes difieren poco (492 frente a 493 L), **no se rechaza en silencio**: va como `dudoso: una fuente` y la sesión principal se lo pregunta a quien administra, con la fuente y el valor. Si lo aprueba, se escribe y el registro lo marca como "prensa, una fuente".
+- Lo que nunca se hace: inventar, estimar, calcular o tomar la cifra de otra versión o de otro ciclo.
+- Antes de pedir la aprobación de un lote o de un carro nuevo, la sesión principal dice **qué áreas del comparador quedarían "sin datos"** con lo que se va a escribir.
+
 ## Fuentes aceptadas
 
 En orden de preferencia:

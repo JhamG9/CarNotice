@@ -53,8 +53,9 @@ faltan as (
   join reglas r on r.grupo = g.grupo
   where v.j -> r.col = 'null'::jsonb
     -- Una garantía sin límite no es un faltante: el número queda vacío a propósito.
-    and not (r.col = 'warranty_km' and v.j ->> 'warranty_km_unlimited' = 'true')
-    and not (r.col in ('battery_warranty_years', 'battery_warranty_km') and v.j ->> 'battery_warranty_unlimited' = 'true')
+    -- coalesce: si la marca de sin límite está vacía, la comparación da null y not(null) descartaría la fila.
+    and not coalesce(r.col = 'warranty_km' and v.j ->> 'warranty_km_unlimited' = 'true', false)
+    and not coalesce(r.col in ('battery_warranty_years', 'battery_warranty_km') and v.j ->> 'battery_warranty_unlimited' = 'true', false)
   union all
   -- Eléctricos: autonomía en el ciclo del mercado (EU → WLTP, CN → CLTC, US → EPA);
   -- en los demás mercados basta con un ciclo cualquiera.

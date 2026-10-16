@@ -129,6 +129,16 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 - Si no hay foto del modelo exacto, sirve la de un modelo hermano (el mismo carro con otro nombre en otro país, como el Baojun Yep Plus para el Chevrolet Spark EUV), y `image_credit` empieza por el nombre de ese modelo. Si no hay ninguna, `image_url` queda vacío.
 - Varias versiones del mismo modelo pueden usar la misma foto: se copia con el `slug` de cada una.
 
+### Completar fichas incompletas
+
+Para llenar los datos que les faltan a vehículos ya insertados se usa la skill `completar-vehiculos` (`.claude/skills/completar-vehiculos/`). Orquesta cinco agentes de `.claude/agents/`: `vehiculos-auditor` (encuentra fichas incompletas), `vehiculos-investigador` (busca en la web), `vehiculos-verificador` (comprueba cada dato contra su fuente), `vehiculos-escritor` (escribe) y `vehiculos-completitud` (relee y confirma).
+
+- Un campo vacío solo es faltante si aplica a la motorización: a un eléctrico no le faltan cilindrada ni tanque. Las reglas están en `campos.md` de la skill y la consulta en `auditoria.sql`.
+- Solo se llenan campos vacíos. Corregir un dato ya guardado necesita aprobación expresa de ese cambio.
+- Nada se escribe sin pasar por el verificador y sin la aprobación de quien administra en el chat.
+- Cada escritura deja su registro, con la fuente de cada dato, en `supabase/completado/AAAA-MM-DD.md`.
+- Si cambian las columnas de `vehicles`, actualizar también `campos.md` y `auditoria.sql`.
+
 ## Publicación
 
 El sitio es estático y se publica en Cloudflare Pages, en el proyecto `mejorelectrico`. El dominio `mejorelectrico.com` también está en Cloudflare. Se compila en el computador y se sube el resultado; Cloudflare no compila ni está conectado a GitHub.

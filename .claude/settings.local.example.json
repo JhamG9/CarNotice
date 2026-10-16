@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Permissions"
+      "mcp__supabase-garash__list_tables",
+      "mcp__supabase-garash__execute_sql",
+      "mcp__supabase-garash__apply_migration",
+      "mcp__supabase-garash__list_migrations",
+      "mcp__supabase-garash__get_advisors",
+      "WebSearch",
+      "WebFetch"
     ]
   }
 }

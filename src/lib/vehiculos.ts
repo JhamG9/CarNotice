@@ -322,6 +322,28 @@ const CICLOS = [
   { campo: 'range_epa_km', nombre: 'EPA' },
   { campo: 'range_nedc_km', nombre: 'NEDC' },
 ];
+type Ciclo = (typeof CICLOS)[number];
+
+/** Motorizaciones que guardan su autonomía total como combinada (batería y gasolina). */
+const CON_GASOLINA = ['range_extender', 'plug_in_hybrid'];
+
+/**
+ * Autonomía total del carro en un ciclo. En rango extendido e híbridos enchufables es la combinada,
+ * medida en el mismo ciclo que su autonomía eléctrica; así solo se comparan cifras del mismo ciclo.
+ */
+function autonomiaEnCiclo(v: Vehiculo, ciclo: Ciclo): number | null {
+  const total = v[ciclo.campo];
+  if (typeof total === 'number') return total;
+  const combinada = v.combined_range_km;
+  if (CON_GASOLINA.includes(String(v.powertrain)) && v.electric_range_cycle === ciclo.nombre && typeof combinada === 'number') {
+    return combinada;
+  }
+  return null;
+}
+
+/** Primer ciclo en que los dos carros tienen autonomía total. */
+const cicloComun = (a: Vehiculo, b: Vehiculo) =>
+  CICLOS.find((c) => autonomiaEnCiclo(a, c) !== null && autonomiaEnCiclo(b, c) !== null);
 
 const SEGURIDAD = [
   'autonomous_emergency_braking',
@@ -361,14 +383,14 @@ function espacio(v: Vehiculo): number | null {
  */
 export function calcularEjes(a: Vehiculo, b: Vehiculo): Eje[] {
   // La autonomía solo se compara dentro de un ciclo que tengan los dos
-  const ciclo = CICLOS.find((c) => typeof a[c.campo] === 'number' && typeof b[c.campo] === 'number');
+  const ciclo = cicloComun(a, b);
 
   return [
     {
       nombre: 'Autonomía',
       detalle: ciclo ? `Ciclo ${ciclo.nombre}, de 200 a 800 km` : 'Sin un ciclo de medición en común',
-      a: ciclo ? escala(a[ciclo.campo], 200, 800) : null,
-      b: ciclo ? escala(b[ciclo.campo], 200, 800) : null,
+      a: ciclo ? escala(autonomiaEnCiclo(a, ciclo), 200, 800) : null,
+      b: ciclo ? escala(autonomiaEnCiclo(b, ciclo), 200, 800) : null,
     },
     {
       nombre: 'Potencia',
@@ -510,7 +532,7 @@ const conteo = (v: Vehiculo, campos: string[]) => {
 
 /** El dato real de cada área para los dos carros. Usa los mismos datos que el puntaje del gráfico. */
 export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea[] {
-  const ciclo = CICLOS.find((c) => typeof a[c.campo] === 'number' && typeof b[c.campo] === 'number');
+  const ciclo = cicloComun(a, b);
   const puntaje = (nombre: string) => ejes.find((eje) => eje.nombre === nombre) ?? { a: null, b: null };
 
   const fila = (
@@ -566,7 +588,10 @@ export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea
 
   return [
     ciclo
-      ? fila('Autonomía', `Ciclo ${ciclo.nombre}`, [numero(a[ciclo.campo]), numero(b[ciclo.campo])], (x) => `${num(x)} km`, 'mayor', 'km')
+      ? fila('Autonomía', `Ciclo ${ciclo.nombre}`, [autonomiaEnCiclo(a, ciclo), autonomiaEnCiclo(b, ciclo)], (x) => `${num(x)} km`, 'mayor', 'km', (v) =>
+          // La combinada suma batería y gasolina: se dice para no compararla como si fuera solo eléctrica
+          typeof v[ciclo.campo] === 'number' ? null : 'con gasolina',
+        )
       : { ...fila('Autonomía', 'Sin un ciclo de medición en común', [null, null], String, 'mayor', 'km') },
     fila('Potencia', 'Potencia máxima', [numero(a.power_kw), numero(b.power_kw)], (x) => `${num(x)} kW`, 'mayor', 'kW', (v) =>
       typeof v.power_hp === 'number' ? `${num(v.power_hp)} hp` : null,

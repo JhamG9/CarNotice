@@ -31,15 +31,17 @@ El comparador puntúa siete áreas. Si a un carro le falta el dato de un área, 
 
 | Área | Campos que necesita para puntuar |
 |---|---|
-| Autonomía | `electric`: una autonomía en `range_wltp_km`, `range_cltc_km`, `range_epa_km` o `range_nedc_km`. `range_extender` y `plug_in_hybrid`: `electric_range_km` con su `electric_range_cycle`, y `combined_range_km` (hoy el comparador no los puntúa; ver la tarea pendiente). |
+| Autonomía | `electric`: una autonomía en `range_wltp_km`, `range_cltc_km`, `range_epa_km` o `range_nedc_km`. `range_extender` y `plug_in_hybrid`: `combined_range_km` (batería y gasolina) con su ciclo en `electric_range_cycle`; el comparador la puntúa como autonomía total de ese ciclo y la marca "con gasolina". Para que se pueda comparar con más carros, conviene tener más de un ciclo (ver "Reglas de los datos"). |
 | Potencia | `power_kw` |
 | Aceleración | `acceleration_0_100_s` |
 | Carga rápida | `dc_charge_from_pct`, `dc_charge_to_pct` y `dc_charge_min`, los tres juntos |
 | Espacio | `trunk_l` (`front_trunk_l` suma si existe) |
-| Seguridad | Al menos uno conocido de `autonomous_emergency_braking`, `adaptive_cruise_control`, `lane_keeping_assist`, `blind_spot_monitor`, `camera_360`, `isofix`; mejor los seis |
-| Confort | Al menos uno conocido de `apple_carplay`, `android_auto`, `panoramic_roof`, `ventilated_seats`, `heated_seats`, `wireless_charger` |
+| Seguridad | Al menos **3** conocidos (sí o no) de `autonomous_emergency_braking`, `adaptive_cruise_control`, `lane_keeping_assist`, `blind_spot_monitor`, `camera_360`, `isofix`; mejor los seis |
+| Confort | Al menos **3** conocidos (sí o no) de `apple_carplay`, `android_auto`, `panoramic_roof`, `ventilated_seats`, `heated_seats`, `wireless_charger` |
 
 Además, `image_url` con `image_credit`: sin foto, el carro se ve vacío en el comparador.
+
+La consulta `../agregar-vehiculo/campos-clave.sql` comprueba todo esto por vehículo y dice si está `listo_para_publicar`.
 
 Reglas para los campos clave:
 
@@ -62,7 +64,8 @@ No sirven: foros, Wikipedia como fuente única, comparadores de precios, textos 
 
 ## Reglas de los datos
 
-- **Mismo mercado y misma versión.** El equipamiento, la garantía, la batería y la autonomía cambian según el país y la versión. Un dato de otro mercado solo vale para medidas, peso y motor, y solo si la fuente confirma que es la misma batería y el mismo motor; en ese caso se marca "otro mercado" en el reporte.
+- **Mismo mercado y misma versión.** El equipamiento, la garantía y la batería cambian según el país y la versión. Un dato de otro mercado solo vale para medidas, peso, motor y **autonomía en otro ciclo**, y solo si la fuente es oficial (la marca o la homologación) y confirma que es la misma batería y el mismo motor. Se marca "otro mercado" en el reporte.
+- **Autonomía en varios ciclos.** La del ciclo del mercado va siempre. Si la marca publica oficialmente la misma batería y motor en otro ciclo (por ejemplo WLTP en Europa para una ficha colombiana en NEDC), también se guarda, cada cifra en su columna. Así el carro se puede comparar con más carros. Nunca se convierte una cifra de un ciclo a otro.
 - **No inventar ni estimar.** Si no hay fuente, el campo queda vacío. Calcular un dato a partir de otros (consumo = batería / autonomía) tampoco vale.
 - **Unidades de la tabla.** hp o CV → kW (1 hp = 0,7457 kW; 1 CV = 0,7355 kW, redondear a un decimal); lb-ft → Nm (× 1,3558); libras → kg (× 0,4536); millas → km (× 1,609); pulgadas cúbicas → cc (× 16,387); galones EE. UU. → litros (× 3,785). Toda conversión se anota en el reporte.
 - **Ciclos de autonomía.** Cada cifra va en la columna de su ciclo. Nunca se pasa de un ciclo a otro. Si la fuente no dice el ciclo, la cifra no se usa.

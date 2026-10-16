@@ -1,11 +1,11 @@
 ---
 name: completar-vehiculos
-description: Orquesta la tabla vehicles de Supabase (comparador de Mejor Eléctrico) con cinco agentes - auditor, investigador, verificador, escritor y revisor de completitud. Usar cuando pidan completar, rellenar, auditar o revisar fichas incompletas de vehículos, buscar en la web los datos que faltan de un carro ya insertado, o crear un carro nuevo con su ficha completa.
+description: Orquesta la tabla vehicles de Supabase (comparador de Mejor Eléctrico) con cinco agentes - auditor, investigador, verificador, escritor y revisor de completitud. Usar cuando pidan completar, rellenar, auditar o revisar fichas incompletas de vehículos o buscar en la web los datos que faltan de un carro ya insertado. Para crear un carro nuevo se usa agregar-vehiculo.
 ---
 
 # Completar fichas de vehículos
 
-Coordina a cinco agentes para encontrar fichas incompletas en `vehicles`, buscar los datos en la web, verificarlos y escribirlos. También sirve para **crear un carro nuevo** con su ficha (ver "Carro nuevo" al final). Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra. Los agentes no hablan entre sí; todo pasa por ti.
+Coordina a cinco agentes para encontrar fichas incompletas en `vehicles`, buscar los datos en la web, verificarlos y escribirlos. Para crear un carro nuevo se usa la skill `agregar-vehiculo`, que usa estos mismos agentes. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra. Los agentes no hablan entre sí; todo pasa por ti.
 
 Reglas comunes, conexión, qué campos aplican a cada motorización y **campos clave del comparador**: [campos.md](campos.md). Léelo antes de empezar. Los campos clave van primero: un carro sin ellos sale "sin datos" en el comparador.
 
@@ -75,20 +75,3 @@ Pregunta si se sigue con el siguiente lote. Al terminar, resume: vehículos toca
 - No crea migraciones ni cambia la estructura de la tabla. Si un dato real no cabe en los valores permitidos, se reporta.
 - No busca ni descarga fotos: `image_url`, `image_credit` e `image_source_url` faltantes se reportan para hacerlos aparte con las reglas de "Imagen del vehículo" de `CLAUDE.md`.
 - No publica el sitio. Los datos del comparador se leen en vivo de Supabase, así que no hace falta compilar para verlos.
-
-## Carro nuevo
-
-Cuando pidan crear un carro que no está en la tabla. Las reglas de inserción de `CLAUDE.md` ("Insertar un vehículo en `vehicles`") siguen valiendo.
-
-1. **Comprobar que no existe** (misma marca, modelo, versión, año y mercado). Si existe, preguntar si se completa en vez de crear.
-2. **Confirmar los obligatorios** con quien administra: mercado, motorización, versión y año. Si no los dio, preguntarlos juntos, en una sola pregunta, antes de investigar.
-3. **Investigar:** un `vehiculos-investigador` por carro (o uno para las versiones de un mismo modelo y mercado). En el encargo, decirle que la fila no existe, que confirme la identidad (nombre exacto de la versión, `segment`, `body_style`, slug) y que dé prioridad a los campos clave del comparador.
-4. **Verificar** solo lo `dudoso` con `vehiculos-verificador`. Los PDF de imágenes se descargan con `curl` y se abren con Read.
-5. **Mostrar la fila** completa a quien administra: identidad, datos con su fuente, campos clave con una sola fuente para aprobar uno por uno, campos que quedan vacíos y **qué áreas del comparador quedarían "sin datos"**. Esperar un sí.
-6. **Insertar** con `published = false` (la sesión principal, con `execute_sql`) y leer la fila para confirmarla.
-7. **Revisar completitud:** lanzar `vehiculos-completitud` con el slug y lo aprobado. Su informe dice qué campos clave faltan; si falta alguno, ofrecer buscarlo antes de publicar.
-8. **Foto:** buscarla aparte, con las reglas de "Imagen del vehículo" de `CLAUDE.md`, mostrarla y esperar un sí.
-9. **Publicar** (`published = true`), hacer commit, push y desplegar solo cuando quien administra lo pida.
-
-Todo queda en el registro `supabase/completado/AAAA-MM-DD.md`, bajo "Vehículo nuevo: <slug>".
-

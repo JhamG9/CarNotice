@@ -85,7 +85,7 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 
 ### Insertar un vehículo en `vehicles`
 
-Quien administra suele pedir por el chat que se inserte un carro. Estos datos son obligatorios:
+Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculo` (`.claude/skills/agregar-vehiculo/`), que orquesta la investigación, la verificación, la foto y la publicación. Estos datos son obligatorios:
 
 | Dato que se pide | Columna | Valores |
 |---|---|---|
@@ -109,7 +109,7 @@ Reglas:
 - Convertir a las unidades de la tabla si llegan en otras (hp o CV a kW, libras a kilos, lb-ft a Nm, millas a kilómetros) y decir qué conversión se hizo.
 - Guardar en `source_url` de dónde salió la ficha.
 - Antes de insertar, buscar si ya existe la misma marca, modelo, versión, año y mercado. Si existe, preguntar si se actualiza.
-- Insertar con `published = false`. Se publica solo cuando quien administra lo pida.
+- Insertar con `published = false`. Se publica solo cuando quien administra lo pida **y** el carro pase el candado de `campos-clave.sql` (las siete áreas del comparador con datos y foto con crédito). Publicar con un área vacía solo si quien administra lo dice expresamente para ese carro.
 - Mostrar la fila que se va a insertar y esperar confirmación.
 - Después de insertar, leer la fila y confirmar el resultado con su `slug`.
 
@@ -131,7 +131,7 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 
 ### Completar fichas incompletas
 
-Para llenar los datos que les faltan a vehículos ya insertados, y para crear un carro nuevo con su ficha, se usa la skill `completar-vehiculos` (`.claude/skills/completar-vehiculos/`). Orquesta cinco agentes de `.claude/agents/`: `vehiculos-auditor` (encuentra fichas incompletas), `vehiculos-investigador` (busca en la web), `vehiculos-verificador` (comprueba cada dato contra su fuente), `vehiculos-escritor` (escribe) y `vehiculos-completitud` (relee y confirma).
+Para llenar los datos que les faltan a vehículos ya insertados se usa la skill `completar-vehiculos` (`.claude/skills/completar-vehiculos/`). Orquesta cinco agentes de `.claude/agents/`: `vehiculos-auditor` (encuentra fichas incompletas), `vehiculos-investigador` (busca en la web), `vehiculos-verificador` (comprueba cada dato contra su fuente), `vehiculos-escritor` (escribe) y `vehiculos-completitud` (relee y confirma).
 
 - Un campo vacío solo es faltante si aplica a la motorización: a un eléctrico no le faltan cilindrada ni tanque. Las reglas están en `campos.md` de la skill y la consulta en `auditoria.sql`.
 - Solo se llenan campos vacíos. Corregir un dato ya guardado necesita aprobación expresa de ese cambio.
@@ -299,7 +299,7 @@ Página `/es/comparador/`. No aparece en la portada. Es una isla de React (`Comp
 - Encabezado: foto, nombre y un puntaje general en anillo por carro, separados por "VS". El puntaje general es el promedio de las áreas comparables (el mismo del veredicto).
 - "¿En qué es mejor cada uno?": gráfico de araña de siete áreas (autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort). Un área sin dato no se dibuja en 0: la figura de ese carro la salta y une las áreas vecinas. Si ninguno de los dos tiene el dato, la píldora queda gris y punteada, con "sin datos". Los nombres de las áreas son botones en forma de píldora; al elegir una se abre debajo el detalle con sus filas de la ficha (`CAMPOS_POR_AREA` en `src/lib/vehiculos.ts`). Al lado va una tabla con el dato real de cada área ("571 km", "461 kW", "28 min del 10 al 80 %", "4 de 6 ayudas"), una barra corta con el puntaje y una columna "Gana" con la diferencia en palabras ("+181 km", "4× más", "Casi iguales" si es menor al 5 %). En celular esa columna va bajo el nombre del área. Las áreas sin datos en ninguno de los dos carros no ocupan fila: una nota dice cuáles faltan. Las filas también eligen el área. El puntaje de 0 a 100 no se muestra como número en la tabla: solo en el gráfico y en el anillo general.
 - Los puntajes van de 0 a 100 y se calculan contra rangos fijos (en `src/lib/vehiculos.ts`), no contra el otro carro: el puntaje de un carro no cambia según con cuál se compare.
-- La autonomía solo se puntúa con un ciclo que tengan los dos carros (WLTP, luego CLTC, EPA y NEDC).
+- La autonomía solo se puntúa con un ciclo que tengan los dos carros (WLTP, luego CLTC, EPA y NEDC). En rango extendido e híbridos enchufables, si no hay autonomía total por ciclo, se usa `combined_range_km` en el ciclo de `electric_range_cycle`, y la tabla dice "con gasolina".
 - Veredicto, debajo del encabezado: "Tu elección: X. Va por delante en N de M áreas", según el promedio de los puntajes, y para qué conviene cada uno. Con menos de 2 puntos de diferencia dice que están parejos; con menos de 7, que gana "por poco". Siempre aclara que no tiene en cuenta el precio y qué categorías quedaron por fuera por falta de datos. No se muestra si hay menos de tres categorías comparables.
 - "Mayores diferencias": las 5 filas donde un carro le saca más ventaja al otro en proporción, con una etiqueta de ventaja ("+120 km" o, desde el doble, "2,2×") del color del carro que gana.
 - Ficha técnica por secciones. Solo aparecen las filas donde al menos un carro tiene el dato; el que falta dice "Sin dato". En los sí o no, el "Sí" lleva un punto del color del carro.

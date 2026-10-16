@@ -103,7 +103,7 @@ Valores de `powertrain`:
 | `battery_warranty_km` | Garantía de la batería, en kilómetros. |
 | `battery_warranty_unlimited` | Sí o no: la garantía de la batería no tiene límite de años ni de kilómetros (por ejemplo, de por vida para el primer dueño). Si es "sí", `battery_warranty_years` y `battery_warranty_km` quedan vacíos. |
 
-Hay una columna de autonomía por cada ciclo de medición porque las cifras no son comparables entre ciclos. Solo se compara WLTP con WLTP, CLTC con CLTC, y así. Nunca se convierte una cifra de un ciclo a otro.
+Hay una columna de autonomía por cada ciclo de medición porque las cifras no son comparables entre ciclos. Solo se compara WLTP con WLTP, CLTC con CLTC, y así. Nunca se convierte una cifra de un ciclo a otro. Una ficha puede tener varias: la del ciclo de su mercado y, si la marca la publica oficialmente para la misma batería y el mismo motor, la de otro ciclo. En rango extendido e híbridos enchufables la autonomía total va en `combined_range_km`, medida en el ciclo de `electric_range_cycle`.
 
 ### 4. Combustión e híbridos
 

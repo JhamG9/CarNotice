@@ -25,7 +25,7 @@ Para conectarse a la base de datos, copia `.env.example` como `.env` y completa 
 
 Guarda las fichas técnicas del comparador de carros. Vive en Supabase, en el proyecto `garash`.
 
-- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql) y [20261011_add_vehicle_image_credit_and_latam_name.sql](supabase/migrations/20261011_add_vehicle_image_credit_and_latam_name.sql).
+- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql), [20261011_add_vehicle_image_credit_and_latam_name.sql](supabase/migrations/20261011_add_vehicle_image_credit_and_latam_name.sql) y [20261016_add_unlimited_warranty_flags.sql](supabase/migrations/20261016_add_unlimited_warranty_flags.sql).
 - Reglas para insertar un vehículo: [CLAUDE.md](CLAUDE.md), sección "Base de datos (Supabase)".
 
 Cada fila es una versión de un carro, en un año modelo y para un mercado. El mismo carro puede tener varias filas: una por versión y una por país.
@@ -56,6 +56,7 @@ Si la tabla cambia, este documento se actualiza en el mismo cambio.
 | `powertrain` | **Obligatorio.** Tipo de motorización. Ver la lista de abajo. |
 | `warranty_years` | Garantía general del carro, en años. |
 | `warranty_km` | Garantía general del carro, en kilómetros. |
+| `warranty_km_unlimited` | Sí o no: la garantía del carro no tiene límite de kilómetros. Si es "sí", `warranty_km` queda vacío; los años siguen en `warranty_years`. El comparador muestra "Sin límite". |
 | `image_url` | Ruta de la imagen del vehículo, sin dominio. Ejemplo: `/vehicles/deepal-s05-620-premium-lidar-2027-cn.webp`. El archivo va en la carpeta `public/vehicles/`. |
 | `image_credit` | Autor y licencia de la foto, por ejemplo `Alexander Migl, CC BY-SA 4.0`. Si la foto muestra un modelo hermano (el mismo carro con otro nombre en otro país), empieza por ese nombre: `Baojun Yep Plus · KitsuneDP, CC0`. El comparador lo muestra bajo la foto como "Foto de referencia". |
 | `image_source_url` | Página donde se publicó la foto (por ejemplo, su página en Wikimedia Commons). El crédito enlaza ahí. |
@@ -100,6 +101,7 @@ Valores de `powertrain`:
 | `consumption_kwh_100km` | Consumo eléctrico, en kWh cada 100 km. |
 | `battery_warranty_years` | Garantía de la batería, en años. |
 | `battery_warranty_km` | Garantía de la batería, en kilómetros. |
+| `battery_warranty_unlimited` | Sí o no: la garantía de la batería no tiene límite de años ni de kilómetros (por ejemplo, de por vida para el primer dueño). Si es "sí", `battery_warranty_years` y `battery_warranty_km` quedan vacíos. |
 
 Hay una columna de autonomía por cada ciclo de medición porque las cifras no son comparables entre ciclos. Solo se compara WLTP con WLTP, CLTC con CLTC, y así. Nunca se convierte una cifra de un ciclo a otro.
 

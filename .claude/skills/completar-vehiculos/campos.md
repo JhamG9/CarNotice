@@ -14,14 +14,14 @@ Un campo vacío solo cuenta como faltante si aplica a la motorización del carro
 
 | Grupo | Motorizaciones | Campos |
 |---|---|---|
-| Todos | todas | `warranty_years`, `warranty_km`, `image_url`, `image_credit`, `image_source_url`, `power_kw`, `torque_nm`, `acceleration_0_100_s`, `top_speed_kmh`, `drivetrain`, `transmission`, `co2_g_km`, `length_mm`, `width_mm`, `height_mm`, `wheelbase_mm`, `trunk_l`, `curb_weight_kg`, `ground_clearance_mm`, `seats`, `airbags`, `autonomous_emergency_braking`, `adaptive_cruise_control`, `lane_keeping_assist`, `blind_spot_monitor`, `camera_360`, `isofix`, `screen_inches`, `apple_carplay`, `android_auto`, `panoramic_roof`, `ventilated_seats`, `heated_seats`, `wireless_charger` |
+| Todos | todas | `warranty_years`, `warranty_km`, `image_url`, `image_credit`, `image_source_url`, `power_kw`, `torque_nm`, `acceleration_0_100_s`, `top_speed_kmh`, `drivetrain`, `transmission`, `co2_g_km`, `length_mm`, `width_mm`, `height_mm`, `wheelbase_mm`, `trunk_l`, `curb_weight_kg`, `seats`, `autonomous_emergency_braking`, `adaptive_cruise_control`, `lane_keeping_assist`, `blind_spot_monitor`, `camera_360`, `isofix`, `screen_inches`, `apple_carplay`, `android_auto`, `heated_seats`, `wireless_charger` |
 | Electrificado | todas menos `gasoline` y `diesel` | `motor_count` |
 | Enchufable | `electric`, `range_extender`, `plug_in_hybrid` | `battery_kwh`, `battery_chemistry`, `consumption_kwh_100km`, `battery_warranty_years`, `battery_warranty_km`, `dc_charge_kw`, `ac_charge_kw`, `dc_charge_from_pct`, `dc_charge_to_pct`, `dc_charge_min`, `connector`, `v2l`, `heat_pump` |
 | Híbrido enchufable | `range_extender`, `plug_in_hybrid` | `electric_range_km`, `electric_range_cycle`, `combined_range_km` |
 | Combustión | todas menos `electric` | `displacement_cc`, `cylinder_count`, `turbo`, `gear_count`, `fuel_consumption_l_100km`, `fuel_tank_l`, `emission_standard` |
 | Autonomía | `electric` | La del ciclo del mercado: `EU` y países europeos → `range_wltp_km`; `CN` → `range_cltc_km`; `US` → `range_epa_km`. En los demás mercados (Colombia y Latinoamérica) basta con un ciclo, el que publique la marca. |
 
-Campos opcionales, que nunca cuentan como faltantes: `latam_name`, `article_slug`, `front_trunk_l` (muchos carros no tienen), `ncap_stars` y `ncap_body` (solo si el carro fue probado), `fuel_consumption_city_l_100km`, `fuel_consumption_highway_l_100km`, y las autonomías de ciclos distintos al del mercado. Se llenan si aparecen, pero no se buscan a la fuerza.
+Campos opcionales, que nunca cuentan como faltantes: `airbags`, `ground_clearance_mm`, `panoramic_roof` y `ventilated_seats` (casi ninguna fuente los da por versión: el total de airbags, la altura en vacío y el equipo que cambia por acabado), `latam_name`, `article_slug`, `front_trunk_l` (muchos carros no tienen), `ncap_stars` y `ncap_body` (solo si el carro fue probado), `fuel_consumption_city_l_100km`, `fuel_consumption_highway_l_100km`, y las autonomías de ciclos distintos al del mercado. Se llenan si aparecen, pero no se buscan a la fuerza.
 
 Campos que nunca se escriben: `id`, `slug`, `power_hp` (se calcula sola), `created_at`, `updated_at`, `published`. Tampoco se tocan los obligatorios de identidad (`brand`, `model`, `version`, `model_year`, `market`, `segment`, `body_style`, `powertrain`).
 
@@ -33,7 +33,7 @@ En orden de preferencia:
 2. Base de datos técnica reconocida: ev-database.org (Europa), fueleconomy.gov (EPA), MIIT o dongchedi/autohome (China), Euro NCAP / Latin NCAP / C-NCAP para seguridad.
 3. Prensa especializada que cite la ficha (motor.es, km77, elcarrocolombiano.com, carwow…). Sola no basta: necesita una segunda fuente que coincida.
 
-Muchas fichas oficiales son PDF hechos de imágenes, que WebFetch y Read no pueden leer (no hay `pdftoppm`). La sesión principal los descarga con `curl` en su carpeta temporal y los convierte con `swift .claude/skills/completar-vehiculos/pdf2png.swift ficha.pdf ficha`; luego los agentes abren los PNG con Read. Un dato que solo está en un PDF que nadie pudo ver no se aprueba.
+Muchas fichas oficiales son PDF hechos de imágenes. Con `poppler` instalado (`brew install poppler`), los agentes los abren directo con Read y el parámetro `pages` (por ejemplo `"1-5"`): primero se descargan con WebFetch, que deja el archivo en local, y luego se leen por páginas. Si Read falla porque falta `pdftoppm`, la sesión principal los convierte con `swift .claude/skills/completar-vehiculos/pdf2png.swift ficha.pdf ficha`. Un dato que solo está en un PDF que nadie pudo ver no se aprueba.
 
 No sirven: foros, Wikipedia como fuente única, comparadores de precios, textos generados o páginas sin fecha que no nombran la versión.
 
@@ -44,6 +44,7 @@ No sirven: foros, Wikipedia como fuente única, comparadores de precios, textos 
 - **Unidades de la tabla.** hp o CV → kW (1 hp = 0,7457 kW; 1 CV = 0,7355 kW, redondear a un decimal); lb-ft → Nm (× 1,3558); libras → kg (× 0,4536); millas → km (× 1,609); pulgadas cúbicas → cc (× 16,387); galones EE. UU. → litros (× 3,785). Toda conversión se anota en el reporte.
 - **Ciclos de autonomía.** Cada cifra va en la columna de su ciclo. Nunca se pasa de un ciclo a otro. Si la fuente no dice el ciclo, la cifra no se usa.
 - **Altura libre al suelo.** `ground_clearance_mm` guarda solo la medida en vacío (sin carga). Si la fuente da solo la medida a carga completa, el campo queda vacío, para no comparar condiciones distintas.
+- **Garantía sin límite.** Si la garantía del carro no tiene límite de kilómetros, se guarda `warranty_km_unlimited = true` y `warranty_km` queda vacío (los años siguen en `warranty_years`). Si la de la batería no tiene límite de años ni de kilómetros, se guarda `battery_warranty_unlimited = true` y sus dos columnas quedan vacías. Nunca se pone una cifra inventada ni un cero.
 - **Carga rápida.** `dc_charge_min` siempre con sus dos porcentajes (`dc_charge_from_pct`, `dc_charge_to_pct`). Sin los porcentajes, no se guarda el tiempo.
 - **Sí o no.** `true` si la ficha de esa versión lo lista. `false` solo si la ficha de esa versión dice expresamente que no lo tiene (una "–" o "No" en la tabla de equipamiento, o la versión superior lo tiene y esta no). Que no aparezca mencionado **no** es `false`: queda vacío.
 - **Valores permitidos.** Solo los de la lista cerrada del `README.md` (por ejemplo `connector`: `CCS1`, `CCS2`, `GBT`, `NACS`, `CHAdeMO`, `Type1`, `Type2`). Si el dato real no encaja en la lista, no se escribe y se reporta.

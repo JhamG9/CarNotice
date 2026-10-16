@@ -135,7 +135,8 @@ Para llenar los datos que les faltan a vehículos ya insertados se usa la skill 
 
 - Un campo vacío solo es faltante si aplica a la motorización: a un eléctrico no le faltan cilindrada ni tanque. Las reglas están en `campos.md` de la skill y la consulta en `auditoria.sql`.
 - Solo se llenan campos vacíos. Corregir un dato ya guardado necesita aprobación expresa de ese cambio.
-- Nada se escribe sin pasar por el verificador y sin la aprobación de quien administra en el chat.
+- Nada se escribe sin una fuente comprobada y sin la aprobación de quien administra en el chat. El investigador comprueba cada dato; el verificador revisa solo los dudosos y las correcciones a datos guardados.
+- `airbags`, `ground_clearance_mm`, `panoramic_roof` y `ventilated_seats` son opcionales: se llenan si aparecen, pero no cuentan para que una ficha esté completa.
 - Cada escritura deja su registro, con la fuente de cada dato, en `supabase/completado/AAAA-MM-DD.md`.
 - Si cambian las columnas de `vehicles`, actualizar también `campos.md` y `auditoria.sql`.
 

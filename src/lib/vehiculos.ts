@@ -108,6 +108,8 @@ export interface Fila {
   unidad?: string;
   /** Qué valor es mejor. Sin esto, la fila se muestra sin marcar un ganador. */
   mejor?: 'mayor' | 'menor';
+  /** Columna sí o no que, en `true`, quiere decir que este valor no tiene límite (garantías). */
+  sinLimite?: string;
 }
 
 export interface Seccion {
@@ -127,7 +129,7 @@ export const SECCIONES: Seccion[] = [
       { campo: 'model_year', etiqueta: 'Año modelo' },
       { campo: 'market', etiqueta: 'Mercado de la ficha' },
       { campo: 'warranty_years', etiqueta: 'Garantía', unidad: 'años', mejor: 'mayor' },
-      { campo: 'warranty_km', etiqueta: 'Garantía por kilometraje', unidad: 'km', mejor: 'mayor' },
+      { campo: 'warranty_km', etiqueta: 'Garantía por kilometraje', unidad: 'km', mejor: 'mayor', sinLimite: 'warranty_km_unlimited' },
     ],
   },
   {
@@ -156,8 +158,8 @@ export const SECCIONES: Seccion[] = [
       { campo: 'range_epa_km', etiqueta: 'Autonomía EPA', unidad: 'km', mejor: 'mayor' },
       { campo: 'range_nedc_km', etiqueta: 'Autonomía NEDC', unidad: 'km', mejor: 'mayor' },
       { campo: 'consumption_kwh_100km', etiqueta: 'Consumo eléctrico', unidad: 'kWh/100 km', mejor: 'menor' },
-      { campo: 'battery_warranty_years', etiqueta: 'Garantía de la batería', unidad: 'años', mejor: 'mayor' },
-      { campo: 'battery_warranty_km', etiqueta: 'Garantía de la batería por kilometraje', unidad: 'km', mejor: 'mayor' },
+      { campo: 'battery_warranty_years', etiqueta: 'Garantía de la batería', unidad: 'años', mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
+      { campo: 'battery_warranty_km', etiqueta: 'Garantía de la batería por kilometraje', unidad: 'km', mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
     ],
   },
   {
@@ -234,9 +236,20 @@ export const SECCIONES: Seccion[] = [
   },
 ];
 
+/** Valor que se muestra en una garantía sin límite; no es un número y gana frente a cualquier cifra. */
+export const SIN_LIMITE = 'sin_limite';
+
+/** Valor de la fila para un carro. Si el número está vacío pero su columna `sinLimite` es true, devuelve SIN_LIMITE. */
+export function valorDe(fila: Fila, v: Vehiculo): string | number | boolean | null {
+  const valor = v[fila.campo] ?? null;
+  if (valor === null && fila.sinLimite && v[fila.sinLimite] === true) return SIN_LIMITE;
+  return valor;
+}
+
 /** Texto de una celda: número con unidad, sí o no, o el valor traducido. */
 export function formatearValor(fila: Fila, valor: string | number | boolean | null): string | null {
   if (valor === null || valor === undefined) return null;
+  if (valor === SIN_LIMITE) return 'Sin límite';
   if (typeof valor === 'boolean') return valor ? 'Sí' : 'No';
   if (typeof valor === 'number') {
     // Los años no llevan separador de miles
@@ -248,8 +261,12 @@ export function formatearValor(fila: Fila, valor: string | number | boolean | nu
 
 /** 'a' o 'b' si uno gana en esa fila; null si empatan, falta un dato o la fila no tiene ganador. */
 export function ganador(fila: Fila, a: Vehiculo, b: Vehiculo): 'a' | 'b' | null {
-  const va = a[fila.campo];
-  const vb = b[fila.campo];
+  const va = valorDe(fila, a);
+  const vb = valorDe(fila, b);
+  // Sin límite gana frente a cualquier cifra; dos sin límite empatan
+  if (fila.mejor === 'mayor' && (va === SIN_LIMITE) !== (vb === SIN_LIMITE) && (typeof va === 'number' || typeof vb === 'number')) {
+    return va === SIN_LIMITE ? 'a' : 'b';
+  }
   if (!fila.mejor || typeof va !== 'number' || typeof vb !== 'number' || va === vb) return null;
   return (va > vb) === (fila.mejor === 'mayor') ? 'a' : 'b';
 }
@@ -261,10 +278,14 @@ export function ventajas(propio: Vehiculo, otro: Vehiculo): string[] {
     for (const fila of seccion.filas) {
       // La potencia en hp repite la de kW
       if (fila.campo === 'power_hp' || ganador(fila, propio, otro) !== 'a') continue;
-      const diferencia = Math.abs((propio[fila.campo] as number) - (otro[fila.campo] as number));
-      const cantidad = fila.unidad ? `${formatearNumero(diferencia)} ${fila.unidad}` : formatearNumero(diferencia);
       // Solo la inicial en minúscula, para no dañar siglas como CLTC
       const etiqueta = fila.etiqueta.charAt(0).toLowerCase() + fila.etiqueta.slice(1);
+      if (valorDe(fila, propio) === SIN_LIMITE) {
+        lista.push(`${etiqueta} sin límite`);
+        continue;
+      }
+      const diferencia = Math.abs((propio[fila.campo] as number) - (otro[fila.campo] as number));
+      const cantidad = fila.unidad ? `${formatearNumero(diferencia)} ${fila.unidad}` : formatearNumero(diferencia);
       lista.push(`${cantidad} ${fila.mejor === 'mayor' ? 'más' : 'menos'} en ${etiqueta}`);
     }
   }
@@ -621,7 +642,8 @@ export function mayoresDiferencias(a: Vehiculo, b: Vehiculo, cantidad = 5): Dife
     // La potencia en hp repite la de kW
     if (fila.campo === 'power_hp') continue;
     const quien = ganador(fila, a, b);
-    if (!quien) continue;
+    // Una diferencia contra "sin límite" no se puede medir
+    if (!quien || typeof a[fila.campo] !== 'number' || typeof b[fila.campo] !== 'number') continue;
     const va = a[fila.campo] as number;
     const vb = b[fila.campo] as number;
     const mayor = Math.max(va, vb);

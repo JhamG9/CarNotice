@@ -9,6 +9,7 @@ import {
   calcularVeredicto,
   enumerar,
   formatearValor,
+  valorDe,
   ganador,
   mayoresDiferencias,
   nombreCompleto,
@@ -114,9 +115,9 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
 }
 
 function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Vehiculo; otro: Vehiculo; lado: Lado; gana: boolean }) {
-  const valor = vehiculo[fila.campo];
+  const valor = valorDe(fila, vehiculo);
   const texto = formatearValor(fila, valor);
-  const valorOtro = otro[fila.campo];
+  const valorOtro = valorDe(fila, otro);
   // La barra solo aparece en filas con ganador posible y con los dos datos
   const conBarra = Boolean(fila.mejor) && typeof valor === 'number' && typeof valorOtro === 'number';
   const ancho = conBarra ? Math.max(4, ((valor as number) / Math.max(valor as number, valorOtro as number)) * 100) : 0;
@@ -246,8 +247,8 @@ function MayoresDiferencias({ a, b }: { a: Vehiculo; b: Vehiculo }) {
             {lista.map(({ fila, ganador: quien, ventaja }) => (
               <tr key={fila.campo} className="border-b border-border last:border-b-0">
                 <th scope="row" className="px-4 py-3 font-normal text-muted">{fila.etiqueta}</th>
-                <td className={`px-4 py-3 tabular-nums ${quien === 'a' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, a[fila.campo])}</td>
-                <td className={`px-4 py-3 tabular-nums ${quien === 'b' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, b[fila.campo])}</td>
+                <td className={`px-4 py-3 tabular-nums ${quien === 'a' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, a))}</td>
+                <td className={`px-4 py-3 tabular-nums ${quien === 'b' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, b))}</td>
                 <td className="px-4 py-3 text-right">
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap tabular-nums"
@@ -373,7 +374,7 @@ export default function Comparador() {
   // Solo se muestran las filas donde al menos un carro tiene el dato
   const secciones = SECCIONES.map((seccion) => ({
     ...seccion,
-    filas: seccion.filas.filter((fila) => a[fila.campo] != null || b[fila.campo] != null),
+    filas: seccion.filas.filter((fila) => valorDe(fila, a) != null || valorDe(fila, b) != null),
   })).filter((seccion) => seccion.filas.length > 0);
 
   const irABuscar = () => {

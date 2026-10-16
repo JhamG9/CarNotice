@@ -14,39 +14,41 @@ Reglas comunes, conexión y qué campos aplican a cada motorización: [campos.md
 | Paso | Agente (`subagent_type`) | Hace | Escribe en la base |
 |---|---|---|---|
 | 1 | `vehiculos-auditor` | Encuentra los registros incompletos y los agrupa por familia | No |
-| 2 | `vehiculos-investigador` | Busca en la web los campos faltantes de una familia | No |
-| 3 | `vehiculos-verificador` | Comprueba cada dato contra su fuente y contra la ficha | No |
+| 2 | `vehiculos-investigador` | Busca en la web los campos faltantes de una familia y comprueba cada dato | No |
+| 3 | `vehiculos-verificador` | Solo si hace falta: revisa los datos dudosos y las correcciones a datos guardados | No |
 | 4 | `vehiculos-escritor` | Escribe los datos aprobados, solo en campos vacíos | **Sí** |
 | 5 | `vehiculos-completitud` | Relee las filas y confirma qué quedó completo | No |
 
-El verificador va **antes** de escribir: a la base solo llega lo comprobado. Entre el paso 3 y el 4 está la aprobación de quien administra.
+El investigador comprueba cada dato antes de proponerlo y lo marca `firme` o `dudoso`. El verificador solo entra para lo `dudoso` y para las correcciones a valores ya guardados: así un lote cuesta más o menos la mitad. Antes de escribir siempre está la aprobación de quien administra.
 
 ## Flujo
 
 ### 1. Auditar
 
-Lanza `vehiculos-auditor`. Si pidieron un alcance concreto (un slug, una marca, un mercado, "los de Colombia"), pásaselo. Muestra a quien administra el resumen y los lotes, y pregunta por cuáles empezar si no lo dijo. Por defecto, de menos a más completos.
+Lanza `vehiculos-auditor`. Si pidieron un alcance concreto (un slug, una marca, un mercado, "los de Colombia"), pásaselo. Muestra a quien administra el resumen y los lotes, y pregunta por cuáles empezar si no lo dijo.
+
+**Los lotes se arman por marca y mercado, no por porcentaje.** Las familias de una misma marca en el mismo mercado comparten fuentes (la lista de precios del país, el ADAC, la garantía de la marca, Euro NCAP), así que juntas se investigan con menos búsquedas. Por defecto, empieza por la marca y el mercado con el promedio más bajo.
 
 ### 2. Investigar
 
-Trabaja por lotes de hasta **3 familias** (unos 10 vehículos). Lanza un `vehiculos-investigador` **por familia**, en paralelo en el mismo mensaje. A cada uno le pasas, del informe del auditor:
+Trabaja por lotes de hasta **2 familias** de la misma marca y mercado (unos 6 vehículos): los lotes más grandes chocan con el límite de búsquedas web de la sesión y se cortan a la mitad. Lanza un `vehiculos-investigador` **por familia**, en paralelo en el mismo mensaje. A cada uno le pasas, del informe del auditor:
 
 - marca, modelo, año, mercado, `powertrain` y `latam_name` si lo hay;
 - cada slug con su versión, su `source_url` actual y sus campos faltantes.
 
-No le pases las conclusiones de otro investigador: cada familia se busca por separado.
+Si un lote anterior ya encontró fuentes de esa marca y mercado (la lista de precios del país, la página de garantía, la ficha ADAC), pásale las URL al investigador: así no las vuelve a buscar. Pásale solo las URL, no los valores: cada dato se comprueba de nuevo para su versión.
 
-### 3. Verificar
+### 3. Verificar (solo lo necesario)
 
-Si un investigador dice que la ficha oficial es un PDF en imágenes que no pudo leer, conviértelo antes a PNG (ver "Fuentes aceptadas" en `campos.md`) y pasa las rutas al verificador.
+Si un investigador dice que la ficha oficial es un PDF en imágenes que no pudo leer, descárgalo y conviértelo a PNG (ver "Fuentes aceptadas" en `campos.md`). Pasa las rutas al verificador, o a un investigador nuevo si con eso se pueden llenar más campos.
 
-Junta las propuestas del lote y lanza `vehiculos-verificador` con ellas (uno por familia, en paralelo, si son muchas filas). Que no sea el mismo agente que investigó: la verificación tiene que ser independiente.
+Lanza `vehiculos-verificador` **solo** con las propuestas marcadas `dudoso` y con las posibles correcciones a valores guardados. Junta las de todo el lote en un solo verificador; si son muchas, uno por familia en paralelo. Las propuestas `firme` pasan directo al paso 4. Si no hay nada dudoso ni correcciones, salta este paso.
 
 ### 4. Pedir aprobación
 
 Muestra a quien administra, por vehículo:
 
-- los datos **aprobados** y **corregidos** que se van a escribir (campo, valor, fuente);
+- los datos que se van a escribir (campo, valor, fuente): los `firme` del investigador y los que el verificador aprobó o corrigió;
 - cuántos se rechazaron y por qué, en una línea;
 - las **posibles correcciones** a valores ya guardados, en una lista aparte, para aprobar una por una.
 
@@ -58,7 +60,7 @@ Lanza `vehiculos-escritor` con la tabla final aprobada, diciendo expresamente qu
 
 ### 6. Revisar completitud
 
-Lanza `vehiculos-completitud` con los slugs tocados, la tabla de aprobados y el % de antes (del auditor). Muestra su tabla.
+Lanza `vehiculos-completitud` con los slugs tocados, la tabla de aprobados y el % de antes (del auditor). Muestra su tabla. En un lote pequeño (hasta 4 vehículos), puedes hacerlo tú: ejecuta `auditoria.sql` filtrado a esos slugs y compara con lo aprobado.
 
 ### 7. Siguiente lote
 

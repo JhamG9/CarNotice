@@ -1,6 +1,7 @@
 -- Auditoría de completitud de public.vehicles. Solo lee.
 -- Una fila por vehículo con los campos que le faltan según su motorización.
 -- Las reglas (qué campo aplica a qué motorización) están explicadas en campos.md.
+-- airbags, ground_clearance_mm, panoramic_roof y ventilated_seats son opcionales: no cuentan aquí.
 -- Para auditar un solo vehículo, descomentar el filtro por slug al final.
 
 with reglas(col, grupo) as (values
@@ -12,12 +13,12 @@ with reglas(col, grupo) as (values
   ('co2_g_km', 'todos'),
   ('length_mm', 'todos'), ('width_mm', 'todos'), ('height_mm', 'todos'),
   ('wheelbase_mm', 'todos'), ('trunk_l', 'todos'), ('curb_weight_kg', 'todos'),
-  ('ground_clearance_mm', 'todos'), ('seats', 'todos'),
-  ('airbags', 'todos'), ('autonomous_emergency_braking', 'todos'),
+  ('seats', 'todos'),
+  ('autonomous_emergency_braking', 'todos'),
   ('adaptive_cruise_control', 'todos'), ('lane_keeping_assist', 'todos'),
   ('blind_spot_monitor', 'todos'), ('camera_360', 'todos'), ('isofix', 'todos'),
   ('screen_inches', 'todos'), ('apple_carplay', 'todos'), ('android_auto', 'todos'),
-  ('panoramic_roof', 'todos'), ('ventilated_seats', 'todos'), ('heated_seats', 'todos'),
+  ('heated_seats', 'todos'),
   ('wireless_charger', 'todos'),
   -- Con motor eléctrico (todo menos gasolina y diésel)
   ('motor_count', 'electrificado'),
@@ -51,6 +52,9 @@ faltan as (
   join grupos g on g.powertrain = v.powertrain
   join reglas r on r.grupo = g.grupo
   where v.j -> r.col = 'null'::jsonb
+    -- Una garantía sin límite no es un faltante: el número queda vacío a propósito.
+    and not (r.col = 'warranty_km' and v.j ->> 'warranty_km_unlimited' = 'true')
+    and not (r.col in ('battery_warranty_years', 'battery_warranty_km') and v.j ->> 'battery_warranty_unlimited' = 'true')
   union all
   -- Eléctricos: autonomía en el ciclo del mercado (EU → WLTP, CN → CLTC, US → EPA);
   -- en los demás mercados basta con un ciclo cualquiera.

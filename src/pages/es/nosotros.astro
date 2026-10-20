@@ -1,0 +1,82 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO } from '../../data/contacto';
+import { rutaAvisoLegal, rutaBlog, rutaComparador, rutaPrivacidad } from '../../lib/rutas';
+---
+
+<Institucional
+  nombre="Nosotros"
+  descripcion="Mejor Eléctrico es una revista de carros y un comparador de fichas técnicas, hecho para quienes disfrutan los vehículos y quieren decidir con datos."
+>
+  <p>
+    <strong>Mejor Eléctrico</strong> nació para responder una pregunta que se repite cada vez que alguien piensa en
+    cambiar de carro: <em>¿cuál me conviene más?</em> Para eso tenemos dos herramientas: una revista con noticias,
+    lanzamientos y guías, y un comparador que pone dos carros lado a lado con sus datos técnicos.
+  </p>
+  <p>
+    Escribimos sobre carros eléctricos, híbridos y de combustión. El nombre dice hacia dónde mira el mercado, pero no
+    tomamos partido: contamos lo bueno y lo malo de cada tecnología para que cada quien decida con la información
+    completa.
+  </p>
+
+  <h2>Qué encuentras aquí</h2>
+  <ul>
+    <li>
+      <a href={rutaBlog()}>Blog y noticias</a>: lanzamientos, noticias del mercado, pruebas de seguridad y guías
+      prácticas sobre carga, baterías, mantenimiento, impuestos y costos de uso.
+    </li>
+    <li>
+      <a href={rutaComparador()}>Comparador de carros</a>: elige dos modelos y mira en qué es mejor cada uno en
+      autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort, con su ficha técnica completa.
+    </li>
+  </ul>
+
+  <h2>Para quién escribimos</h2>
+  <p>
+    Para personas a las que les gustan los carros y quieren entenderlos sin rodeos. Nuestro público es internacional:
+    hoy publicamos en español y estamos preparando versiones en inglés, francés, alemán y portugués. Muchas notas
+    tratan sobre Colombia y Latinoamérica, y cuando una noticia es de un país concreto lo decimos.
+  </p>
+
+  <h2>Cómo trabajamos</h2>
+  <ul>
+    <li>
+      <strong>Datos con fuente.</strong> Cada ficha del comparador guarda de dónde salió: la página del fabricante, la
+      ficha oficial de un mercado o una prueba independiente. Si no encontramos un dato confirmado, lo dejamos vacío y
+      el comparador dice «Sin dato». No estimamos cifras.
+    </li>
+    <li>
+      <strong>Cada autonomía con su ciclo.</strong> Una autonomía WLTP, CLTC, EPA o NEDC no se puede comparar con otra
+      de un ciclo distinto. Por eso guardamos cada cifra en su ciclo y solo comparamos las que se midieron igual.
+    </li>
+    <li>
+      <strong>Puntajes que no cambian según el rival.</strong> El comparador califica cada área de 0 a 100 contra
+      rangos fijos, no contra el otro carro. Tampoco tiene en cuenta el precio, y así lo indica en cada comparación.
+    </li>
+    <li>
+      <strong>Fotos con crédito.</strong> Usamos fotos de las salas de prensa de los fabricantes o imágenes con licencia
+      libre, y siempre decimos de dónde vienen.
+    </li>
+    <li>
+      <strong>Correcciones.</strong> Si encuentras un error en una nota o en una ficha técnica, escríbenos. Lo revisamos
+      contra la fuente y, si corresponde, lo corregimos.
+    </li>
+  </ul>
+
+  <h2>Independencia</h2>
+  <p>
+    Las notas las escribe la redacción de Mejor Eléctrico. Ninguna marca paga por aparecer en el comparador ni por
+    salir mejor puntuada. El sitio puede mostrar publicidad para cubrir sus costos; los anuncios se ven como tales y no
+    influyen en lo que publicamos.
+  </p>
+
+  <h2>Contacto</h2>
+  <p>
+    Para sugerencias, correcciones, comunicados de prensa o cualquier otra consulta, escríbenos a{' '}
+    <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>.
+  </p>
+  <p>
+    Las condiciones de uso del sitio están en el <a href={rutaAvisoLegal()}>aviso legal</a>, y el tratamiento de datos
+    y las cookies, en la <a href={rutaPrivacidad()}>política de privacidad</a>.
+  </p>
+</Institucional>

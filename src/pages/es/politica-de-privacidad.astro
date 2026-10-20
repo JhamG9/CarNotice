@@ -1,0 +1,206 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO, DOMICILIO } from '../../data/contacto';
+import { rutaAvisoLegal } from '../../lib/rutas';
+
+const navegadores = [
+  { nombre: 'Google Chrome', href: 'https://support.google.com/chrome/answer/95647?hl=es-419' },
+  {
+    nombre: 'Mozilla Firefox',
+    href: 'https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias',
+  },
+  { nombre: 'Apple Safari', href: 'https://support.apple.com/es-es/guide/safari/sfri11471/mac' },
+  {
+    nombre: 'Microsoft Edge',
+    href: 'https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09',
+  },
+];
+---
+
+<Institucional
+  nombre="Política de privacidad"
+  descripcion="Qué datos se recogen cuando visitas Mejor Eléctrico, para qué se usan, qué cookies instalan el sitio y sus proveedores, y cómo ejercer tus derechos."
+  actualizado="2026-10-19"
+>
+  <p>
+    En Mejor Eléctrico recogemos los menos datos posibles. Puedes leer las notas y usar el comparador sin registrarte,
+    sin dejar tu nombre y sin llenar formularios. Esta política explica qué información se trata cuando visitas{' '}
+    <strong>mejorelectrico.com</strong>, quién la trata y cómo puedes controlarla.
+  </p>
+
+  <h2>1. Responsable del tratamiento</h2>
+  <ul>
+    <li><strong>Responsable:</strong> Mejor Eléctrico</li>
+    <li><strong>Domicilio:</strong> {DOMICILIO}</li>
+    <li>
+      <strong>Correo para asuntos de privacidad:</strong> <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    </li>
+  </ul>
+
+  <h2>2. Qué datos tratamos</h2>
+  <ul>
+    <li>
+      <strong>Datos de navegación.</strong> Al cargar una página, tu navegador envía de forma automática datos técnicos
+      como la dirección IP, el tipo de navegador y de dispositivo, el idioma y la página de origen. Los usan los
+      servicios que alojan y miden el sitio (ver el punto 4).
+    </li>
+    <li>
+      <strong>Estadísticas de uso.</strong> Con Google Analytics sabemos qué páginas se visitan, cuánto tiempo, desde
+      qué país aproximado y con qué tipo de dispositivo. Son datos agregados: no los usamos para identificarte.
+    </li>
+    <li>
+      <strong>Preferencia de tema.</strong> Si eliges el tema claro u oscuro, esa elección se guarda en tu propio
+      navegador (almacenamiento local, clave <code>tema</code>). No sale de tu equipo ni la recibimos.
+    </li>
+    <li>
+      <strong>Correos que nos envías.</strong> Si nos escribes, tratamos tu dirección de correo y lo que nos cuentes,
+      solo para responderte.
+    </li>
+  </ul>
+  <p>
+    El sitio no tiene comentarios, cuentas de usuario ni formularios, y no pedimos datos sensibles. Las fuentes
+    tipográficas se sirven desde nuestro propio dominio, así que cargarlas no envía datos a terceros. Los botones para
+    compartir son enlaces simples: no cargan nada de WhatsApp, X o Facebook hasta que haces clic en ellos.
+  </p>
+
+  <h2>3. Para qué los usamos</h2>
+  <ul>
+    <li>Mostrar el sitio y protegerlo de ataques y abusos.</li>
+    <li>Entender qué contenidos interesan más y mejorar las notas y el comparador.</li>
+    <li>Mostrar publicidad que ayude a financiar el sitio (ver el punto 6).</li>
+    <li>Responder las consultas, correcciones y solicitudes que nos envíes.</li>
+  </ul>
+  <p>
+    La base legal es tu consentimiento para las cookies de medición y de publicidad, y nuestro interés legítimo en que
+    el sitio funcione y sea seguro para los datos técnicos imprescindibles. No vendemos tus datos.
+  </p>
+
+  <h2>4. Con quién se comparten</h2>
+  <p>Los datos los tratan, en nuestro nombre o como responsables independientes, estos proveedores:</p>
+  <ul>
+    <li>
+      <strong>Cloudflare</strong>, que aloja el sitio y lo entrega desde servidores en distintos países. Recibe los
+      datos técnicos de cada visita para servir las páginas y bloquear tráfico malicioso.
+    </li>
+    <li>
+      <strong>Supabase</strong>, que guarda las fichas técnicas del comparador. Cuando abres el comparador, tu navegador
+      le pide los datos de los carros y, con esa petición, le envía datos técnicos como la dirección IP.
+    </li>
+    <li>
+      <strong>Google</strong>, que presta Google Analytics y, cuando el sitio muestra anuncios, Google AdSense. Puedes
+      leer{' '}
+      <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">
+        cómo usa Google la información de los sitios que usan sus servicios</a
+      >.
+    </li>
+  </ul>
+  <p>
+    Algunos de estos proveedores procesan los datos fuera de tu país, por ejemplo en Estados Unidos. Trabajamos con
+    proveedores que ofrecen garantías adecuadas de protección. También podemos entregar datos a una autoridad cuando la
+    ley lo exija.
+  </p>
+
+  <h2 id="cookies">5. Cookies</h2>
+  <p>
+    Una cookie es un pequeño archivo que un sitio guarda en tu navegador para recordar información entre una visita y
+    otra. Las cookies se asocian al navegador, no a la persona, y no guardan datos como tu nombre o tu tarjeta.
+  </p>
+  <p>Mejor Eléctrico no instala cookies propias. Las que pueden aparecer son de terceros:</p>
+  <ul>
+    <li>
+      <strong>De medición (Google Analytics):</strong> <code>_ga</code> y <code>_ga_*</code>. Distinguen visitantes y
+      sesiones para las estadísticas. Duran hasta dos años. Solo se instalan en mejorelectrico.com.
+    </li>
+    <li>
+      <strong>De publicidad (Google AdSense y sus socios):</strong> por ejemplo <code>__gads</code>,
+      <code>__gpi</code> e <code>IDE</code>. Sirven para mostrar anuncios, limitar cuántas veces ves el mismo y medir
+      su rendimiento. Pueden durar hasta trece meses.
+    </li>
+  </ul>
+  <p>
+    Si bloqueas estas cookies, el sitio sigue funcionando igual: puedes leer todas las notas y usar el comparador.
+  </p>
+
+  <h2>6. Publicidad de Google</h2>
+  <p>
+    El sitio puede mostrar anuncios de Google AdSense. Los proveedores externos, incluido Google, usan cookies para
+    mostrar anuncios según las visitas anteriores que hayas hecho a este o a otros sitios web. Las cookies de
+    publicidad permiten a Google y a sus socios mostrarte anuncios basados en tu navegación por Internet.
+  </p>
+  <p>
+    Puedes desactivar la publicidad personalizada en la{' '}
+    <a href="https://adssettings.google.com/" rel="noopener">configuración de anuncios de Google</a>, y la de otros
+    proveedores en <a href="https://www.aboutads.info/choices/" rel="noopener">aboutads.info</a> o, si estás en
+    Europa, en <a href="https://www.youronlinechoices.eu/" rel="noopener">youronlinechoices.eu</a>. Si la desactivas,
+    seguirás viendo anuncios, pero no estarán basados en tus intereses.
+  </p>
+  <p>
+    En el Espacio Económico Europeo, el Reino Unido y Suiza, Google solo muestra anuncios personalizados si das tu
+    consentimiento.
+  </p>
+
+  <h2>7. Cómo controlar las cookies</h2>
+  <p>
+    Puedes ver, bloquear o borrar las cookies desde la configuración de tu navegador, y rechazar solo las de terceros.
+    Ten en cuenta que la configuración se hace en cada navegador y en cada dispositivo que uses:
+  </p>
+  <ul>
+    {
+      navegadores.map((navegador) => (
+        <li>
+          <a href={navegador.href} rel="noopener">
+            {navegador.nombre}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p>
+    Para no aparecer en Google Analytics en ningún sitio, puedes instalar el{' '}
+    <a href="https://tools.google.com/dlpage/gaoptout?hl=es" rel="noopener">complemento de inhabilitación de Google</a
+    >.
+  </p>
+
+  <h2>8. Cuánto tiempo se guardan</h2>
+  <p>
+    Las estadísticas de Google Analytics se conservan durante el plazo configurado en esa herramienta, que va de dos a catorce meses. Los registros técnicos de los
+    proveedores de alojamiento se guardan el tiempo que ellos fijan por seguridad. Los correos que nos envías se
+    conservan mientras dure la conversación y el tiempo razonable para atender reclamos posteriores; después se borran.
+  </p>
+
+  <h2>9. Tus derechos</h2>
+  <p>
+    Según la Ley 1581 de 2012 de Colombia y sus decretos reglamentarios, tienes derecho a conocer, actualizar y
+    rectificar tus datos; a pedir prueba de la autorización que nos diste; a saber qué uso les damos; a revocar la
+    autorización o pedir que los borremos cuando no haya un deber legal de conservarlos; a consultarlos gratis, y a
+    presentar quejas ante la Superintendencia de Industria y Comercio.
+  </p>
+  <p>
+    Si visitas el sitio desde la Unión Europea u otro país con una ley equivalente, como el Reglamento General de
+    Protección de Datos (RGPD), también tienes derecho a pedir el acceso, la rectificación, la supresión, la limitación
+    y la portabilidad de tus datos, a oponerte a su tratamiento y a reclamar ante la autoridad de protección de datos de
+    tu país.
+  </p>
+  <p>
+    Para ejercer cualquiera de estos derechos escribe a <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    con el asunto «Datos personales» y explica qué necesitas. Respondemos las consultas en un plazo máximo de diez días
+    hábiles y los reclamos en quince días hábiles, como fija la ley colombiana.
+  </p>
+  <p>
+    Como casi todos los datos de navegación los tratan Google, Cloudflare y Supabase, muchas veces la forma más rápida
+    de controlarlos es la configuración de tu navegador o las herramientas de esos proveedores. Nosotros no podemos
+    asociar esos datos a tu nombre.
+  </p>
+
+  <h2>10. Menores de edad</h2>
+  <p>
+    El sitio está dirigido a adultos y no recoge a sabiendas datos de menores de edad. Si crees que un menor nos envió
+    sus datos, escríbenos y los borraremos.
+  </p>
+
+  <h2>11. Cambios en esta política</h2>
+  <p>
+    Si cambia la forma en que tratamos los datos, por ejemplo al sumar un proveedor, actualizaremos esta página y su
+    fecha. Las condiciones generales de uso del sitio están en el <a href={rutaAvisoLegal()}>aviso legal</a>.
+  </p>
+</Institucional>

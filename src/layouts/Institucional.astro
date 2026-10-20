@@ -1,0 +1,68 @@
+---
+import Base from './Base.astro';
+import { rutaAvisoLegal, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
+
+interface Props {
+  /** Nombre de la página: va en el h1 y en el título ("… | Mejor Eléctrico"). */
+  nombre: string;
+  descripcion: string;
+  /** Fecha de la última revisión del texto, en formato AAAA-MM-DD. */
+  actualizado?: string;
+}
+
+const { nombre, descripcion, actualizado } = Astro.props;
+const ruta = Astro.url.pathname;
+const paginas = [
+  { nombre: 'Nosotros', href: rutaNosotros() },
+  { nombre: 'Aviso legal', href: rutaAvisoLegal() },
+  { nombre: 'Política de privacidad', href: rutaPrivacidad() },
+];
+const fechaLegible = actualizado
+  ? new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+      new Date(actualizado),
+    )
+  : undefined;
+---
+
+<Base titulo={`${nombre} | Mejor Eléctrico`} descripcion={descripcion}>
+  <div class="mx-auto max-w-pagina px-4 pt-6 pb-4 md:px-6 md:pt-8">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14">
+      <article class="max-w-articulo min-w-0">
+        <header class="border-b border-border pb-6">
+          <h1 class="t-seccion barra-corta">{nombre}</h1>
+          <p class="t-texto mt-4 text-muted">{descripcion}</p>
+          {
+            fechaLegible && (
+              <p class="t-meta mt-3 text-muted">
+                Última actualización: <time datetime={actualizado}>{fechaLegible}</time>
+              </p>
+            )
+          }
+        </header>
+
+        <div class="cuerpo-nota pt-8">
+          <slot />
+        </div>
+      </article>
+
+      <nav aria-labelledby="titulo-sobre-sitio" class="content-start">
+        <h2 id="titulo-sobre-sitio" class="t-lateral barra-corta">Sobre el sitio</h2>
+        <ul class="mt-2">
+          {
+            paginas.map((pagina) => (
+              <li class="border-b border-border">
+                <a
+                  href={pagina.href}
+                  aria-current={ruta === pagina.href ? 'page' : undefined}
+                  class="t-item enlace flex min-h-12 items-center aria-[current=page]:text-accent"
+                >
+                  {pagina.nombre}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,132 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO, DOMICILIO } from '../../data/contacto';
+import { rutaPrivacidad } from '../../lib/rutas';
+---
+
+<Institucional
+  nombre="Aviso legal"
+  descripcion="Condiciones de uso de Mejor Eléctrico: quién es responsable del sitio, cómo se pueden usar sus contenidos y qué alcance tiene la información publicada."
+  actualizado="2026-10-19"
+>
+  <p>
+    Este aviso regula el acceso y el uso del sitio web <strong>mejorelectrico.com</strong> (en adelante, «el sitio»).
+    Quien entra al sitio y lo usa asume la condición de usuario y acepta estas condiciones. Si no está de acuerdo con
+    ellas, debe abstenerse de usarlo.
+  </p>
+
+  <h2>1. Datos del responsable</h2>
+  <ul>
+    <li><strong>Nombre del sitio:</strong> Mejor Eléctrico</li>
+    <li><strong>Dirección web:</strong> https://mejorelectrico.com</li>
+    <li><strong>Domicilio:</strong> {DOMICILIO}</li>
+    <li>
+      <strong>Correo electrónico:</strong> <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    </li>
+  </ul>
+
+  <h2>2. Objeto del sitio</h2>
+  <p>
+    Mejor Eléctrico es una publicación digital sobre vehículos. Ofrece notas informativas (noticias, lanzamientos,
+    guías y resultados de pruebas) y un comparador que muestra lado a lado las fichas técnicas de distintos carros. El
+    acceso es gratuito y no requiere registro.
+  </p>
+
+  <h2>3. Carácter informativo de los contenidos</h2>
+  <p>
+    Los contenidos del sitio son informativos y no constituyen asesoría técnica, legal, tributaria ni financiera.
+    Precios, beneficios tributarios, normas de tránsito, autonomías, tiempos de carga y equipamientos cambian según el
+    país, el mercado, la versión y la fecha, y el fabricante puede modificarlos sin aviso.
+  </p>
+  <p>
+    Las fichas del comparador se elaboran con fuentes públicas que se citan en cada caso. Aunque las revisamos con
+    cuidado, pueden contener errores u omisiones. Antes de comprar un vehículo o tomar una decisión importante,
+    confirma los datos con el fabricante o con el concesionario de tu país.
+  </p>
+  <p>
+    Los puntajes del comparador son una herramienta de orientación calculada a partir de los datos disponibles. No son
+    una recomendación de compra y no tienen en cuenta el precio.
+  </p>
+
+  <h2>4. Propiedad intelectual</h2>
+  <p>
+    Los textos, el diseño, el código, los gráficos del comparador y la marca Mejor Eléctrico son de su titular o se usan
+    con autorización, y están protegidos por las normas de derechos de autor y propiedad industrial aplicables.
+  </p>
+  <p>
+    Las fotografías de vehículos pertenecen a sus fabricantes o a sus autores, y se publican con su crédito, como
+    material de prensa o bajo licencias libres. Las marcas y los nombres de modelos citados pertenecen a sus
+    respectivos dueños y se mencionan solo para identificar los productos.
+  </p>
+  <p>
+    Se permite citar fragmentos breves de las notas siempre que se indique la fuente con un enlace a la nota original.
+    Cualquier otra reproducción, distribución o transformación total o parcial de los contenidos requiere autorización
+    previa y por escrito.
+  </p>
+
+  <h2>5. Uso del sitio</h2>
+  <p>El usuario se compromete a usar el sitio de forma lícita y a no:</p>
+  <ul>
+    <li>Usarlo con fines fraudulentos o contrarios a la ley, a la moral o al orden público.</li>
+    <li>Intentar acceder a áreas restringidas, a los sistemas que lo alojan o a sus bases de datos.</li>
+    <li>Introducir virus o cualquier programa que pueda dañar el sitio, sus proveedores o a otros usuarios.</li>
+    <li>
+      Extraer de forma masiva o automatizada los contenidos o las fichas técnicas (con robots, arañas o herramientas
+      similares), o imponer al sitio una carga que afecte su funcionamiento.
+    </li>
+    <li>Eliminar o alterar los créditos, avisos de derechos o marcas incluidos en los contenidos.</li>
+  </ul>
+
+  <h2>6. Responsabilidad</h2>
+  <p>
+    No garantizamos que el sitio esté disponible sin interrupciones ni libre de errores, aunque procuramos que así sea.
+    No respondemos por los daños que puedan derivarse de interrupciones del servicio, fallas técnicas, virus o
+    intromisiones de terceros ajenas a nuestro control, ni de las decisiones que el usuario tome a partir de la
+    información publicada.
+  </p>
+  <p>
+    Nos reservamos el derecho de modificar, actualizar o retirar contenidos del sitio en cualquier momento, sin aviso
+    previo.
+  </p>
+
+  <h2>7. Enlaces</h2>
+  <p>
+    El sitio incluye enlaces a páginas de terceros, como las fuentes de cada ficha o las salas de prensa de los
+    fabricantes. No controlamos esas páginas ni respondemos por su contenido, su disponibilidad o sus políticas de
+    privacidad.
+  </p>
+  <p>
+    Se permite enlazar cualquier página de Mejor Eléctrico desde otro sitio, siempre que el enlace no dé a entender una
+    relación o un respaldo que no existe y que el contenido no se muestre dentro de marcos (<em>frames</em>) de otro
+    sitio.
+  </p>
+
+  <h2>8. Publicidad</h2>
+  <p>
+    El sitio puede mostrar anuncios de terceros, entre ellos los de Google AdSense. Los anunciantes son responsables
+    del contenido de sus anuncios. Mostrar un anuncio no significa que recomendemos el producto o el servicio
+    anunciado.
+  </p>
+
+  <h2>9. Datos personales y cookies</h2>
+  <p>
+    El tratamiento de datos personales y el uso de cookies se explican en la{' '}
+    <a href={rutaPrivacidad()}>política de privacidad</a>.
+  </p>
+
+  <h2>10. Cambios en este aviso</h2>
+  <p>
+    Podemos modificar este aviso para adaptarlo a cambios del sitio o de la ley. La versión vigente es la publicada en
+    esta página, con su fecha de actualización.
+  </p>
+
+  <h2>11. Ley aplicable</h2>
+  <p>
+    Este aviso se rige por las leyes de la República de Colombia. Cualquier controversia se someterá a los jueces
+    competentes de Bogotá D.C., sin perjuicio de los derechos que la ley de su país de residencia reconozca al usuario
+    como consumidor.
+  </p>
+  <p>
+    Si alguna cláusula de este aviso resulta nula o inaplicable, las demás seguirán vigentes.
+  </p>
+</Institucional>

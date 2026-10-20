@@ -1,12 +1,18 @@
 ---
 import { categorias } from '../data/categorias';
-import { rutaCategoria, rutaInicio } from '../lib/rutas';
+import { rutaAvisoLegal, rutaCategoria, rutaInicio, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
 
 const anio = new Date().getFullYear();
+const paginasSitio = [
+  { nombre: 'Nosotros', href: rutaNosotros() },
+  { nombre: 'Aviso legal', href: rutaAvisoLegal() },
+  { nombre: 'Política de privacidad', href: rutaPrivacidad() },
+  { nombre: 'Cookies', href: `${rutaPrivacidad()}#cookies` },
+];
 ---
 
 <footer class="mt-16 border-t border-border bg-surface">
-  <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr] md:px-6">
+  <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr_1fr] md:px-6">
     <div>
       <p class="font-titular text-[24px] leading-none font-bold">
         <a href={rutaInicio()} class="inline-flex min-h-11 items-center">
@@ -26,6 +32,21 @@ const anio = new Date().getFullYear();
             <li>
               <a href={rutaCategoria(categoria)} class="enlace flex min-h-11 items-center">
                 {categoria.nombre}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-label="Sobre el sitio">
+      <h2 class="t-menu text-muted">Sobre el sitio</h2>
+      <ul class="mt-2">
+        {
+          paginasSitio.map((pagina) => (
+            <li>
+              <a href={pagina.href} class="enlace flex min-h-11 items-center">
+                {pagina.nombre}
               </a>
             </li>
           ))

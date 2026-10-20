@@ -197,6 +197,7 @@ Referencia: elcarrocolombiano.com. Se copia la estructura, no el aspecto.
 - Todas las rutas van bajo el prefijo de idioma y terminan en `/`. Por ahora solo existe `/es/`.
 - Blog y noticias (`/es/blog/`): listado de todas las notas, con la plantilla de sección y paginado igual. Bajo el encabezado lleva una fila de botones con las categorías ("Todas" más las cuatro, con su número de notas), que también aparece en cada página de categoría con la suya marcada.
 - Las categorías no van en el menú superior: se llega a ellas desde "Blog y noticias" y desde la barra lateral.
+- Páginas institucionales (`Institucional.astro`): Nosotros (`/es/nosotros/`), Aviso legal (`/es/aviso-legal/`) y Política de privacidad (`/es/politica-de-privacidad/`, con la sección de cookies en `#cookies`). Van enlazadas en la columna "Sobre el sitio" del pie, que exige Google AdSense. El correo y el domicilio están en `src/data/contacto.ts`. Si se suma un proveedor que trate datos (otro servicio de anuncios, un formulario, comentarios), actualizar la política de privacidad y su fecha.
 
 ## Tipografía
 

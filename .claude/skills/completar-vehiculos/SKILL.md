@@ -21,11 +21,23 @@ Reglas comunes, conexión, qué campos aplican a cada motorización y **campos c
 
 El investigador comprueba cada dato antes de proponerlo y lo marca `firme` o `dudoso`. El verificador solo entra para lo `dudoso` y para las correcciones a valores ya guardados: así un lote cuesta más o menos la mitad. Antes de escribir siempre está la aprobación de quien administra.
 
+## Aprobación o decisión delegada
+
+Por defecto, quien administra aprueba cada lote (paso 4) y decide si se sigue (pasos 1 y 7).
+
+Si quien administra **delegó expresamente** esas decisiones, la skill funciona en **modo delegado**. Cuenta como delegación un mensaje suyo en el chat como "decide tú, no requieres mi aprobación", una memoria que lo recoja con su cita, o la regla de `CLAUDE.md` ("Decisión delegada", en "Completar fichas incompletas"), que hoy lo deja activo para este proyecto salvo el despliegue. En modo delegado:
+
+- La sesión principal elige el lote, decide qué se escribe (incluidos los campos clave de una sola fuente y las correcciones a datos guardados) y sigue sin preguntar.
+- Se aplican igual todas las reglas de `campos.md`: fuente comprobada para cada dato, verificador para lo dudoso y las correcciones, nada inventado ni inferido de otra versión. Ante la duda, el campo queda vacío.
+- Al escritor se le pasa la cita textual de la delegación en vez de la aprobación.
+- Al terminar cada lote se informa lo escrito, lo corregido y lo descartado, con el resultado de completitud.
+- La delegación no cubre lo que quien administra haya excluido (por ejemplo, el push) ni publicar o desplegar, que `CLAUDE.md` pide que se soliciten en el momento.
+
 ## Flujo
 
 ### 1. Auditar
 
-Lanza `vehiculos-auditor`. Si pidieron un alcance concreto (un slug, una marca, un mercado, "los de Colombia"), pásaselo. Muestra a quien administra el resumen y los lotes, y pregunta por cuáles empezar si no lo dijo.
+Lanza `vehiculos-auditor`. Si pidieron un alcance concreto (un slug, una marca, un mercado, "los de Colombia"), pásaselo. Muestra a quien administra el resumen y los lotes, y pregunta por cuáles empezar si no lo dijo (en modo delegado, elige tú y dilo).
 
 **Los lotes se arman por marca y mercado, no por porcentaje.** Las familias de una misma marca en el mismo mercado comparten fuentes (la lista de precios del país, el ADAC, la garantía de la marca, Euro NCAP), así que juntas se investigan con menos búsquedas. Por defecto, empieza por la marca y el mercado con el promedio más bajo.
 
@@ -56,9 +68,11 @@ Muestra a quien administra, por vehículo:
 
 Recuerda que estos vehículos están publicados (`published = true`): lo que se escriba se ve en el comparador al instante. Espera un sí claro antes del paso 5. La aprobación vale para este lote, no para los siguientes. Si quien administra quita o cambia algún dato, respétalo.
 
+En modo delegado no se espera: decides tú con los mismos criterios y pasas al paso 5. Esta lista se muestra al final, en el resumen del lote.
+
 ### 5. Escribir
 
-Lanza `vehiculos-escritor` con la tabla final aprobada, diciendo expresamente que quien administra la aprobó en el chat (y qué correcciones, si aprobó alguna). Si no hubo aprobación, no lo lances.
+Lanza `vehiculos-escritor` con la tabla final aprobada, diciendo expresamente que quien administra la aprobó en el chat (y qué correcciones, si aprobó alguna). En modo delegado, pásale la cita textual de la delegación y di que la decisión fue tuya. Si no hubo aprobación ni delegación, no lo lances.
 
 ### 6. Revisar completitud
 
@@ -67,6 +81,8 @@ Lanza `vehiculos-completitud` con los slugs tocados, la tabla de aprobados y el 
 ### 7. Siguiente lote
 
 Pregunta si se sigue con el siguiente lote. Al terminar, resume: vehículos tocados, campos llenados, % promedio antes y después, campos que nadie pudo llenar y la ruta de `supabase/completado/AAAA-MM-DD.md`. Ofrece hacer commit de ese registro (no hagas commit sin que lo pidan).
+
+En modo delegado: haz el resumen, haz el commit del registro si la delegación lo cubre (nunca push si quedó excluido) y di cuál sería el siguiente lote. Si la delegación pedía seguir con varios lotes, sigue con el siguiente; si pedía uno, para ahí.
 
 ## Lo que no hace esta skill
 

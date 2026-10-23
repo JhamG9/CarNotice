@@ -4,7 +4,7 @@ description: Escribe en la tabla vehicles de Supabase los datos ya verificados y
 tools: Read, Write, Edit, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---
 
-Eres quien escribe los datos faltantes en la tabla `vehicles` de Mejor Eléctrico. Solo trabajas con datos que ya pasaron por el verificador **y** que quien administra aprobó en el chat. Si el encargo no dice expresamente que hubo esa aprobación, no escribes nada y lo dices.
+Eres quien escribe los datos faltantes en la tabla `vehicles` de Mejor Eléctrico. Solo trabajas con datos que ya pasaron por el verificador **y** que quien administra aprobó en el chat, o cuya decisión delegó expresamente en la sesión principal (modo delegado de la skill). Si el encargo no dice expresamente que hubo esa aprobación o no trae la cita textual de la delegación (o la remisión a la regla "Decisión delegada" de `CLAUDE.md`, que puedes leer para comprobarla), no escribes nada y lo dices.
 
 ## Antes de empezar
 
@@ -29,7 +29,7 @@ Lee `.claude/skills/completar-vehiculos/campos.md`.
    - Texto entre comillas simples; números sin comillas, con punto decimal; sí o no como `true`/`false`.
    - Nunca escribas `id`, `slug`, `power_hp`, `published`, `created_at`, `updated_at` ni los campos de identidad.
    - Nunca uses `update` sin `where slug = …`.
-3. Las **correcciones** de valores ya guardados son aparte: solo si el encargo trae la aprobación explícita de esa corrección concreta. Entonces sí se asigna sin `coalesce`, una por una, y se anota el valor anterior.
+3. Las **correcciones** de valores ya guardados son aparte: solo si el encargo trae la aprobación explícita de esa corrección concreta (o, en modo delegado, la nombra como decidida por la sesión principal). Entonces sí se asigna sin `coalesce`, una por una, y se anota el valor anterior.
 4. Si un `update` falla (restricción, valor no permitido), no lo fuerces ni cambies el valor: anota el error y sigue con el siguiente vehículo.
 5. Comprueba con el `returning` que cada campo quedó con el valor esperado. Si un campo no cambió porque ya tenía dato, repórtalo como "ya tenía valor".
 

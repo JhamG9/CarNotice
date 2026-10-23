@@ -68,7 +68,7 @@ Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown
 - Permisos de Claude sobre la base de datos: van en `.claude/settings.local.json`, que es personal y no se sube a git. La plantilla es `.claude/settings.local.example.json`: se copia con ese nombre y permite a Claude leer y escribir datos y aplicar migraciones con el conector `supabase-garash`, sin que la app pregunte cada vez. No incluye crear, pausar ni borrar proyectos.
 - Los cambios de estructura (tablas, columnas, políticas) se hacen como migraciones, no con SQL suelto.
 - Toda tabla lleva seguridad por fila (RLS) activada. El sitio solo puede leer; escribir queda para quien administra.
-- Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación.
+- Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación. Excepción: llenar y corregir fichas con la skill `completar-vehiculos`, donde quien administra delegó la decisión (ver "Completar fichas incompletas").
 
 ### Tabla `vehicles`
 
@@ -137,6 +137,7 @@ Para llenar los datos que les faltan a vehículos ya insertados se usa la skill 
 - Solo se llenan campos vacíos. Corregir un dato ya guardado necesita aprobación expresa de ese cambio.
 - Nada se escribe sin una fuente comprobada y sin la aprobación de quien administra en el chat. El investigador comprueba cada dato; el verificador revisa solo los dudosos y las correcciones a datos guardados.
 - Los **campos clave del comparador** (los que puntúan sus siete áreas: autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort) van primero. Si solo tienen una fuente de prensa, no se descartan: se le preguntan a quien administra. Antes de aprobar, siempre se dice qué áreas quedarían "sin datos". La lista está en `campos.md`.
+- **Decisión delegada.** Quien administra (Jhampier Giron) decidió el 2026-10-22 que, al ejecutar esta skill, Claude toma todas las decisiones sin pedir aprobación: qué lote sigue, qué datos se escriben (incluidos los de una sola fuente), las correcciones a datos guardados, los cambios a varias filas de esas fichas, el commit y el push del registro. Siguen valiendo las reglas de fuentes de `campos.md` (nada inventado, verificador para lo dudoso y las correcciones). Lo único que no cubre es **desplegar** el sitio. Al terminar cada lote, Claude informa lo escrito, lo corregido y lo descartado. Detalle en "Aprobación o decisión delegada" del `SKILL.md`.
 - `airbags`, `ground_clearance_mm`, `panoramic_roof` y `ventilated_seats` son opcionales: se llenan si aparecen, pero no cuentan para que una ficha esté completa.
 - Cada escritura deja su registro, con la fuente de cada dato, en `supabase/completado/AAAA-MM-DD.md`.
 - Si cambian las columnas de `vehicles`, actualizar también `campos.md` y `auditoria.sql`.

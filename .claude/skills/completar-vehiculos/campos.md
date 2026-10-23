@@ -46,7 +46,7 @@ La consulta `../agregar-vehiculo/campos-clave.sql` comprueba todo esto por vehí
 Reglas para los campos clave:
 
 - Si falta uno, el investigador hace una **segunda búsqueda dirigida** solo para ese campo (catálogos como Autocosmos, pruebas de prensa, bases técnicas) antes de rendirse.
-- Si al final solo hay **una fuente de prensa**, o las fuentes difieren poco (492 frente a 493 L), **no se rechaza en silencio**: va como `dudoso: una fuente` y la sesión principal se lo pregunta a quien administra, con la fuente y el valor. Si lo aprueba, se escribe y el registro lo marca como "prensa, una fuente".
+- Si al final solo hay **una fuente de prensa**, o las fuentes difieren poco (492 frente a 493 L), **no se rechaza en silencio**: va como `dudoso: una fuente` y la sesión principal se lo pregunta a quien administra, con la fuente y el valor. Si lo aprueba, se escribe y el registro lo marca como "prensa, una fuente". En modo delegado (ver `SKILL.md`), lo decide la sesión principal y el registro lo marca como "prensa, una fuente (decisión delegada)".
 - Lo que nunca se hace: inventar, estimar, calcular o tomar la cifra de otra versión o de otro ciclo.
 - Antes de pedir la aprobación de un lote o de un carro nuevo, la sesión principal dice **qué áreas del comparador quedarían "sin datos"** con lo que se va a escribir.
 

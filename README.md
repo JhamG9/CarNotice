@@ -34,7 +34,8 @@ Cada fila es una versión de un carro, en un año modelo y para un mercado. El m
 
 - Los nombres de columna y los valores guardados van en inglés.
 - **Obligatorio** significa que la fila no se puede guardar sin ese dato. Todo lo demás es opcional y queda vacío si no se conoce.
-- En los campos de sí o no, vacío significa "no se sabe" y "no" significa "el carro no lo tiene". No son lo mismo.
+- En los campos de sí o no, vacío significa "no se sabe" y "no" significa "no lo trae de serie" (no lo tiene, o solo como opción o paquete). No son lo mismo.
+- Si la versión no nombra un acabado, la fila describe el **acabado más básico** que se vende con esa batería y motor en ese mercado: su equipamiento de serie, su autonomía y su aceleración.
 - Los valores numéricos no aceptan cero ni negativos, salvo donde se indique.
 - No se guardan precios.
 

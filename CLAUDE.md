@@ -80,7 +80,7 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 - La autonomía tiene una columna por ciclo (`range_wltp_km`, `range_cltc_km`, `range_epa_km`, `range_nedc_km`). Solo se comparan cifras del mismo ciclo.
 - La potencia se guarda en kW (`power_kw`); `power_hp` se calcula sola y no se escribe.
 - `updated_at` se actualiza sola con cada cambio.
-- En los equipamientos (sí o no), vacío significa "no se sabe" y `false` significa "no lo tiene".
+- En los equipamientos (sí o no), vacío significa "no se sabe" y `false` significa "no lo trae de serie". Si la versión no nombra un acabado, la fila describe el acabado más básico con esa batería y motor en ese mercado.
 - El sitio solo lee las filas con `published = true`.
 
 ### Insertar un vehículo en `vehicles`

@@ -23,7 +23,7 @@ select * from public.vehicles where slug in ('…');
 3. **Unidad y conversión.** Rehaz la conversión; debe dar lo mismo con el redondeo de la columna.
 4. **Ciclo.** Las autonomías van en la columna de su ciclo y la fuente nombra ese ciclo.
 5. **Valor permitido y restricciones.** Está en la lista cerrada, cumple los `check` de la tabla y la precisión de la columna.
-6. **Sí o no.** Un `false` tiene evidencia expresa. Si no, se rechaza (queda vacío).
+6. **Sí o no.** Un `false` tiene evidencia expresa ("–", "no", u opción o paquete en el acabado base; ver "Acabado base" en `campos.md`). Si no, se rechaza (queda vacío). Comprueba que el acabado tomado como base sea de verdad el más básico con esa batería y motor.
 7. **Coherencia con la ficha.** Comparado con la fila actual y con las otras propuestas:
    - `consumption_kwh_100km` × autonomía / 100 queda cerca de `battery_kwh` (entre 0,8 y 1,2 veces la batería útil; el consumo WLTP incluye las pérdidas de carga y suele dar entre 1,1 y 1,2).
    - Si hay `motor_count` 2, `drivetrain` suele ser `awd`.

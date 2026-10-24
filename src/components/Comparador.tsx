@@ -160,6 +160,36 @@ function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Veh
   );
 }
 
+/** Primera fila de cada tabla: qué carro va en cada columna. */
+function EncabezadoCarros({ a, b }: { a: Vehiculo; b: Vehiculo }) {
+  return (
+    // Los lectores de pantalla ya oyen el nombre del carro en cada celda (sr-only)
+    <div
+      aria-hidden="true"
+      className="grid grid-cols-2 gap-x-4 border-b border-border py-3 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-8"
+    >
+      <span className="hidden md:block" />
+      {(
+        [
+          ['a', a],
+          ['b', b],
+        ] as const
+      ).map(([lado, v]) => (
+        <span key={lado} className="flex min-w-0 items-start gap-2">
+          <span
+            className={`mt-1.5 inline-block size-2.5 shrink-0 ${lado === 'b' ? 'rounded-sm' : 'rounded-full'}`}
+            style={{ backgroundColor: COLOR[lado] }}
+          />
+          <span className="min-w-0">
+            <span className="block text-[15px] leading-5 font-bold text-heading">{nombreModelo(v)}</span>
+            <span className="block text-[13px] leading-4 text-muted">{v.version}</span>
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /** Fila de tabla con los dos valores y el ganador marcado. */
 function FilaComparada({ fila, a, b }: { fila: Fila; a: Vehiculo; b: Vehiculo }) {
   const quien = ganador(fila, a, b);
@@ -301,11 +331,16 @@ function DetalleArea({ area, a, b, alCerrar }: { area: string; a: Vehiculo; b: V
       {filas.length === 0 ? (
         <p className="mt-4 text-[17px] text-muted">Ninguno de los dos carros tiene datos en esta área.</p>
       ) : (
-        <dl className="mt-2">
+        <>
+        <div className="mt-2">
+          <EncabezadoCarros a={a} b={b} />
+        </div>
+        <dl>
           {filas.map((fila) => (
             <FilaComparada key={fila.campo} fila={fila} a={a} b={b} />
           ))}
         </dl>
+        </>
       )}
     </div>
   );
@@ -497,6 +532,7 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
         {secciones.map((seccion) => (
           <div key={seccion.id} id={seccion.id} className="mt-10 scroll-mt-6">
             <h3 className="t-lateral border-b-2 border-heading pb-3">{seccion.titulo}</h3>
+            <EncabezadoCarros a={a} b={b} />
             <dl>
               {seccion.filas.map((fila) => (
                 <FilaComparada key={fila.campo} fila={fila} a={a} b={b} />

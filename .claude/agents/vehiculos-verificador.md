@@ -19,7 +19,7 @@ select * from public.vehicles where slug in ('…');
 
 ### PDF: primero texto, luego imagen
 
-Leer un PDF por páginas con Read es lo más caro de un lote (cada página entra como imagen). Antes, sácale el texto con Bash: `pdftotext -layout <ruta-local.pdf> - | grep -n -i -E '<término>|<término>'` (o `pdftotext -f 4 -l 7 -layout` para unas páginas). Si sale texto, cita de ahí. Solo si el PDF no tiene capa de texto (sale vacío), léelo con Read y `pages`, y únicamente las páginas que necesitas (equipamiento y datos técnicos), nunca el documento entero. Usa Bash solo para `pdftotext`, `grep` y `curl` de descarga; nada más.
+Leer un PDF por páginas con Read es lo más caro de un lote (cada página entra como imagen). Antes, sácale el texto con Bash: `pdftotext -layout <ruta-local.pdf> - | grep -n -i -E '<término>|<término>'` (o `pdftotext -f 4 -l 7 -layout` para unas páginas). Si sale texto, cita de ahí. Si el PDF no tiene capa de texto (sale vacío), pásalo por OCR, que también es local y gratis: `pdftoppm -r 200 -f N -l N -png <pdf> /tmp/pag && tesseract /tmp/pag-N.png - -l deu` (idiomas instalados: deu, spa, fra, nld, ita, eng). El OCR lee bien las palabras y cifras, pero confunde los símbolos de las tablas (● sale como "o" o "®", "–" puede perderse): úsalo para encontrar la fila y el dato; si un `true`/`false` depende de un símbolo, confirma solo esa página con Read y `pages`. Nunca leas el documento entero como imagen. Usa Bash solo para `pdftotext`, `pdftoppm`, `tesseract`, `grep` y `curl` de descarga; nada más.
 
 Si la sesión principal te pasa la ruta local de un PDF que ya leyó el investigador, úsala; no lo vuelvas a descargar.
 

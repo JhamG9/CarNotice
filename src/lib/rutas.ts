@@ -13,6 +13,16 @@ export function slugificar(texto: string): string {
 
 export const rutaInicio = () => `/${IDIOMA}/`;
 export const rutaComparador = () => `/${IDIOMA}/comparador/`;
+/** Comparador libre con dos versiones elegidas. */
+export const rutaComparadorCon = (slugA: string, slugB: string) =>
+  `/${IDIOMA}/comparador/?${new URLSearchParams({ a: slugA, b: slugB })}`;
+/** Página fija de una comparación entre dos modelos: /comparador/<modelo-a>-vs-<modelo-b>/ */
+export const rutaComparacion = (par: string) => `/${IDIOMA}/comparador/${par}/`;
+export const rutaCarros = () => `/${IDIOMA}/carros/`;
+export const rutaModelo = (modelo: string) => `/${IDIOMA}/carros/${modelo}/`;
+/** Imágenes para compartir, generadas al compilar. */
+export const rutaImagenModelo = (modelo: string) => `/og/carros/${modelo}.jpg`;
+export const rutaImagenComparacion = (par: string) => `/og/comparador/${par}.jpg`;
 export const rutaNota = (id: string) => `/${IDIOMA}/notas/${id}/`;
 export const rutaNosotros = () => `/${IDIOMA}/nosotros/`;
 export const rutaAvisoLegal = () => `/${IDIOMA}/aviso-legal/`;

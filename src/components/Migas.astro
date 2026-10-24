@@ -1,0 +1,43 @@
+---
+/**
+ * Ruta de migas de pan ("Inicio › Carros › Kia EV2") con su JSON-LD BreadcrumbList.
+ * El último elemento es la página actual: va sin enlace y con aria-current.
+ */
+interface Props {
+  migas: { nombre: string; href: string }[];
+}
+
+const { migas } = Astro.props;
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: migas.map((miga, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: miga.nombre,
+    item: new URL(miga.href, Astro.site).href,
+  })),
+}).replace(/</g, '\\u003c');
+---
+
+<nav aria-label="Ruta de navegación" class="text-[14px] leading-5 text-muted">
+  <ol class="flex flex-wrap items-center gap-x-2">
+    {
+      migas.map((miga, i) => (
+        <li class="flex items-center gap-x-2">
+          {i > 0 && <span aria-hidden="true">›</span>}
+          {i < migas.length - 1 ? (
+            <a href={miga.href} class="enlace inline-flex min-h-11 items-center">
+              {miga.nombre}
+            </a>
+          ) : (
+            <span aria-current="page" class="inline-flex min-h-11 items-center text-ink">
+              {miga.nombre}
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" is:inline set:html={jsonLd} />

@@ -1,0 +1,108 @@
+---
+import Base from '../../../layouts/Base.astro';
+import FotoVehiculo from '../../../components/FotoVehiculo.astro';
+import Migas from '../../../components/Migas.astro';
+import { autonomiaPrincipal, nombresMercados, tipoDeModelo } from '../../../lib/catalogo';
+import { obtenerCatalogo } from '../../../lib/catalogoDatos';
+import { rutaCarros, rutaComparador, rutaInicio, rutaModelo } from '../../../lib/rutas';
+import { formatearNumero, traducir } from '../../../lib/vehiculos';
+
+const { modelos, pares } = await obtenerCatalogo();
+
+// Por tamaño, de menor a mayor; dentro de cada uno, por nombre
+const ORDEN = ['mini', 'small', 'compact', 'midsize', 'large', 'luxury'];
+const grupos = ORDEN.map((segmento) => ({
+  segmento,
+  nombre: segmento === 'luxury' ? 'De lujo' : traducir('segment', segmento) + (segmento === 'mini' ? '' : 's'),
+  modelos: modelos.filter((m) => m.representativa.segment === segmento),
+})).filter((g) => g.modelos.length > 0);
+
+const marcas = new Set(modelos.map((m) => m.marca)).size;
+const descripcion = `Fichas técnicas de ${modelos.length} carros eléctricos de ${marcas} marcas: autonomía, batería, carga, potencia y equipamiento, con ${pares.length} comparaciones entre rivales.`;
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Carros eléctricos',
+  numberOfItems: modelos.length,
+  itemListElement: modelos.map((m, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: m.nombre,
+    url: new URL(rutaModelo(m.slug), Astro.site).href,
+  })),
+}).replace(/</g, '\\u003c');
+---
+
+<Base titulo="Carros eléctricos: fichas técnicas | Mejor Eléctrico" descripcion={descripcion}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+
+  <div class="mx-auto max-w-pagina px-4 pt-2 md:px-6 md:pt-4">
+    <Migas migas={[{ nombre: 'Inicio', href: rutaInicio() }, { nombre: 'Carros', href: rutaCarros() }]} />
+
+    <header class="border-b border-border pb-6">
+      <h1 class="t-seccion barra-corta">Carros eléctricos</h1>
+      <p class="t-texto mt-4 max-w-articulo text-muted">{descripcion}</p>
+      <nav aria-label="Tamaños" class="mt-6">
+        <ul class="flex flex-wrap gap-2">
+          {
+            grupos.map((g) => (
+              <li>
+                <a
+                  href={`#${g.segmento}`}
+                  class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-[15px] transition-colors duration-150 hover:border-accent hover:text-accent"
+                >
+                  {g.nombre} <span class="ml-1.5 text-muted">{g.modelos.length}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    {
+      modelos.length === 0 && (
+        <p class="t-texto mt-8 text-muted">Todavía no hay fichas publicadas. Vuelve pronto.</p>
+      )
+    }
+
+    {
+      grupos.map((g) => (
+        <section id={g.segmento} aria-labelledby={`titulo-${g.segmento}`} class="mt-12 scroll-mt-6">
+          <h2 id={`titulo-${g.segmento}`} class="t-lateral barra-corta">
+            {g.nombre}
+          </h2>
+          <ul class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {g.modelos.map((m) => {
+              const a = autonomiaPrincipal(m.representativa);
+              return (
+                <li class="relative">
+                  <FotoVehiculo vehiculo={m.representativa} sinCredito />
+                  <p class="t-meta mt-3 tracking-[1px] text-accent uppercase">{m.marca}</p>
+                  <h3 class="t-tarjeta mt-1">
+                    <a href={rutaModelo(m.slug)} class="enlace-titular after:absolute after:inset-0">
+                      {m.nombre}
+                    </a>
+                  </h3>
+                  <p class="mt-2 text-[15px] leading-6 text-muted">
+                    {tipoDeModelo(m)}
+                    {a && ` · ${formatearNumero(a.km)} km ${a.ciclo}`}
+                    <br />
+                    {m.versiones.length} {m.versiones.length === 1 ? 'versión' : 'versiones'} · {nombresMercados(m.mercados)}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))
+    }
+
+    <p class="mt-14 border-t border-border pt-8 text-[17px]">
+      ¿No ves el que buscas? <a href={rutaComparador()} class="font-bold text-accent hover:underline">Compara dos carros a tu medida</a>.
+    </p>
+  </div>
+</Base>

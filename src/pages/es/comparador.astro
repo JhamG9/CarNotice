@@ -1,6 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Comparador from '../../components/Comparador.tsx';
+import { obtenerCatalogo } from '../../lib/catalogoDatos';
+
+// Comparaciones con página propia: el comparador enlaza a la de la pareja elegida, si existe
+const { pares } = await obtenerCatalogo();
+const paginas = pares.map((par) => par.slug);
 ---
 
 <Base
@@ -17,7 +22,7 @@ import Comparador from '../../components/Comparador.tsx';
     </header>
 
     <div class="pt-8">
-      <Comparador client:load />
+      <Comparador client:load paginas={paginas} />
       <noscript>
         <p class="t-texto text-muted">El comparador necesita JavaScript para cargar los carros.</p>
       </noscript>

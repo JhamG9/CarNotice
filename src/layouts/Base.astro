@@ -50,6 +50,11 @@ const conAnalytics = import.meta.env.PROD && !sinIndexar;
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descripcion} />
     {sinIndexar ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonica} />}
+    {/* Fotos grandes en Google Discover y en las búsquedas de imágenes */}
+    {!sinIndexar && <meta name="robots" content="max-image-preview:large" />}
+    {/* Por ahora solo hay español; cuando se sumen idiomas, cada página declara aquí sus traducciones */}
+    {!sinIndexar && <link rel="alternate" hreflang="es" href={canonica} />}
+    {!sinIndexar && <link rel="alternate" hreflang="x-default" href={canonica} />}
     <meta property="og:type" content={tipo} />
     {!sinIndexar && <meta property="og:url" content={canonica} />}
     <meta property="og:site_name" content="Mejor Eléctrico" />

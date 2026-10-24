@@ -11,7 +11,8 @@ import TarjetaRelacionada from '../../../components/TarjetaRelacionada.astro';
 import { buscarCategoria } from '../../../data/categorias';
 import { fechaISO, formatearFecha } from '../../../lib/fechas';
 import { notasRelacionadas, obtenerNotas, tiempoDeLectura, type Nota } from '../../../lib/notas';
-import { rutaNota } from '../../../lib/rutas';
+import { obtenerCatalogo } from '../../../lib/catalogoDatos';
+import { rutaModelo, rutaNota } from '../../../lib/rutas';
 
 export async function getStaticPaths() {
   const notas = await obtenerNotas();
@@ -29,6 +30,15 @@ const { Content } = await render(nota);
 
 const notas = await obtenerNotas();
 const relacionadas = notasRelacionadas(nota, notas);
+
+// Modelos de los que habla la nota: los que la enlazan desde su ficha o aparecen en el titular
+const { modelos } = await obtenerCatalogo();
+const modelosDeLaNota = modelos
+  .filter(
+    (modelo) =>
+      modelo.versiones.some((v) => v.article_slug === nota.id) || titulo.toLowerCase().includes(modelo.nombre.toLowerCase()),
+  )
+  .slice(0, 3);
 const minutos = tiempoDeLectura(nota);
 const url = new URL(rutaNota(nota.id), Astro.site).href;
 const imagenSocial = imagen
@@ -91,7 +101,7 @@ const jsonLd = JSON.stringify(datosEstructurados).replace(/</g, '\\u003c');
             (imagenPie || imagenCredito) && (
               <figcaption class="mt-2 text-[14px] leading-5 text-muted">
                 {imagenPie}
-                {imagenCredito && <span class="whitespace-nowrap"> Foto: {imagenCredito}.</span>}
+                {imagenCredito && <span> Foto: {imagenCredito}.</span>}
               </figcaption>
             )
           }
@@ -100,6 +110,25 @@ const jsonLd = JSON.stringify(datosEstructurados).replace(/</g, '\\u003c');
         <div class="cuerpo-nota mt-8">
           <Content />
         </div>
+
+        {
+          modelosDeLaNota.length > 0 && (
+            <aside aria-labelledby="titulo-fichas" class="mt-10 rounded-lg border border-border bg-surface p-5 md:p-6">
+              <h2 id="titulo-fichas" class="t-lateral barra-corta">
+                Ficha técnica completa
+              </h2>
+              <ul class="mt-4 grid gap-2">
+                {modelosDeLaNota.map((modelo) => (
+                  <li>
+                    <a href={rutaModelo(modelo.slug)} class="inline-flex min-h-11 items-center text-[17px] font-bold text-accent hover:underline">
+                      {modelo.nombre}: versiones, autonomía y rivales →
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )
+        }
 
         <footer class="mt-12 grid gap-8 border-t border-border pt-8">
           <section aria-labelledby="titulo-etiquetas-nota">

@@ -1,0 +1,46 @@
+---
+import { nombreModelo, type Vehiculo } from '../lib/vehiculos';
+
+/** Foto 16:9 de un vehículo del comparador (public/vehicles/), con su crédito. Sin foto, un marcador. */
+interface Props {
+  vehiculo: Vehiculo;
+  /** La foto principal de la página se carga primero. */
+  prioritaria?: boolean;
+  /** Sin pie de foto, para tarjetas pequeñas (el crédito va en la página del modelo). */
+  sinCredito?: boolean;
+}
+
+const { vehiculo, prioritaria = false, sinCredito = false } = Astro.props;
+const alt = `${nombreModelo(vehiculo)}${vehiculo.image_credit ? ', foto de referencia' : ''}`;
+---
+
+{
+  vehiculo.image_url ? (
+    <figure>
+      <img
+        src={vehiculo.image_url as string}
+        alt={alt}
+        width="1600"
+        height="900"
+        loading={prioritaria ? 'eager' : 'lazy'}
+        fetchpriority={prioritaria ? 'high' : undefined}
+        decoding="async"
+        class="aspect-video w-full rounded-lg bg-tint object-cover"
+      />
+      {!sinCredito && vehiculo.image_credit && (
+        <figcaption class="t-meta mt-1 text-muted">
+          Foto de referencia:{' '}
+          {vehiculo.image_source_url ? (
+            <a href={vehiculo.image_source_url as string} target="_blank" rel="noopener" class="underline hover:text-accent">
+              {vehiculo.image_credit}
+            </a>
+          ) : (
+            vehiculo.image_credit
+          )}
+        </figcaption>
+      )}
+    </figure>
+  ) : (
+    <div class="aspect-video w-full rounded-lg border border-border bg-tint" role="img" aria-label={`${nombreModelo(vehiculo)}, sin foto`} />
+  )
+}

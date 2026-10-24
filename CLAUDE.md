@@ -9,7 +9,7 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 ## Alcance actual
 
 - Fase 1 (construida): la revista. Portada, página de artículo, página de sección (categorías y etiquetas) y página 404.
-- Fase 2 (en construcción): el comparador de carros, en `/es/comparador/`. Ya existe la primera versión: elegir dos carros, gráfico de araña, ventajas de cada uno y ficha técnica.
+- Fase 2 (en construcción): el comparador de carros, en `/es/comparador/`. Ya existe: elegir dos carros, gráfico de araña, ventajas de cada uno y ficha técnica. Además, cada modelo tiene su página (`/es/carros/<modelo>/`) y cada comparación entre rivales también (`/es/comparador/<modelo-a>-vs-<modelo-b>/`), generadas al compilar para que Google las encuentre. Ver "Páginas de carros y comparaciones".
 
 ## Público
 
@@ -126,6 +126,7 @@ Las imágenes del comparador se guardan en el proyecto, en `public/vehicles/`, y
 - Astro no optimiza lo que está en `public/`: convertir antes a WebP, unos 1.600 px de ancho, menos de 300 KB y proporción 16:9, con el mismo comando de `sharp` de las notas.
 - No renombrar ni mover un archivo ya referenciado sin actualizar `image_url` en el mismo cambio.
 - La imagen solo se ve en el sitio publicado después de hacer commit y desplegar. Insertar la fila no basta.
+- Lo mismo con las páginas de carros y comparaciones: se generan al compilar, así que un carro nuevo o un dato corregido solo llega a ellas al compilar y desplegar. El comparador interactivo sí lee la base en vivo.
 - Origen: fotos de sala de prensa del fabricante cuando las haya. Si no, una foto de referencia de Wikimedia Commons con licencia libre (CC0, CC BY o CC BY-SA). El crédito no se inventa: el autor y la licencia van en `image_credit` y la página de la foto en `image_source_url`. El comparador los muestra bajo la foto.
 - Si no hay foto del modelo exacto, sirve la de un modelo hermano (el mismo carro con otro nombre en otro país, como el Baojun Yep Plus para el Chevrolet Spark EUV), y `image_credit` empieza por el nombre de ese modelo. Si no hay ninguna, `image_url` queda vacío.
 - Varias versiones del mismo modelo pueden usar la misma foto: se copia con el `slug` de cada una.
@@ -311,11 +312,25 @@ Página `/es/comparador/`. No aparece en la portada. Es una isla de React (`Comp
 - Los valores guardados en inglés (`electric`, `rwd`) se traducen al español en `src/lib/vehiculos.ts`.
 - Al agregar una columna a `vehicles`, añadirla también a la lista de filas de ese archivo para que aparezca en el comparador.
 
+## Páginas de carros y comparaciones
+
+Pensadas para que gente de todo el mundo llegue desde Google: el comparador interactivo se arma en el navegador y Google no lo ve, así que estas páginas lo repiten como HTML generado al compilar.
+
+- Datos: la colección `vehiculos` (`src/content.config.ts`) lee de Supabase las fichas publicadas, una vez por compilación. Sin las variables de `.env` queda vacía y estas páginas no se generan. El catálogo (modelos y pares) se arma en `src/lib/catalogo.ts`, y `src/lib/catalogoDatos.ts` lo lee una sola vez para todas las páginas.
+- Una página por modelo, no por versión: `/es/carros/<marca-modelo>/` (por ejemplo `/es/carros/kia-ev2/`). Las versiones de un modelo se parecen tanto que, por separado, serían contenido duplicado. Lleva foto, resumen, datos clave y puntaje por área de la versión representativa, una tabla de versiones, la ficha completa de cada versión (desplegable, con su anclaje), sus rivales y las notas que lo nombran. Datos estructurados `Car`.
+- Versión representativa: la más básica (menos batería, luego menos potencia) del mercado con más versiones del modelo. No se prioriza ningún país: el sitio es para lectores de todas partes.
+- Índice `/es/carros/`: todos los modelos agrupados por tamaño.
+- Comparaciones con página propia: `/es/comparador/<modelo-a>-vs-<modelo-b>/`, en orden alfabético (cada par existe una vez). Solo entre rivales reales: tamaño igual o vecino y al menos 5 de las 7 áreas comparables. Se comparan las versiones más básicas de un mercado que tengan los dos; si no comparten mercado, la representativa de cada uno. La página pinta el comparador completo desde el servidor (`Comparador.tsx` con `inicialA` e `inicialB`), una frase con el veredicto, preguntas rápidas por área ("¿Cuál tiene más autonomía?"), enlaces a los dos modelos y otras comparaciones. Cambiar un carro lleva al comparador libre.
+- El comparador libre (`/es/comparador/?a=&b=`) enlaza a la ficha de cada modelo y, si la pareja tiene página propia, a esa página.
+- Las notas que hablan de un modelo (por `article_slug` o porque lo nombran en el titular) muestran al final el enlace a su ficha.
+- Imágenes para compartir, generadas al compilar con `sharp` (`src/lib/imagenesSociales.ts`): `/og/carros/<modelo>.jpg` y `/og/comparador/<par>.jpg`, de 1200 × 630.
+- Migas de pan con JSON-LD `BreadcrumbList` (`Migas.astro`). `Base.astro` declara `max-image-preview:large` y `hreflang` (por ahora solo `es` y `x-default`; al sumar idiomas, cada página declara sus traducciones ahí).
+
 ## Reglas de calidad
 
 - Un solo `h1` por página.
 - Los titulares nunca se parten a mitad de palabra: nada de `word-break: break-all`, y probar columnas angostas.
-- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable. Hoy el menú tiene tres ítems (Inicio, Comparador y Blog y noticias) y va en una línea desde 1024 px; por debajo usa el menú desplegable. Las páginas de categoría y los artículos marcan "Blog y noticias" como activo.
+- Los ítems del menú no deben ocupar más de una línea; si no caben, van al menú desplegable. Hoy el menú tiene cuatro ítems (Inicio, Carros, Comparador y Blog y noticias) y va en una línea desde 1024 px; por debajo usa el menú desplegable. Las páginas de categoría y los artículos marcan "Blog y noticias" como activo.
 - Probar cada plantilla a 375, 768, 1024 y 1440 px.
 - Fotos con proporción fija por tipo de tarjeta, para que la lista no salte al cargar.
 - Fotos de vehículos: salas de prensa oficiales de los fabricantes, no fotos de stock. Se guardan en `src/assets/images/` y se enlazan con los campos `imagen` e `imagenAlt` de la nota.

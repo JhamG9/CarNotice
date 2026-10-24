@@ -29,4 +29,41 @@ const notas = defineCollection({
     }),
 });
 
-export const collections = { notas };
+/**
+ * Fichas del comparador, leídas de Supabase una vez por compilación. Con ellas se generan las páginas
+ * de cada modelo y de cada comparación, para que Google las vea como HTML. Solo trae las publicadas
+ * (lo exige RLS; el filtro lo deja explícito). Sin las variables de Supabase, la colección queda vacía
+ * y esas páginas no se generan: el resto del sitio compila igual.
+ */
+const vehiculos = defineCollection({
+  loader: async () => {
+    const url = import.meta.env.PUBLIC_SUPABASE_URL;
+    const clave = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    if (!url || !clave) {
+      console.warn('[vehiculos] Faltan las variables de Supabase: no se generan páginas de carros.');
+      return [];
+    }
+    const respuesta = await fetch(`${url}/rest/v1/vehicles?select=*&published=eq.true&order=brand,model,version`, {
+      headers: { apikey: clave },
+    });
+    if (!respuesta.ok) throw new Error(`Supabase respondió ${respuesta.status} al leer los vehículos`);
+    const filas: Record<string, unknown>[] = await respuesta.json();
+    return filas.map((fila) => ({ ...fila, id: String(fila.slug) }));
+  },
+  // Solo se validan los campos de identidad; el resto de columnas pasa tal cual (ver README).
+  schema: z
+    .object({
+      slug: z.string(),
+      brand: z.string(),
+      model: z.string(),
+      version: z.string(),
+      model_year: z.number(),
+      market: z.string(),
+      segment: z.string(),
+      body_style: z.string(),
+      powertrain: z.string(),
+    })
+    .passthrough(),
+});
+
+export const collections = { notas, vehiculos };

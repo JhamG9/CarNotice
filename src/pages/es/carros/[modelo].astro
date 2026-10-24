@@ -1,0 +1,288 @@
+---
+import Base from '../../../layouts/Base.astro';
+import FichaVersion from '../../../components/FichaVersion.astro';
+import FotoVehiculo from '../../../components/FotoVehiculo.astro';
+import Migas from '../../../components/Migas.astro';
+import TarjetaRelacionada from '../../../components/TarjetaRelacionada.astro';
+import {
+  autonomiaPrincipal,
+  nombresMercados,
+  otroDelPar,
+  puntajesPropios,
+  rango,
+  rivales,
+  tipoDeModelo,
+  type Modelo,
+} from '../../../lib/catalogo';
+import { obtenerCatalogo } from '../../../lib/catalogoDatos';
+import { obtenerNotas } from '../../../lib/notas';
+import { rutaCarros, rutaComparacion, rutaComparador, rutaComparadorCon, rutaImagenModelo, rutaInicio, rutaModelo } from '../../../lib/rutas';
+import { formatearNumero, nombreMercado, textoOtroNombre, traducir, type Vehiculo } from '../../../lib/vehiculos';
+
+export async function getStaticPaths() {
+  const { modelos } = await obtenerCatalogo();
+  return modelos.map((modelo) => ({ params: { modelo: modelo.slug }, props: { modelo } }));
+}
+
+interface Props {
+  modelo: Modelo;
+}
+
+const { modelo } = Astro.props;
+const { pares } = await obtenerCatalogo();
+const v = modelo.representativa;
+const sus = rivales(modelo, pares);
+const autonomia = autonomiaPrincipal(v);
+const puntajes = puntajesPropios(v);
+const tipo = tipoDeModelo(modelo);
+const otroNombre = textoOtroNombre(v);
+
+// Resumen del modelo en una frase, con los rangos de todas sus versiones
+const nVersiones = modelo.versiones.length;
+const bateria = rango(modelo.versiones, 'battery_kwh', 'kWh');
+const potencia = rango(modelo.versiones, 'power_kw', 'kW');
+const mejorAutonomia = modelo.versiones
+  .map(autonomiaPrincipal)
+  .filter((x) => x !== null)
+  .sort((x, y) => y!.km - x!.km)[0];
+const partes = [
+  `${nVersiones} ${nVersiones === 1 ? 'versión' : 'versiones'} con ficha de ${nombresMercados(modelo.mercados)}`,
+  bateria && `batería ${bateria}`,
+  potencia && `potencia ${potencia}`,
+  mejorAutonomia && `hasta ${formatearNumero(mejorAutonomia.km)} km de autonomía ${mejorAutonomia.ciclo}${mejorAutonomia.conGasolina ? ' con gasolina' : ''}`,
+].filter(Boolean) as string[];
+const resumen = `${tipo.charAt(0).toUpperCase()}${tipo.slice(1)}. ${new Intl.ListFormat('es', { type: 'conjunction' }).format(partes)}.`;
+
+// Datos clave de la versión representativa
+const carga = (x: Vehiculo) =>
+  x.dc_charging === false ? 'No tiene' : typeof x.dc_charge_min === 'number' ? `${x.dc_charge_min} min` : null;
+const cargaExtra = [
+  typeof v.dc_charge_min === 'number' && `del ${v.dc_charge_from_pct} al ${v.dc_charge_to_pct} %`,
+  typeof v.dc_charge_kw === 'number' && `hasta ${v.dc_charge_kw} kW`,
+].filter(Boolean).join(' · ');
+const datos = [
+  { nombre: 'Autonomía', valor: autonomia ? `${formatearNumero(autonomia.km)} km` : null, extra: autonomia ? `${autonomia.ciclo}${autonomia.conGasolina ? ', con gasolina' : ''}` : null },
+  { nombre: 'Batería', valor: typeof v.battery_kwh === 'number' ? `${formatearNumero(Number(v.battery_kwh))} kWh` : null, extra: null },
+  { nombre: 'Potencia', valor: typeof v.power_kw === 'number' ? `${formatearNumero(Number(v.power_kw))} kW` : null, extra: typeof v.power_hp === 'number' ? `${v.power_hp} hp` : null },
+  { nombre: '0 a 100 km/h', valor: typeof v.acceleration_0_100_s === 'number' ? `${formatearNumero(Number(v.acceleration_0_100_s))} s` : null, extra: null },
+  { nombre: 'Carga rápida', valor: carga(v), extra: cargaExtra || null },
+  { nombre: 'Baúl', valor: typeof v.trunk_l === 'number' ? `${formatearNumero(v.trunk_l)} L` : null, extra: typeof v.front_trunk_l === 'number' ? `+ ${v.front_trunk_l} L adelante` : null },
+].filter((dato) => dato.valor !== null);
+
+// Notas del sitio sobre este modelo: las enlazadas desde sus fichas y las que lo nombran en el titular
+const notas = await obtenerNotas();
+const enlazadas = new Set(modelo.versiones.map((x) => x.article_slug).filter(Boolean));
+const nombreNorm = modelo.nombre.toLowerCase();
+const relacionadas = notas
+  .filter((nota) => enlazadas.has(nota.id) || nota.data.titulo.toLowerCase().includes(nombreNorm))
+  .slice(0, 3);
+
+const titulo = `${modelo.nombre}: ficha técnica, autonomía y versiones`;
+const conMarca = `${titulo} | Mejor Eléctrico`;
+const tituloPagina = conMarca.length <= 60 ? conMarca : titulo;
+const descripcion = resumen.length <= 160 ? resumen : `${resumen.slice(0, 157).replace(/\s+\S*$/, '')}…`;
+const url = new URL(rutaModelo(modelo.slug), Astro.site).href;
+const imagenSocial = new URL(rutaImagenModelo(modelo.slug), Astro.site).href;
+
+const valor = (n: unknown, unidad: string) => (typeof n === 'number' ? { '@type': 'QuantitativeValue', value: n, unitCode: unidad } : undefined);
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Car',
+  name: modelo.nombre,
+  url,
+  image: v.image_url ? new URL(v.image_url as string, Astro.site).href : undefined,
+  description: resumen,
+  brand: { '@type': 'Brand', name: modelo.marca },
+  model: v.model,
+  vehicleConfiguration: v.version,
+  vehicleModelDate: String(v.model_year),
+  bodyType: traducir('body_style', v.body_style as string),
+  fuelType: v.powertrain === 'electric' ? 'Electricity' : traducir('powertrain', v.powertrain as string),
+  driveWheelConfiguration: v.drivetrain ? traducir('drivetrain', v.drivetrain as string) : undefined,
+  seatingCapacity: typeof v.seats === 'number' ? v.seats : undefined,
+  cargoVolume: valor(v.trunk_l, 'LTR'),
+  accelerationTime: valor(v.acceleration_0_100_s === null ? null : Number(v.acceleration_0_100_s), 'SEC'),
+  speed: valor(v.top_speed_kmh, 'KMH'),
+  weight: valor(v.curb_weight_kg, 'KGM'),
+  vehicleEngine: typeof v.power_kw === 'number' || typeof v.power_kw === 'string'
+    ? { '@type': 'EngineSpecification', enginePower: valor(Number(v.power_kw), 'KWT'), torque: valor(v.torque_nm, 'NU') }
+    : undefined,
+}).replace(/</g, '\\u003c');
+
+const anclaVersion = (x: Vehiculo) => x.slug as string;
+const ejemploRival = sus[0] ? otroDelPar(sus[0], modelo).representativa.slug : modelo.versiones.find((x) => x !== v)?.slug ?? v.slug;
+---
+
+<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+
+  <div class="mx-auto max-w-pagina px-4 pt-2 md:px-6 md:pt-4">
+    <Migas migas={[{ nombre: 'Inicio', href: rutaInicio() }, { nombre: 'Carros', href: rutaCarros() }, { nombre: modelo.nombre, href: rutaModelo(modelo.slug) }]} />
+
+    <div class="mt-2 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-12">
+      <FotoVehiculo vehiculo={v} prioritaria />
+
+      <div>
+        <header>
+          <p class="t-meta tracking-[1.5px] text-accent uppercase">{modelo.marca}</p>
+          <h1 class="barra-corta mt-2 font-titular text-[30px] leading-[38px] font-semibold text-balance text-heading md:t-articulo">
+            {modelo.nombre}
+          </h1>
+          {otroNombre && <p class="mt-4 text-[17px] font-bold text-heading">{otroNombre}</p>}
+          <p class="t-texto mt-4 text-muted">{resumen}</p>
+        </header>
+
+        <dl class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+          {
+            datos.map((dato) => (
+              <div class="bg-surface p-4">
+                <dt class="t-meta text-muted uppercase tracking-[1px]">{dato.nombre}</dt>
+                <dd class="mt-1 font-titular text-[22px] leading-7 font-bold text-heading tabular-nums">{dato.valor}</dd>
+                {dato.extra && <dd class="text-[14px] leading-5 text-muted">{dato.extra}</dd>}
+              </div>
+            ))
+          }
+        </dl>
+        <p class="mt-3 text-[14px] leading-5 text-muted">
+          Datos de la versión {v.version} {v.model_year}, ficha de {nombreMercado(v.market)}.
+        </p>
+
+        <p class="mt-6 flex flex-wrap gap-3">
+          <a
+            href={rutaComparadorCon(v.slug, ejemploRival)}
+            class="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
+          >
+            Compararlo con otro carro
+          </a>
+        </p>
+      </div>
+
+    </div>
+
+    <section aria-labelledby="titulo-puntajes" class="mt-14">
+      <h2 id="titulo-puntajes" class="t-seccion barra-corta">Cómo puntúa</h2>
+      <p class="t-texto mt-4 max-w-articulo text-muted">
+        Puntaje de 0 a 100 en cada área del comparador, medido contra rangos fijos: no cambia según con qué carro se
+        compare. Versión {v.version}.
+      </p>
+      <ul class="mt-6 grid gap-x-10 gap-y-4 md:grid-cols-2">
+        {
+          puntajes.map((p) => (
+            <li>
+              <div class="flex items-baseline justify-between gap-4">
+                <span class="text-[17px] leading-6 font-bold text-heading">{p.nombre}</span>
+                <span class="text-[15px] text-muted tabular-nums">{p.valor === null ? 'Sin dato' : `${p.valor} / 100`}</span>
+              </div>
+              <span class="mt-1.5 block h-2 w-full rounded-full bg-border" aria-hidden="true">
+                {p.valor !== null && <span class="block h-full rounded-full bg-accent-bright" style={`width: ${Math.max(2, p.valor)}%`} />}
+              </span>
+              <span class="t-meta mt-1 block text-muted">{p.detalle}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="titulo-versiones" class="mt-14">
+      <h2 id="titulo-versiones" class="t-seccion barra-corta">Versiones</h2>
+      <div class="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+        <table class="w-full min-w-[640px] text-left text-[15px]">
+          <thead>
+            <tr class="border-b border-border">
+              {['Versión', 'Mercado', 'Batería', 'Autonomía', 'Potencia', '0 a 100'].map((t) => (
+                <th scope="col" class="t-meta px-4 py-3 font-bold tracking-[1px] text-muted uppercase">{t}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              modelo.versiones.map((x) => {
+                const a = autonomiaPrincipal(x);
+                return (
+                  <tr class="border-b border-border last:border-b-0">
+                    <th scope="row" class="px-4 py-3 font-bold text-heading">
+                      <a href={`#${anclaVersion(x)}`} class="enlace">{x.version} {x.model_year}</a>
+                    </th>
+                    <td class="px-4 py-3">{nombreMercado(x.market)}</td>
+                    <td class="px-4 py-3 tabular-nums">{typeof x.battery_kwh === 'number' ? `${formatearNumero(Number(x.battery_kwh))} kWh` : '–'}</td>
+                    <td class="px-4 py-3 tabular-nums">{a ? `${formatearNumero(a.km)} km ${a.ciclo}` : '–'}</td>
+                    <td class="px-4 py-3 tabular-nums">{typeof x.power_kw === 'number' ? `${formatearNumero(Number(x.power_kw))} kW` : '–'}</td>
+                    <td class="px-4 py-3 tabular-nums">{typeof x.acceleration_0_100_s === 'number' ? `${formatearNumero(Number(x.acceleration_0_100_s))} s` : '–'}</td>
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-[14px] leading-5 text-muted">
+        Cada mercado tiene su ficha: la misma versión cambia de batería y equipamiento según el país. Las autonomías
+        solo son comparables dentro del mismo ciclo (WLTP, CLTC, EPA o NEDC).
+      </p>
+    </section>
+
+    <section aria-labelledby="titulo-ficha" class="mt-14">
+      <h2 id="titulo-ficha" class="t-seccion barra-corta">Ficha técnica</h2>
+      {
+        modelo.versiones.map((x, i) => (
+          <details id={anclaVersion(x)} open={i === 0} class="mt-6 scroll-mt-6 rounded-lg border border-border bg-surface p-5 md:p-6">
+            <summary class="flex min-h-11 cursor-pointer items-center justify-between gap-4">
+              <span class="t-lateral">
+                {modelo.nombre} {x.version} {x.model_year}
+                <span class="mt-1 block text-[15px] font-normal text-muted">Ficha de {nombreMercado(x.market)}</span>
+              </span>
+              <a href={rutaComparadorCon(x.slug as string, ejemploRival)} class="shrink-0 text-[15px] font-bold text-accent hover:underline">
+                Comparar
+              </a>
+            </summary>
+            <FichaVersion vehiculo={x} />
+          </details>
+        ))
+      }
+      <p class="mt-6 text-[14px] leading-5 text-muted">
+        Si un dato no aparece es porque no encontramos una fuente confiable, no porque el carro no lo tenga. Las fichas
+        salen de la marca, de bases técnicas y de prensa especializada.
+      </p>
+    </section>
+
+    {
+      sus.length > 0 && (
+        <section aria-labelledby="titulo-rivales" class="mt-14">
+          <h2 id="titulo-rivales" class="t-seccion barra-corta">Compáralo con sus rivales</h2>
+          <ul class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {sus.map((par) => {
+              const otro = otroDelPar(par, modelo);
+              return (
+                <li class="relative rounded-lg border border-border bg-surface p-4">
+                  <FotoVehiculo vehiculo={otro.representativa} sinCredito />
+                  <h3 class="t-lateral mt-3">
+                    <a href={rutaComparacion(par.slug)} class="enlace-titular after:absolute after:inset-0">
+                      {modelo.nombre} vs {otro.nombre}
+                    </a>
+                  </h3>
+                  <p class="mt-1 text-[15px] text-muted">{tipoDeModelo(otro)}</p>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="mt-4 text-[15px]">
+            <a href={rutaComparador()} class="font-bold text-accent hover:underline">Comparar con cualquier otro carro</a>
+          </p>
+        </section>
+      )
+    }
+
+    {
+      relacionadas.length > 0 && (
+        <section aria-labelledby="titulo-notas" class="mt-14 border-t border-border pt-10">
+          <h2 id="titulo-notas" class="t-seccion">Notas sobre el {modelo.nombre}</h2>
+          <div class="mt-6 grid gap-8 md:grid-cols-3 md:gap-6">
+            {relacionadas.map((nota) => <TarjetaRelacionada nota={nota} />)}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>

@@ -22,6 +22,8 @@ import {
   type Vehiculo,
   type Veredicto,
 } from '../lib/vehiculos';
+import { slugModelo, slugPar } from '../lib/catalogo';
+import { rutaComparacion, rutaComparadorCon, rutaModelo } from '../lib/rutas';
 
 type Estado = 'cargando' | 'listo' | 'error';
 type Lado = 'a' | 'b';
@@ -96,14 +98,22 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
           <p className="mt-1 text-[15px] text-muted">
             {vehiculo.version} · {vehiculo.model_year} · Ficha de {nombreMercado(vehiculo.market)}
           </p>
-          {vehiculo.article_slug && (
+          <p className="flex flex-wrap gap-x-5">
             <a
-              href={`/es/notas/${vehiculo.article_slug}/`}
+              href={rutaModelo(slugModelo(vehiculo))}
               className="mt-1 inline-flex min-h-11 items-center text-[15px] font-bold text-accent hover:underline"
             >
-              Leer la nota
+              Ficha del modelo
             </a>
-          )}
+            {vehiculo.article_slug && (
+              <a
+                href={`/es/notas/${vehiculo.article_slug}/`}
+                className="mt-1 inline-flex min-h-11 items-center text-[15px] font-bold text-accent hover:underline"
+              >
+                Leer la nota
+              </a>
+            )}
+          </p>
         </div>
         <span className="flex flex-col items-center">
           <Anillo valor={puntaje} lado={lado} />
@@ -301,17 +311,35 @@ function DetalleArea({ area, a, b, alCerrar }: { area: string; a: Vehiculo; b: V
   );
 }
 
-export default function Comparador() {
-  const [estado, setEstado] = useState<Estado>('cargando');
-  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
-  const [slugA, setSlugA] = useState('');
-  const [slugB, setSlugB] = useState('');
+interface Props {
+  /**
+   * Las dos versiones de una página de comparación fija. Con ellas el comparador se pinta completo desde
+   * el servidor (Google lo lee como HTML); sin ellas, es el comparador libre y las toma de la dirección.
+   */
+  inicialA?: Vehiculo;
+  inicialB?: Vehiculo;
+  /** Pares de modelos con página propia ("byd-seagull-vs-kia-ev2"), para enlazarla desde el comparador libre. */
+  paginas?: string[];
+}
+
+export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) {
+  const fija = Boolean(inicialA && inicialB);
+  const [estado, setEstado] = useState<Estado>(fija ? 'listo' : 'cargando');
+  const [vehiculos, setVehiculos] = useState<Vehiculo[]>(fija ? [inicialA!, inicialB!] : []);
+  const [slugA, setSlugA] = useState(inicialA?.slug ?? '');
+  const [slugB, setSlugB] = useState(inicialB?.slug ?? '');
   const [area, setArea] = useState<number | null>(null);
   const buscadores = useRef<HTMLDivElement>(null);
 
+  // En una página fija, la lista completa llega después y solo hace falta para cambiar de carro.
+  // Trae además la ficha vigente: si cambió desde la compilación, se ve la nueva.
   useEffect(() => {
     obtenerVehiculos()
       .then((lista) => {
+        if (fija) {
+          if (lista.some((v) => v.slug === slugA) && lista.some((v) => v.slug === slugB)) setVehiculos(lista);
+          return;
+        }
         setVehiculos(lista);
         const existe = (slug: string | null) => (slug && lista.some((v) => v.slug === slug) ? slug : null);
         const a = existe(leerParametro('a')) ?? lista[0]?.slug ?? '';
@@ -320,15 +348,28 @@ export default function Comparador() {
         setSlugB(b);
         setEstado('listo');
       })
-      .catch(() => setEstado('error'));
+      .catch(() => {
+        if (!fija) setEstado('error');
+      });
   }, []);
 
-  // La comparación elegida queda en la dirección, para poder compartirla
+  // La comparación elegida queda en la dirección, para poder compartirla (la página fija ya tiene la suya)
   useEffect(() => {
-    if (estado !== 'listo' || !slugA || !slugB) return;
+    if (fija || estado !== 'listo' || !slugA || !slugB) return;
     const parametros = new URLSearchParams({ a: slugA, b: slugB });
     window.history.replaceState(null, '', `${window.location.pathname}?${parametros}`);
   }, [estado, slugA, slugB]);
+
+  // En una página fija, cambiar de carro lleva al comparador libre con la nueva pareja
+  const cambiar = (lado: Lado, slug: string) => {
+    if (fija) {
+      window.location.assign(lado === 'a' ? rutaComparadorCon(slug, slugB) : rutaComparadorCon(slugA, slug));
+      return;
+    }
+    if (lado === 'a') setSlugA(slug);
+    else setSlugB(slug);
+    setArea(null);
+  };
 
   if (estado === 'cargando') {
     return (
@@ -385,9 +426,9 @@ export default function Comparador() {
   return (
     <div>
       <div ref={buscadores} className="grid scroll-mt-6 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-end md:gap-6">
-        <BuscadorCarro etiqueta="Carro 1" color={COLOR.a} vehiculos={vehiculos} valor={slugA} alCambiar={(s) => { setSlugA(s); setArea(null); }} />
+        <BuscadorCarro etiqueta="Carro 1" color={COLOR.a} vehiculos={vehiculos} valor={slugA} alCambiar={(s) => cambiar('a', s)} />
         <span className="hidden self-end pb-3 font-titular text-[20px] font-bold text-muted md:block" aria-hidden="true">vs</span>
-        <BuscadorCarro etiqueta="Carro 2" color={COLOR.b} vehiculos={vehiculos} valor={slugB} alCambiar={(s) => { setSlugB(s); setArea(null); }} />
+        <BuscadorCarro etiqueta="Carro 2" color={COLOR.b} vehiculos={vehiculos} valor={slugB} alCambiar={(s) => cambiar('b', s)} />
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-6">
@@ -407,6 +448,15 @@ export default function Comparador() {
       )}
 
       {veredicto && <BloqueVeredicto veredicto={veredicto} a={a} b={b} />}
+
+      {/* Desde el comparador libre, la página fija de esta pareja de modelos, si existe */}
+      {!fija && paginas.includes(slugPar(slugModelo(a), slugModelo(b))) && (
+        <p className="mt-6 text-[17px] leading-6">
+          <a href={rutaComparacion(slugPar(slugModelo(a), slugModelo(b)))} className="font-bold text-accent underline">
+            Ver la comparación completa: {nombreModelo(a)} vs {nombreModelo(b)}
+          </a>
+        </p>
+      )}
 
       <section aria-labelledby="titulo-resumen" className="mt-14">
         <h2 id="titulo-resumen" className="t-seccion barra-corta">

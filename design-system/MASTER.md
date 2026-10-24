@@ -75,7 +75,7 @@ Utilidades propias definidas con `@utility`, así que aceptan variantes (`md:t-a
 - Contenedor de página: 1240 px (`max-w-pagina`). Columna de artículo: 710 px (`max-w-articulo`).
 - Márgenes laterales: 16 px en móvil, 24 px desde 768 px.
 - Portada: "Blog y noticias", con la lista a la izquierda y la barra lateral de 320 px a la derecha desde 1024 px. Por debajo, la barra lateral baja al final. El comparador no va en la portada.
-- Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Tiene tres ítems: Inicio, Comparador y Blog y noticias. Las categorías salieron del menú y viven en "Blog y noticias".
+- Menú en una línea desde 1024 px; por debajo, menú desplegable (`MenuMovil.tsx`). Tiene cuatro ítems: Inicio, Carros, Comparador y Blog y noticias. Las categorías salieron del menú y viven en "Blog y noticias".
 - Islas de React: `MenuMovil.tsx`, `BotonTema.tsx`, `Compartir.tsx` y `Comparador.tsx` (que usa `GraficoRadar.tsx`).
 - Tarjeta de nota: foto arriba en móvil; foto a la izquierda (2/5) y texto a la derecha (3/5) desde 768 px.
 - Fotos siempre en 16:9 (`aspect-video`), con `<Image />` de Astro, a través de `ImagenNota.astro`.
@@ -160,6 +160,9 @@ Todo bajo prefijo de idioma. Por ahora solo existe `/es/`, y `/` redirige ahí.
 |---|---|---|
 | Portada | `/es/` | Construida |
 | Comparador | `/es/comparador/?a=<slug>&b=<slug>` | Construida (primera versión) |
+| Carros (índice) | `/es/carros/` | Construida |
+| Modelo | `/es/carros/<marca-modelo>/` | Construida |
+| Comparación fija | `/es/comparador/<modelo-a>-vs-<modelo-b>/` | Construida |
 | Nota | `/es/notas/<slug>/` | Construida |
 | Categoría | `/es/categoria/<slug>/` y `/es/categoria/<slug>/2/` | Construida |
 | Etiqueta | `/es/etiqueta/<slug>/` y `/es/etiqueta/<slug>/2/` | Construida |
@@ -167,3 +170,13 @@ Todo bajo prefijo de idioma. Por ahora solo existe `/es/`, y `/` redirige ahí.
 
 El slug de la nota es el nombre de su archivo Markdown.
 - Blog y noticias: `src/pages/es/blog/[...page].astro`, con la plantilla `Seccion.astro`. La fila de categorías es `src/components/FiltroCategorias.astro`: botones redondos con borde `--border`; el activo va relleno en `--accent` con texto `--on-accent` y `aria-current="page"`. Se muestra en el blog y en las páginas de categoría (prop `filtro` de `Seccion.astro`), no en las de etiqueta.
+
+## Páginas de modelo y de comparación
+
+Plantillas: `src/pages/es/carros/index.astro`, `src/pages/es/carros/[modelo].astro` y `src/pages/es/comparador/[par].astro`. Reglas en `CLAUDE.md`, sección "Páginas de carros y comparaciones".
+
+- Ancho completo (`max-w-pagina`), sin barra lateral, con migas de pan arriba (`Migas.astro`).
+- Modelo: foto 16:9 (`FotoVehiculo.astro`) a la izquierda y texto a la derecha desde 1024 px; en celular, la foto primero. Datos clave en una rejilla de 2 o 3 columnas con bordes de 1 px. Puntajes por área con una barra en `--accent-bright` (decorativa; el número va en texto). Tabla de versiones con desplazamiento propio en pantallas angostas. Ficha de cada versión en un `<details>` (`FichaVersion.astro`), la primera abierta.
+- Rivales: tarjetas con foto, titular "A vs B" (toda la tarjeta clicable) y el tipo de carro.
+- Comparación: el comparador completo renderizado en el servidor, preguntas rápidas en dos columnas, enlaces a los dos modelos y otras comparaciones.
+- Índice: botones redondos por tamaño (como el filtro de categorías) y tarjetas en 1, 2 o 3 columnas.

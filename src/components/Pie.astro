@@ -1,8 +1,12 @@
 ---
 import { categorias } from '../data/categorias';
-import { rutaAvisoLegal, rutaCategoria, rutaInicio, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
+import { rutaAvisoLegal, rutaCarros, rutaCategoria, rutaComparador, rutaInicio, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
 
 const anio = new Date().getFullYear();
+const paginasCarros = [
+  { nombre: 'Fichas técnicas', href: rutaCarros() },
+  { nombre: 'Comparador', href: rutaComparador() },
+];
 const paginasSitio = [
   { nombre: 'Nosotros', href: rutaNosotros() },
   { nombre: 'Aviso legal', href: rutaAvisoLegal() },
@@ -12,7 +16,7 @@ const paginasSitio = [
 ---
 
 <footer class="mt-16 border-t border-border bg-surface">
-  <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr_1fr] md:px-6">
+  <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
     <div>
       <p class="font-titular text-[24px] leading-none font-bold">
         <a href={rutaInicio()} class="inline-flex min-h-11 items-center">
@@ -23,6 +27,21 @@ const paginasSitio = [
         Revista de carros: noticias, lanzamientos, eléctricos y pruebas para quienes disfrutan manejar.
       </p>
     </div>
+
+    <nav aria-label="Carros en el pie">
+      <h2 class="t-menu text-muted">Carros</h2>
+      <ul class="mt-2">
+        {
+          paginasCarros.map((pagina) => (
+            <li>
+              <a href={pagina.href} class="enlace flex min-h-11 items-center">
+                {pagina.nombre}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
 
     <nav aria-label="Categorías en el pie">
       <h2 class="t-menu text-muted">Categorías</h2>

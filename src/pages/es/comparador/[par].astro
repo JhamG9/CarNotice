@@ -1,0 +1,177 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Comparador from '../../../components/Comparador.tsx';
+import Migas from '../../../components/Migas.astro';
+import { rivales, type Par } from '../../../lib/catalogo';
+import { obtenerCatalogo } from '../../../lib/catalogoDatos';
+import {
+  rutaComparacion,
+  rutaComparador,
+  rutaImagenComparacion,
+  rutaInicio,
+  rutaModelo,
+} from '../../../lib/rutas';
+import { calcularEjes, calcularVeredicto, enumerar, nombreCompleto, nombreMercado, resumirAreas } from '../../../lib/vehiculos';
+
+export async function getStaticPaths() {
+  const { pares } = await obtenerCatalogo();
+  return pares.map((par) => ({ params: { par: par.slug }, props: { par } }));
+}
+
+interface Props {
+  par: Par;
+}
+
+const { par } = Astro.props;
+const { pares } = await obtenerCatalogo();
+const { a, b, va, vb, mercado } = par;
+
+const ejes = calcularEjes(va, vb);
+const veredicto = calcularVeredicto(ejes);
+const areas = resumirAreas(ejes, va, vb);
+
+// Frase de entrada: qué se compara y quién sale mejor. Es también la descripción de la página.
+const fichas = mercado
+  ? `fichas de ${nombreMercado(mercado)}`
+  : `ficha de ${nombreMercado(va.market)} y de ${nombreMercado(vb.market)}`;
+const quien = veredicto?.ganador === 'a' ? a.nombre : veredicto?.ganador === 'b' ? b.nombre : null;
+const frase = veredicto
+  ? quien
+    ? `El ${quien} va por delante${veredicto.margen === 'por poco' ? ', por poco,' : ''} en ${veredicto.ganador === 'a' ? veredicto.motivosA.length : veredicto.motivosB.length} de ${veredicto.ejesComparados} áreas.`
+    : `Están parejos en las ${veredicto.ejesComparados} áreas con datos.`
+  : '';
+const entrada = `${a.nombre} y ${b.nombre} frente a frente: autonomía, potencia, carga rápida, espacio, seguridad y confort, con las ${fichas}. ${frase}`;
+const descripcion = entrada.length <= 160 ? entrada : `${entrada.slice(0, 157).replace(/\s+\S*$/, '')}…`;
+
+const titulo = `${a.nombre} vs ${b.nombre}: ¿cuál es mejor?`;
+const conMarca = `${titulo} | Mejor Eléctrico`;
+const tituloPagina = conMarca.length <= 60 ? conMarca : titulo;
+const imagenSocial = new URL(rutaImagenComparacion(par.slug), Astro.site).href;
+
+// Preguntas que la gente busca ("¿cuál tiene más autonomía?"), respondidas con los datos de la tabla
+const PREGUNTAS: Record<string, string> = {
+  Autonomía: '¿Cuál tiene más autonomía?',
+  Potencia: '¿Cuál es más potente?',
+  Aceleración: '¿Cuál acelera más rápido?',
+  'Carga rápida': '¿Cuál carga más rápido?',
+  Espacio: '¿Cuál tiene más espacio en el baúl?',
+  Seguridad: '¿Cuál trae más ayudas a la conducción?',
+  Confort: '¿Cuál está mejor equipado?',
+};
+const preguntas = areas
+  .filter((area) => area.a !== null && area.b !== null)
+  .map((area) => {
+    const gana = area.ganador === 'a' ? a.nombre : area.ganador === 'b' ? b.nombre : null;
+    const detalle = `${a.nombre}: ${area.a}${area.extraA ? ` (${area.extraA})` : ''}; ${b.nombre}: ${area.b}${area.extraB ? ` (${area.extraB})` : ''}.`;
+    return {
+      pregunta: PREGUNTAS[area.nombre] ?? area.nombre,
+      respuesta: gana ? `El ${gana}. ${detalle}` : `Están casi iguales. ${detalle}`,
+      nota: area.aclaracion,
+    };
+  });
+
+// Otras comparaciones de cada modelo, sin repetir esta
+const otras = [...rivales(a, pares, 4), ...rivales(b, pares, 4)]
+  .filter((p, i, lista) => p.slug !== par.slug && lista.findIndex((x) => x.slug === p.slug) === i)
+  .slice(0, 6);
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: titulo,
+  description: descripcion,
+  url: new URL(rutaComparacion(par.slug), Astro.site).href,
+  about: [a, b].map((m) => ({ '@type': 'Car', name: m.nombre, url: new URL(rutaModelo(m.slug), Astro.site).href })),
+}).replace(/</g, '\\u003c');
+---
+
+<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+
+  <div class="mx-auto max-w-pagina px-4 pt-2 md:px-6 md:pt-4">
+    <Migas
+      migas={[
+        { nombre: 'Inicio', href: rutaInicio() },
+        { nombre: 'Comparador', href: rutaComparador() },
+        { nombre: `${a.nombre} vs ${b.nombre}`, href: rutaComparacion(par.slug) },
+      ]}
+    />
+
+    <header class="border-b border-border pb-6">
+      <h1 class="t-seccion barra-corta text-balance">{a.nombre} vs {b.nombre}</h1>
+      <p class="t-texto mt-4 max-w-articulo text-muted">{entrada}</p>
+      <p class="mt-3 text-[15px] text-muted">
+        Versiones comparadas: {nombreCompleto(va)} {va.model_year} y {nombreCompleto(vb)} {vb.model_year}. Puedes cambiar
+        cualquiera de los dos en los buscadores.
+      </p>
+    </header>
+
+    <div class="pt-8">
+      <Comparador client:idle inicialA={va} inicialB={vb} />
+    </div>
+
+    {
+      preguntas.length > 0 && (
+        <section aria-labelledby="titulo-preguntas" class="mt-14">
+          <h2 id="titulo-preguntas" class="t-seccion barra-corta">
+            Preguntas rápidas
+          </h2>
+          <dl class="mt-6 grid gap-x-10 md:grid-cols-2">
+            {preguntas.map((p) => (
+              <div class="border-b border-border py-4">
+                <dt class="text-[17px] leading-6 font-bold text-heading">{p.pregunta}</dt>
+                <dd class="mt-1 text-[17px] leading-6">{p.respuesta}</dd>
+                <dd class="t-meta mt-1 text-muted">{p.nota}</dd>
+              </div>
+            ))}
+          </dl>
+          {veredicto && veredicto.ejesSinDato.length > 0 && (
+            <p class="mt-4 text-[14px] leading-5 text-muted">
+              Sin datos para comparar: {enumerar(veredicto.ejesSinDato.map((n) => n.toLowerCase()))}.
+            </p>
+          )}
+        </section>
+      )
+    }
+
+    <section aria-labelledby="titulo-modelos" class="mt-14">
+      <h2 id="titulo-modelos" class="t-seccion barra-corta">Las fichas de cada uno</h2>
+      <ul class="mt-6 grid gap-4 sm:grid-cols-2">
+        {
+          [a, b].map((m) => (
+            <li>
+              <a
+                href={rutaModelo(m.slug)}
+                class="flex min-h-11 items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4 text-[17px] font-bold text-heading hover:border-accent hover:text-accent"
+              >
+                {m.nombre}: todas sus versiones
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      otras.length > 0 && (
+        <section aria-labelledby="titulo-otras" class="mt-14">
+          <h2 id="titulo-otras" class="t-seccion barra-corta">
+            Otras comparaciones
+          </h2>
+          <ul class="mt-6 grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+            {otras.map((p) => (
+              <li class="border-b border-border">
+                <a href={rutaComparacion(p.slug)} class="enlace flex min-h-11 items-center py-3 text-[17px]">
+                  {p.a.nombre} vs {p.b.nombre}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</Base>

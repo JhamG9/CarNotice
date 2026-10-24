@@ -110,6 +110,8 @@ export interface Fila {
   mejor?: 'mayor' | 'menor';
   /** Columna sí o no que, en `true`, quiere decir que este valor no tiene límite (garantías). */
   sinLimite?: string;
+  /** Columna sí o no que, en `false`, quiere decir que el carro no tiene esto (carga rápida). */
+  noTiene?: string;
 }
 
 export interface Seccion {
@@ -166,8 +168,8 @@ export const SECCIONES: Seccion[] = [
     id: 'carga',
     titulo: 'Carga',
     filas: [
-      { campo: 'dc_charge_kw', etiqueta: 'Carga rápida', unidad: 'kW', mejor: 'mayor' },
-      { campo: 'dc_charge_min', etiqueta: 'Tiempo de carga rápida', unidad: 'min', mejor: 'menor' },
+      { campo: 'dc_charge_kw', etiqueta: 'Carga rápida', unidad: 'kW', mejor: 'mayor', noTiene: 'dc_charging' },
+      { campo: 'dc_charge_min', etiqueta: 'Tiempo de carga rápida', unidad: 'min', mejor: 'menor', noTiene: 'dc_charging' },
       { campo: 'ac_charge_kw', etiqueta: 'Carga lenta', unidad: 'kW', mejor: 'mayor' },
       { campo: 'connector', etiqueta: 'Conector' },
       { campo: 'v2l', etiqueta: 'Alimenta aparatos externos (V2L)' },
@@ -239,10 +241,17 @@ export const SECCIONES: Seccion[] = [
 /** Valor que se muestra en una garantía sin límite; no es un número y gana frente a cualquier cifra. */
 export const SIN_LIMITE = 'sin_limite';
 
-/** Valor de la fila para un carro. Si el número está vacío pero su columna `sinLimite` es true, devuelve SIN_LIMITE. */
+/** Valor que se muestra cuando el carro no tiene lo que mide la fila; pierde frente a cualquier cifra. */
+export const NO_TIENE = 'no_tiene';
+
+/**
+ * Valor de la fila para un carro. Si el número está vacío pero su columna `sinLimite` es true, devuelve SIN_LIMITE;
+ * si su columna `noTiene` es false, devuelve NO_TIENE.
+ */
 export function valorDe(fila: Fila, v: Vehiculo): string | number | boolean | null {
   const valor = v[fila.campo] ?? null;
   if (valor === null && fila.sinLimite && v[fila.sinLimite] === true) return SIN_LIMITE;
+  if (valor === null && fila.noTiene && v[fila.noTiene] === false) return NO_TIENE;
   return valor;
 }
 
@@ -250,6 +259,7 @@ export function valorDe(fila: Fila, v: Vehiculo): string | number | boolean | nu
 export function formatearValor(fila: Fila, valor: string | number | boolean | null): string | null {
   if (valor === null || valor === undefined) return null;
   if (valor === SIN_LIMITE) return 'Sin límite';
+  if (valor === NO_TIENE) return 'No tiene';
   if (typeof valor === 'boolean') return valor ? 'Sí' : 'No';
   if (typeof valor === 'number') {
     // Los años no llevan separador de miles
@@ -267,6 +277,10 @@ export function ganador(fila: Fila, a: Vehiculo, b: Vehiculo): 'a' | 'b' | null 
   if (fila.mejor === 'mayor' && (va === SIN_LIMITE) !== (vb === SIN_LIMITE) && (typeof va === 'number' || typeof vb === 'number')) {
     return va === SIN_LIMITE ? 'a' : 'b';
   }
+  // Tenerlo gana frente a no tenerlo, sea la cifra que sea
+  if (fila.mejor && (va === NO_TIENE) !== (vb === NO_TIENE) && (typeof va === 'number' || typeof vb === 'number')) {
+    return va === NO_TIENE ? 'b' : 'a';
+  }
   if (!fila.mejor || typeof va !== 'number' || typeof vb !== 'number' || va === vb) return null;
   return (va > vb) === (fila.mejor === 'mayor') ? 'a' : 'b';
 }
@@ -274,6 +288,7 @@ export function ganador(fila: Fila, a: Vehiculo, b: Vehiculo): 'a' | 'b' | null 
 /** Frases del tipo "100 km más en autonomía CLTC" a favor de `propio` frente a `otro`. */
 export function ventajas(propio: Vehiculo, otro: Vehiculo): string[] {
   const lista: string[] = [];
+  const yaDichas = new Set<string>();
   for (const seccion of SECCIONES) {
     for (const fila of seccion.filas) {
       // La potencia en hp repite la de kW
@@ -282,6 +297,12 @@ export function ventajas(propio: Vehiculo, otro: Vehiculo): string[] {
       const etiqueta = fila.etiqueta.charAt(0).toLowerCase() + fila.etiqueta.slice(1);
       if (valorDe(fila, propio) === SIN_LIMITE) {
         lista.push(`${etiqueta} sin límite`);
+        continue;
+      }
+      // Varias filas dependen de la misma columna (kW y minutos de carga rápida): se dice una vez
+      if (valorDe(fila, otro) === NO_TIENE) {
+        if (!yaDichas.has(fila.noTiene!)) lista.push(`tiene ${etiqueta}`);
+        yaDichas.add(fila.noTiene!);
         continue;
       }
       const diferencia = Math.abs((propio[fila.campo] as number) - (otro[fila.campo] as number));
@@ -365,6 +386,8 @@ const CONFORT = [
 ];
 
 function velocidadDeCarga(v: Vehiculo): number | null {
+  // Sin carga rápida en DC no es un dato que falta: puntúa 0
+  if (v.dc_charging === false) return 0;
   const desde = v.dc_charge_from_pct;
   const hasta = v.dc_charge_to_pct;
   const minutos = v.dc_charge_min;
@@ -611,9 +634,16 @@ export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea
           const base = fila('Carga rápida', 'Tiempo de carga rápida', [velocidadDeCarga(a), velocidadDeCarga(b)], () => '', 'mayor', '');
           return {
             ...base,
-            diferencia: base.diferencia === null ? null : base.ganador ? textoDiferenciaVelocidad(velocidadDeCarga(a)!, velocidadDeCarga(b)!) : 'Casi iguales',
-          a: carga(a) ? `${num(a.dc_charge_min as number)} min` : null,
-          b: carga(b) ? `${num(b.dc_charge_min as number)} min` : null,
+            diferencia:
+              base.diferencia === null
+                ? null
+                : base.ganador
+                  ? textoDiferenciaVelocidad(velocidadDeCarga(a)!, velocidadDeCarga(b)!)
+                  : a.dc_charging === false && b.dc_charging === false
+                    ? 'Ninguno tiene'
+                    : 'Casi iguales',
+          a: carga(a) ? `${num(a.dc_charge_min as number)} min` : a.dc_charging === false ? 'No tiene' : null,
+          b: carga(b) ? `${num(b.dc_charge_min as number)} min` : b.dc_charging === false ? 'No tiene' : null,
           extraA: carga(a) ? `del ${a.dc_charge_from_pct} al ${a.dc_charge_to_pct} %` : null,
           extraB: carga(b) ? `del ${b.dc_charge_from_pct} al ${b.dc_charge_to_pct} %` : null,
           };
@@ -631,6 +661,8 @@ function textoDiferenciaVelocidad(va: number, vb: number): string {
   const mayor = Math.max(va, vb);
   const menor = Math.min(va, vb);
   if ((mayor - menor) / mayor < 0.05) return 'Casi iguales';
+  // Contra un carro sin carga rápida no hay proporción que dar
+  if (menor === 0) return 'Solo este la tiene';
   return menor > 0 && mayor / menor >= 2 ? `${num(mayor / menor, 1)}× más rápida` : 'Carga más rápido';
 }
 

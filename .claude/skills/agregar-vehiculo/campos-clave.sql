@@ -23,7 +23,8 @@ with v as (
     ) as ciclos,
     power_kw is not null as potencia,
     acceleration_0_100_s is not null as aceleracion,
-    (dc_charge_from_pct is not null and dc_charge_to_pct is not null and dc_charge_min is not null) as carga_rapida,
+    -- Un carro sin carga DC (dc_charging = false) tiene el área resuelta: puntúa 0, no "sin datos"
+    (dc_charging is false or (dc_charge_from_pct is not null and dc_charge_to_pct is not null and dc_charge_min is not null)) as carga_rapida,
     trunk_l is not null as espacio,
     -- Seguridad y confort se puntúan con al menos 3 de sus 6 datos conocidos
     (num_nonnulls(autonomous_emergency_braking, adaptive_cruise_control, lane_keeping_assist,

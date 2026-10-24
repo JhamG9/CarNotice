@@ -25,7 +25,7 @@ Para conectarse a la base de datos, copia `.env.example` como `.env` y completa 
 
 Guarda las fichas técnicas del comparador de carros. Vive en Supabase, en el proyecto `garash`.
 
-- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql), [20261011_add_vehicle_image_credit_and_latam_name.sql](supabase/migrations/20261011_add_vehicle_image_credit_and_latam_name.sql) y [20261016_add_unlimited_warranty_flags.sql](supabase/migrations/20261016_add_unlimited_warranty_flags.sql).
+- Estructura exacta en SQL: [supabase/migrations/20261011_create_vehicles.sql](supabase/migrations/20261011_create_vehicles.sql), [20261011_add_vehicle_image_credit_and_latam_name.sql](supabase/migrations/20261011_add_vehicle_image_credit_and_latam_name.sql) , [20261016_add_unlimited_warranty_flags.sql](supabase/migrations/20261016_add_unlimited_warranty_flags.sql) y [20261024_add_dc_charging_flag.sql](supabase/migrations/20261024_add_dc_charging_flag.sql).
 - Reglas para insertar un vehículo: [CLAUDE.md](CLAUDE.md), sección "Base de datos (Supabase)".
 
 Cada fila es una versión de un carro, en un año modelo y para un mercado. El mismo carro puede tener varias filas: una por versión y una por país.
@@ -134,6 +134,7 @@ Hay una columna de autonomía por cada ciclo de medición porque las cifras no s
 | `dc_charge_from_pct` | Porcentaje de batería donde empieza la medición de carga rápida. |
 | `dc_charge_to_pct` | Porcentaje donde termina. Debe ser mayor que el anterior. |
 | `dc_charge_min` | Minutos que tarda la carga rápida entre esos dos porcentajes. |
+| `dc_charging` | Sí o no: `false` si el carro no tiene carga rápida en corriente continua (solo carga en AC). Entonces las columnas `dc_charge_*` quedan vacías y el comparador muestra "No tiene" y puntúa 0 en carga rápida. Vacío significa que no se sabe o que sí la tiene (y sus datos van en `dc_charge_*`). |
 | `connector` | Tipo de conector de carga. Valores: `CCS1`, `CCS2`, `GBT`, `NACS`, `CHAdeMO`, `Type1`, `Type2`. |
 | `v2l` | Sí o no: puede alimentar aparatos externos desde la batería. |
 

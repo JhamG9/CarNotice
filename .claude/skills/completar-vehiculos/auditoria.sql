@@ -56,6 +56,8 @@ faltan as (
     -- coalesce: si la marca de sin límite está vacía, la comparación da null y not(null) descartaría la fila.
     and not coalesce(r.col = 'warranty_km' and v.j ->> 'warranty_km_unlimited' = 'true', false)
     and not coalesce(r.col in ('battery_warranty_years', 'battery_warranty_km') and v.j ->> 'battery_warranty_unlimited' = 'true', false)
+    -- Sin carga rápida DC (dc_charging = false), sus columnas quedan vacías a propósito.
+    and not coalesce(r.col in ('dc_charge_kw', 'dc_charge_from_pct', 'dc_charge_to_pct', 'dc_charge_min') and v.j ->> 'dc_charging' = 'false', false)
   union all
   -- Eléctricos: autonomía en el ciclo del mercado (EU → WLTP, CN → CLTC, US → EPA);
   -- en los demás mercados basta con un ciclo cualquiera.

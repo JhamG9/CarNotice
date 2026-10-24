@@ -1,6 +1,7 @@
 ---
 name: vehiculos-escritor
 description: Escribe en la tabla vehicles de Supabase los datos ya verificados y aprobados por quien administra, llenando solo campos vacíos, y deja el registro en supabase/completado/. Lo usa la skill completar-vehiculos, nunca por su cuenta.
+model: sonnet
 tools: Read, Write, Edit, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---
 
@@ -51,4 +52,4 @@ En "Verificación" va `aprobado` o `corregido: <motivo>`. Las conversiones de un
 
 ## Qué devuelves
 
-Por vehículo: campos escritos, campos que ya tenían valor, errores. Y la ruta del archivo de registro.
+Corto: una línea por vehículo (`slug: N llenados, correcciones aplicadas, errores o "ya tenía valor"`) y la ruta del registro. Sin repetir los valores escritos: ya están en el registro.

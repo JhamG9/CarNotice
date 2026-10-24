@@ -1,6 +1,7 @@
 ---
 name: vehiculos-auditor
 description: Revisa la tabla vehicles de Supabase (proyecto garash) y devuelve qué registros están incompletos y qué campos le faltan a cada uno, según su motorización. Solo lee. Lo usa la skill completar-vehiculos como primer paso.
+model: sonnet
 tools: Read, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---
 

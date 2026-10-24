@@ -43,7 +43,7 @@ Lanza `vehiculos-auditor`. Si pidieron un alcance concreto (un slug, una marca, 
 
 ### 2. Investigar
 
-Trabaja por lotes de hasta **2 familias** de la misma marca y mercado (unos 6 vehículos): los lotes más grandes chocan con el límite de búsquedas web de la sesión y se cortan a la mitad. Lanza un `vehiculos-investigador` **por familia**, en paralelo en el mismo mensaje. A cada uno le pasas, del informe del auditor:
+Trabaja por lotes de hasta **2 familias** de la misma marca y mercado (unos 6 vehículos): los lotes más grandes chocan con el límite de búsquedas web de la sesión y se cortan a la mitad. Lanza un `vehiculos-investigador` **por familia**, en paralelo en el mismo mensaje. **Un lote a la vez**: no adelantes el siguiente lote mientras este sigue abierto (varios agentes a la vez agotan el límite de la sesión). A cada uno le pasas, del informe del auditor:
 
 - marca, modelo, año, mercado, `powertrain` y `latam_name` si lo hay;
 - cada slug con su versión, su `source_url` actual y sus campos faltantes.
@@ -54,7 +54,7 @@ Si un lote anterior ya encontró fuentes de esa marca y mercado (la lista de pre
 
 Si un investigador dice que la ficha oficial es un PDF en imágenes que no pudo leer, descárgalo y conviértelo a PNG (ver "Fuentes aceptadas" en `campos.md`). Pasa las rutas al verificador, o a un investigador nuevo si con eso se pueden llenar más campos.
 
-Lanza `vehiculos-verificador` **solo** con las propuestas marcadas `dudoso` y con las posibles correcciones a valores guardados. Junta las de todo el lote en un solo verificador; si son muchas, uno por familia en paralelo. Las propuestas `firme` pasan directo al paso 4. Si no hay nada dudoso ni correcciones, salta este paso.
+Lanza `vehiculos-verificador` **solo** con las propuestas marcadas `dudoso` y con las posibles correcciones a valores guardados **que no vengan de una fuente oficial o base técnica con página citada**. Una corrección que el investigador saca de la ficha oficial o del ADAC, con su página, pasa directa como las `firme`. Pásale al verificador las rutas locales de los PDF ya descargados. Junta las de todo el lote en un solo verificador; si son muchas, uno por familia en paralelo. Las propuestas `firme` pasan directo al paso 4. Si no hay nada dudoso ni correcciones, salta este paso.
 
 ### 4. Pedir aprobación
 
@@ -76,7 +76,7 @@ Lanza `vehiculos-escritor` con la tabla final aprobada, diciendo expresamente qu
 
 ### 6. Revisar completitud
 
-Lanza `vehiculos-completitud` con los slugs tocados, la tabla de aprobados y el % de antes (del auditor). Muestra su tabla. En un lote pequeño (hasta 4 vehículos), puedes hacerlo tú: ejecuta `auditoria.sql` filtrado a esos slugs y compara con lo aprobado.
+Hazlo tú con una consulta: ejecuta `auditoria.sql` y `../agregar-vehiculo/campos-clave.sql` filtrados a los slugs tocados y compara con lo escrito. Lanza `vehiculos-completitud` solo si el escritor reportó errores o algo no cuadra.
 
 ### 7. Siguiente lote
 

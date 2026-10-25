@@ -67,6 +67,7 @@ Supabase guarda los datos del comparador de carros. Las notas siguen en Markdown
 - En `.env` solo va la clave publicable. La clave secreta y la contraseña de la base de datos no se guardan en el proyecto ni se pegan en el chat.
 - Permisos de Claude sobre la base de datos: van en `.claude/settings.local.json`, que es personal y no se sube a git. La plantilla es `.claude/settings.local.example.json`: se copia con ese nombre y permite a Claude leer y escribir datos y aplicar migraciones con el conector `supabase-garash`, sin que la app pregunte cada vez. No incluye crear, pausar ni borrar proyectos.
 - Los cambios de estructura (tablas, columnas, políticas) se hacen como migraciones, no con SQL suelto.
+- Los vehículos nuevos se agregan siempre con la skill `agregar-vehiculos` y los datos que les faltan se llenan con `completar-vehiculos` (ver más abajo).
 - Toda tabla lleva seguridad por fila (RLS) activada. El sitio solo puede leer; escribir queda para quien administra.
 - Antes de borrar o modificar varias filas, mostrar el cambio y esperar confirmación. Excepción: llenar y corregir fichas con la skill `completar-vehiculos`, donde quien administra delegó la decisión (ver "Completar fichas incompletas").
 
@@ -85,6 +86,8 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 - El sitio solo lee las filas con `published = true`.
 
 ### Insertar un vehículo en `vehicles`
+
+**Todo vehículo que se agregue a la base se agrega con la skill `agregar-vehiculos`, sin excepción**: uno solo, una lista o los de una página web ("mira los carros de esta página y agrega los que no estén"). Nunca con un `insert` suelto. La skill revisa primero cuáles ya existen, para no duplicar fichas ni modelos.
 
 Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculos` (`.claude/skills/agregar-vehiculos/`), que sigue el mismo flujo de agentes de `completar-vehiculos`: revisa la base, investiga en la web, verifica lo dudoso, inserta, completa lo que falte, pone la foto y revisa el candado. Estos datos son obligatorios:
 

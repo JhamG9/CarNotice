@@ -725,7 +725,23 @@ export const normalizar = (texto: string) =>
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase();
 
-const MERCADOS: Record<string, string> = { CO: 'Colombia', CN: 'China', EU: 'Europa', DE: 'Alemania' };
+const MERCADOS: Record<string, string> = {
+  CO: 'Colombia',
+  CN: 'China',
+  EU: 'Europa',
+  DE: 'Alemania',
+  US: 'Estados Unidos',
+  MX: 'México',
+  BR: 'Brasil',
+  CL: 'Chile',
+  AR: 'Argentina',
+  PE: 'Perú',
+  EC: 'Ecuador',
+  ES: 'España',
+  FR: 'Francia',
+  GB: 'Reino Unido',
+  CA: 'Canadá',
+};
 export const nombreMercado = (codigo: string) => MERCADOS[codigo] ?? codigo;
 
 /**

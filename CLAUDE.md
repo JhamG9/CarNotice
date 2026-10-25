@@ -86,7 +86,7 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 
 ### Insertar un vehículo en `vehicles`
 
-Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculo` (`.claude/skills/agregar-vehiculo/`), que orquesta la investigación, la verificación, la foto y la publicación. Estos datos son obligatorios:
+Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculo` (`.claude/skills/agregar-vehiculo/`), que sigue el mismo flujo de agentes de `completar-vehiculos`: revisa la base, investiga en la web, verifica lo dudoso, inserta, completa lo que falte, pone la foto y revisa el candado. Estos datos son obligatorios:
 
 | Dato que se pide | Columna | Valores |
 |---|---|---|
@@ -109,9 +109,9 @@ Reglas:
 - Preguntar bajo qué ciclo se midió cada autonomía y guardarla en su columna. No pasar una cifra de un ciclo a otro.
 - Convertir a las unidades de la tabla si llegan en otras (hp o CV a kW, libras a kilos, lb-ft a Nm, millas a kilómetros) y decir qué conversión se hizo.
 - Guardar en `source_url` de dónde salió la ficha.
-- Antes de insertar, buscar si ya existe la misma marca, modelo, versión, año y mercado. Si existe, preguntar si se actualiza.
+- Antes de insertar, buscar si ya existe la misma marca, modelo, versión, año y mercado, y también el mismo modelo en otra versión o mercado o con otro nombre (`latam_name`). Si existe la misma ficha, se completa con `completar-vehiculos`. Si existe el modelo, la fila nueva usa exactamente la misma escritura de `brand` y `model`: de ahí sale la página `/es/carros/<marca-modelo>/` que agrupa sus versiones.
 - Insertar con `published = false`. Se publica solo cuando quien administra lo pida **y** el carro pase el candado de `campos-clave.sql` (las siete áreas del comparador con datos y foto con crédito). Publicar con un área vacía solo si quien administra lo dice expresamente para ese carro.
-- Mostrar la fila que se va a insertar y esperar confirmación.
+- Mostrar la fila que se va a insertar y esperar confirmación, salvo en modo delegado: la decisión delegada de "Completar fichas incompletas" también vale para esta skill, para los datos, la inserción con `published = false` y la foto. Publicar (`published = true`) y desplegar se piden siempre en el momento.
 - Después de insertar, leer la fila y confirmar el resultado con su `slug`.
 
 Cuando la tabla cambie de columnas o de valores permitidos, actualizar esta sección y el `README.md` en el mismo cambio.

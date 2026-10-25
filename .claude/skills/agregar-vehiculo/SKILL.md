@@ -1,70 +1,149 @@
 ---
 name: agregar-vehiculo
-description: Orquesta la creación de un vehículo nuevo en la tabla vehicles de Supabase (comparador de Mejor Eléctrico), de la identidad a la publicación, con un candado que no deja publicar mientras falte algún campo clave del comparador. Usar cuando pidan agregar, crear, insertar o subir un carro nuevo al comparador. Para completar carros que ya existen se usa completar-vehiculos.
+description: Orquesta la creación de un vehículo nuevo en la tabla vehicles de Supabase (comparador de Mejor Eléctrico), de la revisión en la base a la publicación, con el mismo flujo de agentes de completar-vehiculos (revisar, investigar, verificar, escribir, revisar completitud) y un candado que no deja publicar mientras falte algún campo clave del comparador. Usar cuando pidan agregar, crear, insertar o subir un carro nuevo al comparador. Para completar carros que ya existen se usa completar-vehiculos.
 ---
 
 # Agregar un vehículo
 
-Crea un carro nuevo con su ficha completa. Tú (la sesión principal) eres el orquestador: usas los agentes de `completar-vehiculos`, juntas lo que devuelven y hablas con quien administra.
+Crea un carro nuevo con su ficha lo más completa posible. Sigue el mismo flujo que `completar-vehiculos`: primero se revisa la base, después se investiga en la web, se verifica lo dudoso, se escribe y se comprueba qué quedó. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra.
 
 Antes de empezar, lee:
 - `CLAUDE.md`, sección "Insertar un vehículo en `vehicles`": obligatorios, slug y reglas de inserción.
-- [`../completar-vehiculos/campos.md`](../completar-vehiculos/campos.md): fuentes, reglas de los datos y **campos clave del comparador**.
-
-## El candado
-
-Un vehículo **no se publica** (`published = true`) hasta que [`campos-clave.sql`](campos-clave.sql) diga `listo_para_publicar = true`. Eso pasa cuando el comparador puede puntuar sus siete áreas (autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort) y además tiene foto con crédito.
-
-- Sí se puede **insertar sin publicar** con lo que haya: así no se pierde lo investigado.
-- Quien administra puede publicar con un área vacía, pero solo si lo dice expresamente para ese vehículo después de ver qué área falta. Anótalo en el registro.
-- Nunca se llena un campo clave inventando, estimando o calculando. Si no hay fuente, se busca más o se queda sin publicar.
+- [`../completar-vehiculos/campos.md`](../completar-vehiculos/campos.md): fuentes, reglas de los datos y **campos clave del comparador**. Incluye "Primero la ficha técnica", "Fuentes dudosas: la cifra más pequeña" y la regla de carga rápida (`dc_charging = false` cuando el carro no tiene carga DC).
+- [`../completar-vehiculos/SKILL.md`](../completar-vehiculos/SKILL.md), sección "Aprobación o decisión delegada".
 
 ## Agentes
 
-Son los de `completar-vehiculos`:
-- `vehiculos-investigador`: busca y comprueba cada dato.
-- `vehiculos-verificador`: revisa solo lo dudoso.
-- `vehiculos-completitud`: relee la fila y dice qué áreas quedan vacías.
+Los mismos de `completar-vehiculos` (`.claude/agents/`):
 
-La inserción, la foto y la publicación las hace la sesión principal.
+| Paso | Quién | Hace |
+|---|---|---|
+| 1 | Sesión principal (SQL) | Revisa si el carro ya existe y cómo están escritos la marca y el modelo |
+| 3 | `vehiculos-investigador` | Busca en la web la ficha de cada versión y comprueba cada dato |
+| 4 | `vehiculos-verificador` | Solo lo `dudoso` |
+| 6 | Sesión principal (SQL) | Inserta la fila nueva con `published = false` |
+| 7 | `vehiculos-auditor`, investigador, verificador y `vehiculos-escritor` | Lo que faltó después de insertar, igual que `completar-vehiculos` |
+| 9 | `vehiculos-completitud` | Relee la fila y confirma qué áreas quedan vacías |
+
+## El candado
+
+Un vehículo **no se publica** (`published = true`) hasta que [`campos-clave.sql`](campos-clave.sql) diga `listo_para_publicar = true`: las siete áreas del comparador (autonomía, potencia, aceleración, carga rápida, espacio, seguridad y confort) con dato y la foto con crédito. Un carro sin carga DC (`dc_charging = false`) tiene el área de carga resuelta.
+
+- Sí se puede **insertar sin publicar** con lo que haya: así no se pierde lo investigado.
+- Quien administra puede publicar con un área vacía, pero solo si lo dice expresamente para ese vehículo después de ver qué área falta. Anótalo en el registro.
+- Nunca se llena un campo inventando, estimando o calculando. Si no hay fuente, el campo queda vacío y el comparador lo muestra como "Sin dato".
+
+## Aprobación o decisión delegada
+
+Funciona igual que en `completar-vehiculos`. Por defecto, quien administra aprueba la fila antes de insertarla (paso 5) y la foto (paso 8).
+
+En **modo delegado** (un mensaje de quien administra como "decide tú", una memoria que lo recoja con su cita, o la regla "Decisión delegada" de `CLAUDE.md`):
+
+- Decides tú la identidad propuesta por el investigador (segmento, carrocería, nombre exacto de la versión), qué datos se escriben (incluidos los de una sola fuente y los que salen por la regla de la cifra más pequeña), la inserción con `published = false` y la foto.
+- Se aplican igual todas las reglas de `campos.md`. Ante la duda, el campo queda vacío.
+- Al escritor se le pasa la cita textual de la delegación.
+- Al terminar, informas lo escrito, lo descartado y qué áreas quedan "sin datos".
+- La delegación **no cubre** publicar (`published = true`) ni desplegar: se piden en el momento, como dice `CLAUDE.md`. Sí cubre el commit y el push del registro y de la foto.
 
 ## Flujo
 
-1. **¿Ya existe?** Busca la misma marca, modelo, versión, año y mercado. Si existe, ofrece completarlo con `completar-vehiculos` en vez de crearlo.
-2. **Obligatorios.** Si faltan mercado, motorización, versión o año, pregúntalos juntos en una sola pregunta. Lo demás (`segment`, `body_style`, nombre exacto de la versión, slug) lo propone el investigador.
-3. **Investigar.** Lanza un `vehiculos-investigador` por modelo y mercado. Si el mercado vende varias versiones, una sola investigación las cubre todas. En el encargo, dile:
-   - que la fila todavía no existe;
-   - que confirme la identidad y las versiones que se venden en ese mercado;
-   - que los **campos clave** van primero, con segunda búsqueda dirigida si falta alguno;
-   - la autonomía: la del ciclo del mercado y, si la marca publica oficialmente otro ciclo para **la misma batería y el mismo motor**, también esa, cada una en su columna (ver `campos.md`);
-   - que los PDF de imágenes se abren con Read y el parámetro `pages`. Si WebFetch no puede bajar un PDF grande, avisa y lo descargas con `curl`.
-4. **Verificar** solo lo `dudoso` con `vehiculos-verificador`. Si ningún dato es dudoso, salta este paso.
-5. **Mostrar la fila** a quien administra:
-   - identidad y slug;
-   - datos con su fuente;
-   - campos clave con una sola fuente, para aprobar uno por uno;
-   - campos que quedan vacíos;
-   - **qué áreas del comparador quedarían "sin datos"**.
+### 1. Revisar la base
 
-   Espera un sí.
-6. **Insertar** con `published = false` y `on conflict do nothing`. Lee la fila completa y compárala con lo aprobado.
-7. **Foto.** Sigue la sección "Imagen del vehículo" de `CLAUDE.md`:
-   - En Wikimedia Commons, revisa autor, licencia y que no haya solicitud de borrado (`{{delete}}` o `{{copyvio}}`).
-   - Compara con el diseño que se vende en ese mercado.
-   - Recorta a 1600 × 900 en WebP y comprueba que pese menos de 300 KB.
-   - Muéstrala y espera un sí antes de guardarla en `public/vehicles/<slug>.webp` y de llenar `image_url`, `image_credit` e `image_source_url`.
-8. **Candado.** Ejecuta `campos-clave.sql` con el slug y lanza `vehiculos-completitud`.
-   - Si falta algún área, di cuál y ofrece buscarla. Vuelve al paso 3 solo para esos campos.
-   - Si `listo_para_publicar` es `true`, di que ya se puede publicar.
-9. **Publicar,** hacer commit y push, y desplegar **solo cuando quien administra lo pida**:
-   - Commit de la foto y del registro.
-   - `npx astro dev stop` y luego `npm run deploy`.
-   - Abre `https://mejorelectrico.com/es/comparador/?a=<slug>&b=<otro>` y confirma que la foto carga. Si justo después del despliegue no carga, recarga una vez antes de investigar.
+Antes de investigar nada, consulta la tabla (solo lectura). Busca, sin importar tildes ni mayúsculas:
+
+```sql
+select slug, brand, model, version, model_year, market, latam_name, published
+from vehicles
+where brand ilike '%<marca>%'
+   or model ilike '%<modelo>%'
+   or latam_name ilike '%<modelo>%'
+order by brand, model, market, version;
+```
+
+Según lo que salga:
+
+- **La misma marca, modelo, versión, año y mercado ya existe.** No se crea: se completa con `completar-vehiculos` y se dice.
+- **El modelo existe, pero en otra versión o en otro mercado.** Se agrega como versión nueva del mismo modelo. Usa **exactamente** la misma escritura de `brand` y `model` que las filas existentes ("Kona Electric", no "Kona"): de ahí sale la página `/es/carros/<marca-modelo>/` que agrupa sus versiones, y una escritura distinta crearía un modelo duplicado.
+- **Existe con otro nombre** (el Seagull es el Dolphin Mini en México y el Dolphin Surf en Europa): si es la misma ficha y el mismo mercado, se completa la existente. Si es otro mercado, se crea con su nombre de ese mercado y se llena `latam_name` en las dos filas, solo con dato confirmado.
+- **No existe.** Se crea. La marca se escribe como en las demás filas de esa marca ("BYD", no "Byd").
+
+Si piden varios carros, agrúpalos como en `completar-vehiculos`: por marca y mercado, hasta 2 modelos por lote, un lote a la vez.
+
+### 2. Obligatorios
+
+Mercado, motorización, versión y año. Si quien administra no los dijo:
+- Por defecto, pregúntalos juntos en una sola pregunta.
+- En modo delegado, el investigador propone las versiones que se venden y el mercado con ficha oficial disponible. Tú eliges y lo dices en el informe. Si piden "el carro" sin versión, se agregan las versiones que se venden en ese mercado.
+
+`segment`, `body_style`, el nombre exacto de la versión y el slug los propone el investigador. El slug se arma con marca, modelo, versión, año y mercado (`deepal-s05-620-premium-lidar-2027-cn`).
+
+### 3. Investigar
+
+Lanza un `vehiculos-investigador` por modelo y mercado (en paralelo si son dos modelos del lote). Si el mercado vende varias versiones, una sola investigación las cubre todas. En el encargo, dile:
+
+- que la fila todavía no existe, y la escritura de `brand` y `model` que debe usar si el modelo ya está en la tabla;
+- que confirme la identidad y las versiones que se venden en ese mercado;
+- que busque **primero la ficha técnica oficial** de cada versión en ese mercado (PDF, folleto, lista de precios, página de la versión), y después bases técnicas y prensa;
+- que los **campos clave** van primero, con segunda búsqueda dirigida si falta alguno;
+- la regla de fuentes dudosas: una sola fuente de prensa se propone marcada; con fuentes en conflicto o un rango, la cifra más pequeña; en un sí o no contradictorio, `false`; lo que la ficha no menciona no es `false`;
+- que si el carro no tiene carga rápida en DC (la ficha solo trae carga AC), lo diga para guardar `dc_charging = false`;
+- la autonomía: la del ciclo del mercado y, si la marca publica oficialmente otro ciclo para **la misma batería y el mismo motor**, también esa, cada una en su columna;
+- que los PDF se leen con `pdftotext -layout` y, si son imágenes, con OCR local (ver `campos.md`). Si WebFetch no puede bajar un PDF grande, que avise y lo descargas con `curl`.
+
+Si un lote anterior encontró fuentes de esa marca y mercado (lista de precios, garantía, ADAC), pásale las URL.
+
+### 4. Verificar
+
+Lanza `vehiculos-verificador` **solo** con las propuestas marcadas `dudoso`, como en `completar-vehiculos`. Si no hay nada dudoso, salta este paso.
+
+### 5. Aprobar o decidir
+
+Arma la fila con identidad, slug y los datos aprobados o decididos, cada uno con su fuente.
+
+- **Por defecto:** muéstrala a quien administra con los campos clave de una sola fuente para aprobar uno por uno, los campos que quedan vacíos y **qué áreas del comparador quedarían "sin datos"**. Espera un sí.
+- **En modo delegado:** decides tú con los mismos criterios y sigues. La lista va en el informe final.
+
+### 6. Insertar
+
+Inserta con `published = false` y `on conflict (slug) do nothing`. Lee la fila completa y compárala con lo aprobado. Deja el registro (ver "Registro").
+
+### 7. Completar lo que falte
+
+Igual que `completar-vehiculos`, pero solo con el slug nuevo:
+
+1. Ejecuta `../completar-vehiculos/auditoria.sql` filtrado al slug: dice qué campos que aplican a su motorización siguen vacíos.
+2. Si faltan campos clave o hay campos que valga la pena buscar, lanza otro `vehiculos-investigador` solo para esos campos, sin repetir las fuentes ya vistas.
+3. Lo `dudoso` va al verificador, y lo aprobado o decidido lo escribe `vehiculos-escritor`, que solo llena campos vacíos y deja el registro.
+4. Una ronda basta. Lo que no aparezca queda vacío ("Sin dato"): no se insiste con las mismas búsquedas.
+
+### 8. Foto
+
+Sigue la sección "Imagen del vehículo" de `CLAUDE.md`:
+- Fotos de sala de prensa del fabricante o de Wikimedia Commons con licencia libre (CC0, CC BY o CC BY-SA). En Commons, revisa autor, licencia y que no haya solicitud de borrado (`{{delete}}` o `{{copyvio}}`).
+- Compara con el diseño que se vende en ese mercado. Si no hay foto del modelo exacto, sirve la de un modelo hermano, y `image_credit` empieza por su nombre.
+- Recorta a 1600 × 900 en WebP y comprueba que pese menos de 300 KB.
+- Por defecto, muéstrala y espera un sí. En modo delegado, revísala tú (Read de la imagen) y decide.
+- Guárdala en `public/vehicles/<slug>.webp` y llena `image_url`, `image_credit` e `image_source_url`.
+- Varias versiones del mismo modelo pueden usar la misma foto: se copia con el slug de cada una.
+
+### 9. Candado y completitud
+
+Ejecuta `campos-clave.sql` con el slug y lanza `vehiculos-completitud` (o compara tú si el escritor no reportó errores).
+- Si falta algún área, di cuál y por qué no se encontró.
+- Si `listo_para_publicar` es `true`, di que ya se puede publicar.
+
+### 10. Publicar y desplegar (solo cuando quien administra lo pida)
+
+- Cambiar `published = true` solo cuando quien administra lo pida para ese carro.
+- Commit y push de la foto y del registro (en modo delegado, sin preguntar).
+- Desplegar solo cuando lo pidan en ese momento: `npx astro dev stop`, `npm run build` y `npm run deploy:pages`. Las páginas del carro se generan al compilar: hasta desplegar no existen `/es/carros/<marca-modelo>/` ni sus comparaciones fijas `/es/comparador/<a>-vs-<b>/`. El comparador libre sí lo muestra al instante, porque lee la base en vivo.
+- Después del despliegue, comprueba que respondan la página del modelo y alguna de sus comparaciones, y que la foto cargue en `https://mejorelectrico.com/es/comparador/?a=<slug>&b=<otro>`. Si justo después no carga, recarga una vez antes de investigar.
 
 ## Registro
 
 Todo queda en `supabase/completado/AAAA-MM-DD.md`, bajo "Vehículo nuevo: <slug>":
+- qué se encontró en la base en el paso 1 (si el modelo ya existía y con qué escritura);
 - cada dato con su fuente y su verificación;
-- los de una sola fuente, marcados "prensa, una fuente";
+- los de una sola fuente, marcados "prensa, una fuente", y los de la regla de la cifra más pequeña, con las cifras que se compararon;
 - la foto con su crédito;
 - si se publicó con un área vacía, quién lo autorizó.

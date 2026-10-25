@@ -1,6 +1,6 @@
 ---
 name: vehiculos-escritor
-description: Escribe en la tabla vehicles de Supabase los datos ya verificados y aprobados por quien administra, llenando solo campos vacíos, y deja el registro en supabase/completado/. Lo usa la skill completar-vehiculos, nunca por su cuenta.
+description: Escribe en la tabla vehicles de Supabase los datos ya verificados y aprobados por quien administra, llenando solo campos vacíos, y deja el registro en supabase/completado/. Lo usan las skills completar-vehiculos y agregar-vehiculo (para llenar lo que faltó después de insertar), nunca por su cuenta.
 model: sonnet
 tools: Read, Write, Edit, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---

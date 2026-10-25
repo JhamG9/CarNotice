@@ -1,6 +1,6 @@
 ---
 name: vehiculos-verificador
-description: Comprueba, de forma independiente, que los datos propuestos para la tabla vehicles sean correctos antes de escribirlos - que la fuente diga ese valor, para esa versión y mercado, en la unidad y ciclo correctos, y que sea coherente con el resto de la ficha. Solo lee. Lo usan las skills completar-vehiculos y agregar-vehiculo.
+description: Comprueba, de forma independiente, que los datos propuestos para la tabla vehicles sean correctos antes de escribirlos - que la fuente diga ese valor, para esa versión y mercado, en la unidad y ciclo correctos, y que sea coherente con el resto de la ficha. Solo lee. Lo usan las skills completar-vehiculos y agregar-vehiculos.
 model: sonnet
 tools: Read, Bash, WebSearch, WebFetch, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---

@@ -41,7 +41,7 @@ El comparador puntúa siete áreas. Si a un carro le falta el dato de un área, 
 
 Además, `image_url` con `image_credit`: sin foto, el carro se ve vacío en el comparador.
 
-La consulta `../agregar-vehiculo/campos-clave.sql` comprueba todo esto por vehículo y dice si está `listo_para_publicar`.
+La consulta `../agregar-vehiculos/campos-clave.sql` comprueba todo esto por vehículo y dice si está `listo_para_publicar`.
 
 Reglas para los campos clave:
 

@@ -1,6 +1,6 @@
 ---
 name: vehiculos-completitud
-description: Después de escribir, relee los vehículos tocados en la tabla vehicles y confirma qué quedó completo, qué sigue faltando y si lo escrito coincide con lo aprobado. Solo lee. Lo usan las skills completar-vehiculos y agregar-vehiculo como último paso.
+description: Después de escribir, relee los vehículos tocados en la tabla vehicles y confirma qué quedó completo, qué sigue faltando y si lo escrito coincide con lo aprobado. Solo lee. Lo usan las skills completar-vehiculos y agregar-vehiculos como último paso.
 model: haiku
 tools: Read, mcp__supabase-garash__execute_sql, mcp__506b4882-6f42-420d-acbd-ea163561b6c3__execute_sql
 ---

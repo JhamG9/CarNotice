@@ -1,11 +1,11 @@
 ---
-name: agregar-vehiculo
-description: Orquesta la creación de un vehículo nuevo en la tabla vehicles de Supabase (comparador de Mejor Eléctrico), de la revisión en la base a la publicación, con el mismo flujo de agentes de completar-vehiculos (revisar, investigar, verificar, escribir, revisar completitud) y un candado que no deja publicar mientras falte algún campo clave del comparador. Usar cuando pidan agregar, crear, insertar o subir un carro nuevo al comparador. Para completar carros que ya existen se usa completar-vehiculos.
+name: agregar-vehiculos
+description: Orquesta la creación de uno o varios vehículos nuevos en la tabla vehicles de Supabase (comparador de Mejor Eléctrico), de la revisión en la base a la publicación, con el mismo flujo de agentes de completar-vehiculos (revisar, investigar, verificar, escribir, revisar completitud) y un candado que no deja publicar mientras falte algún campo clave del comparador. Usar cuando pidan agregar, crear, insertar o subir uno o varios carros nuevos al comparador; primero revisa en la base cuáles ya existen. Para completar carros que ya existen se usa completar-vehiculos.
 ---
 
-# Agregar un vehículo
+# Agregar vehículos
 
-Crea un carro nuevo con su ficha lo más completa posible. Sigue el mismo flujo que `completar-vehiculos`: primero se revisa la base, después se investiga en la web, se verifica lo dudoso, se escribe y se comprueba qué quedó. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra.
+Crea uno o varios carros nuevos con su ficha lo más completa posible. Sigue el mismo flujo que `completar-vehiculos`: primero se revisa la base, después se investiga en la web, se verifica lo dudoso, se escribe y se comprueba qué quedó. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra.
 
 Antes de empezar, lee:
 - `CLAUDE.md`, sección "Insertar un vehículo en `vehicles`": obligatorios, slug y reglas de inserción.
@@ -18,7 +18,7 @@ Los mismos de `completar-vehiculos` (`.claude/agents/`):
 
 | Paso | Quién | Hace |
 |---|---|---|
-| 1 | Sesión principal (SQL) | Revisa si el carro ya existe y cómo están escritos la marca y el modelo |
+| 1 | Sesión principal (SQL) | Revisa de una vez si cada carro pedido ya existe, con otro nombre o en otra versión, y cómo están escritos la marca y el modelo (`buscar-existentes.sql`) |
 | 3 | `vehiculos-investigador` | Busca en la web la ficha de cada versión y comprueba cada dato |
 | 4 | `vehiculos-verificador` | Solo lo `dudoso` |
 | 6 | Sesión principal (SQL) | Inserta la fila nueva con `published = false` |
@@ -47,27 +47,25 @@ En **modo delegado** (un mensaje de quien administra como "decide tú", una memo
 
 ## Flujo
 
-### 1. Revisar la base
+### 1. Revisar la base (todos los pedidos de una vez)
 
-Antes de investigar nada, consulta la tabla (solo lectura). Busca, sin importar tildes ni mayúsculas:
+Quien administra suele pedir varios carros juntos ("agrega el Xpeng G6, el BYD Seagull y el Kia EV4"). Antes de investigar nada, revísalos **todos** en la base con una sola consulta: [`buscar-existentes.sql`](buscar-existentes.sql), con la lista de pedidos `(número, marca, modelo)` en el `values`. Solo lee. Compara sin tildes ni mayúsculas y busca el modelo también en `latam_name`.
 
-```sql
-select slug, brand, model, version, model_year, market, latam_name, published
-from vehicles
-where brand ilike '%<marca>%'
-   or model ilike '%<modelo>%'
-   or latam_name ilike '%<modelo>%'
-order by brand, model, market, version;
-```
+Con el resultado, decide qué pasa con cada pedido:
 
-Según lo que salga:
+| Lo que sale | Qué se hace |
+|---|---|
+| `nuevo` | Se crea con el flujo de esta skill. La marca se escribe como en las demás filas de esa marca ("BYD", no "Byd"). |
+| `mismo modelo`, y está la misma versión y mercado pedidos | No se crea: si le faltan datos, se completa con `completar-vehiculos`; si está completo, se informa y no se hace nada. |
+| `mismo modelo`, pero en otra versión o mercado | Se crea la versión o el mercado nuevos con **exactamente** la misma escritura de `brand` y `model` que las filas existentes: de ahí sale la página `/es/carros/<marca-modelo>/` que agrupa sus versiones. |
+| `otro nombre (latam_name)` | Es el mismo carro con otro nombre (el Seagull es el Dolphin Mini). Si es el mismo mercado, se completa el existente. Si es otro, se crea con el nombre de ese mercado y se llena `latam_name` en las dos fichas, solo con dato confirmado. |
+| `nombre parecido: revisar` | Solo un candidato ("Kona" encuentra "Kona Electric", pero "Dolphin Mini" encuentra también "Dolphin", que es otro carro). Decide si es el mismo; si lo es, usa su escritura. |
 
-- **La misma marca, modelo, versión, año y mercado ya existe.** No se crea: se completa con `completar-vehiculos` y se dice.
-- **El modelo existe, pero en otra versión o en otro mercado.** Se agrega como versión nueva del mismo modelo. Usa **exactamente** la misma escritura de `brand` y `model` que las filas existentes ("Kona Electric", no "Kona"): de ahí sale la página `/es/carros/<marca-modelo>/` que agrupa sus versiones, y una escritura distinta crearía un modelo duplicado.
-- **Existe con otro nombre** (el Seagull es el Dolphin Mini en México y el Dolphin Surf en Europa): si es la misma ficha y el mismo mercado, se completa la existente. Si es otro mercado, se crea con su nombre de ese mercado y se llena `latam_name` en las dos filas, solo con dato confirmado.
-- **No existe.** Se crea. La marca se escribe como en las demás filas de esa marca ("BYD", no "Byd").
+Antes de seguir, muestra (o, en modo delegado, informa) una tabla con cada pedido y su decisión: **nuevo**, **versión o mercado nuevo de un modelo existente**, **ya existe: se completa** o **ya existe: completo**. Los que van a `completar-vehiculos` se hacen con esa skill al terminar los nuevos, o antes si no hay nuevos.
 
-Si piden varios carros, agrúpalos como en `completar-vehiculos`: por marca y mercado, hasta 2 modelos por lote, un lote a la vez.
+Después arma los lotes como en `completar-vehiculos`: por marca y mercado, hasta 2 modelos por lote y un lote a la vez (más agentes en paralelo agotan el límite de búsquedas de la sesión). Los pasos 2 a 9 se hacen lote por lote; el paso 10, al final, para todos.
+
+Si piden un solo carro, es la misma consulta con un solo pedido.
 
 ### 2. Obligatorios
 

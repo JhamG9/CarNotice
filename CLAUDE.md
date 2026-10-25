@@ -86,7 +86,7 @@ Guarda las fichas técnicas del comparador: una fila por versión, año modelo y
 
 ### Insertar un vehículo en `vehicles`
 
-Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculo` (`.claude/skills/agregar-vehiculo/`), que sigue el mismo flujo de agentes de `completar-vehiculos`: revisa la base, investiga en la web, verifica lo dudoso, inserta, completa lo que falte, pone la foto y revisa el candado. Estos datos son obligatorios:
+Quien administra suele pedir por el chat que se inserte un carro. Se hace con la skill `agregar-vehiculos` (`.claude/skills/agregar-vehiculos/`), que sigue el mismo flujo de agentes de `completar-vehiculos`: revisa la base, investiga en la web, verifica lo dudoso, inserta, completa lo que falte, pone la foto y revisa el candado. Estos datos son obligatorios:
 
 | Dato que se pide | Columna | Valores |
 |---|---|---|

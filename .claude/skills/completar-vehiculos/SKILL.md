@@ -1,11 +1,11 @@
 ---
 name: completar-vehiculos
-description: Orquesta la tabla vehicles de Supabase (comparador de Mejor Eléctrico) con cinco agentes - auditor, investigador, verificador, escritor y revisor de completitud. Usar cuando pidan completar, rellenar, auditar o revisar fichas incompletas de vehículos o buscar en la web los datos que faltan de un carro ya insertado. Para crear un carro nuevo se usa agregar-vehiculo.
+description: Orquesta la tabla vehicles de Supabase (comparador de Mejor Eléctrico) con cinco agentes - auditor, investigador, verificador, escritor y revisor de completitud. Usar cuando pidan completar, rellenar, auditar o revisar fichas incompletas de vehículos o buscar en la web los datos que faltan de un carro ya insertado. Para crear un carro nuevo se usa agregar-vehiculos.
 ---
 
 # Completar fichas de vehículos
 
-Coordina a cinco agentes para encontrar fichas incompletas en `vehicles`, buscar los datos en la web, verificarlos y escribirlos. Para crear un carro nuevo se usa la skill `agregar-vehiculo`, que usa estos mismos agentes. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra. Los agentes no hablan entre sí; todo pasa por ti.
+Coordina a cinco agentes para encontrar fichas incompletas en `vehicles`, buscar los datos en la web, verificarlos y escribirlos. Para crear un carro nuevo se usa la skill `agregar-vehiculos`, que usa estos mismos agentes. Tú (la sesión principal) eres el orquestador: lanzas a los agentes, juntas lo que devuelven y hablas con quien administra. Los agentes no hablan entre sí; todo pasa por ti.
 
 Reglas comunes, conexión, qué campos aplican a cada motorización y **campos clave del comparador**: [campos.md](campos.md). Léelo antes de empezar. Los campos clave van primero: un carro sin ellos sale "sin datos" en el comparador.
 
@@ -76,7 +76,7 @@ Lanza `vehiculos-escritor` con la tabla final aprobada, diciendo expresamente qu
 
 ### 6. Revisar completitud
 
-Hazlo tú con una consulta: ejecuta `auditoria.sql` y `../agregar-vehiculo/campos-clave.sql` filtrados a los slugs tocados y compara con lo escrito. Lanza `vehiculos-completitud` solo si el escritor reportó errores o algo no cuadra.
+Hazlo tú con una consulta: ejecuta `auditoria.sql` y `../agregar-vehiculos/campos-clave.sql` filtrados a los slugs tocados y compara con lo escrito. Lanza `vehiculos-completitud` solo si el escritor reportó errores o algo no cuadra.
 
 ### 7. Siguiente lote
 

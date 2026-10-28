@@ -165,7 +165,9 @@ npm run deploy:pages
 - Desde la rama `main` se publica en producción; desde otra rama, Cloudflare crea una versión de prueba con su propia dirección.
 - `public/_redirects` lleva la raíz `/` a `/es/` con una redirección de servidor. `public/_headers` da caché larga a `/_astro/`. Son archivos propios de Cloudflare Pages.
 - Google Analytics (propiedad `G-3C05L6ZDMJ`) se carga desde `Base.astro`, solo en el sitio compilado y solo cuenta visitas en `mejorelectrico.com`: ni `localhost` ni las direcciones `.pages.dev`. La página 404 no lo lleva.
-- El mapa del sitio (`sitemap-index.xml`) lo genera `@astrojs/sitemap` en cada compilación; `public/robots.txt` apunta a él. Si cambia el dominio, cambiarlo también en `robots.txt`.
+- El mapa del sitio (`sitemap-index.xml`) lo genera `@astrojs/sitemap` en cada compilación; `public/robots.txt` apunta a él. Deja fuera toda página con `noindex` (lo lee del HTML ya compilado en `dist/`).
+- Páginas sin indexar: `noIndexar` en `Base.astro` pone `noindex, follow` y quita canónica y `hreflang`, pero conserva Analytics (lo usan las comparaciones y las etiquetas con menos de 3 notas). `sinIndexar` es solo para la 404.
+- `public/_headers` manda `X-Robots-Tag: noindex` en las direcciones `.pages.dev`. `www.mejorelectrico.com` debe redirigir con 301 a `mejorelectrico.com` mediante una regla de redirección en el panel de Cloudflare (Pages no lo hace desde el código). Si cambia el dominio, cambiarlo también en `robots.txt`.
 
 ## Entorno de desarrollo
 
@@ -324,6 +326,7 @@ Pensadas para que gente de todo el mundo llegue desde Google: el comparador inte
 - Versión representativa: la más básica (menos batería, luego menos potencia) del mercado con más versiones del modelo. No se prioriza ningún país: el sitio es para lectores de todas partes.
 - Índice `/es/carros/`: todos los modelos agrupados por tamaño.
 - Comparaciones con página propia: `/es/comparador/<modelo-a>-vs-<modelo-b>/`, en orden alfabético (cada par existe una vez). Solo entre rivales reales: tamaño igual o vecino y al menos 5 de las 7 áreas comparables. Se comparan las versiones más básicas de un mercado que tengan los dos; si no comparten mercado, la representativa de cada uno. La página pinta el comparador completo desde el servidor (`Comparador.tsx` con `inicialA` e `inicialB`), una frase con el veredicto, preguntas rápidas por área ("¿Cuál tiene más autonomía?"), enlaces a los dos modelos y otras comparaciones. Cambiar un carro lleva al comparador libre.
+- Por ahora las comparaciones llevan `noindex, follow` y no van en el sitemap (decisión del 2026-10-28, tras la caída en Google): cientos de páginas con la misma plantilla y poco texto propio bajan la confianza en un sitio nuevo. Se abrirán de a pocas, cuando tengan texto propio. Las fichas de modelos sí se indexan.
 - El comparador libre (`/es/comparador/?a=&b=`) enlaza a la ficha de cada modelo y, si la pareja tiene página propia, a esa página.
 - Las notas que hablan de un modelo (por `article_slug` o porque lo nombran en el titular) muestran al final el enlace a su ficha.
 - Imágenes para compartir, generadas al compilar con `sharp` (`src/lib/imagenesSociales.ts`): `/og/carros/<modelo>.jpg` y `/og/comparador/<par>.jpg`, de 1200 × 630.

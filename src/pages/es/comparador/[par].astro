@@ -85,7 +85,8 @@ const jsonLd = JSON.stringify({
 }).replace(/</g, '\\u003c');
 ---
 
-<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial}>
+{/* Sin indexar por ahora: cientos de comparaciones con la misma plantilla y poco texto propio bajan la confianza de Google en un sitio nuevo. */}
+<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial} noIndexar>
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={jsonLd} />
   </Fragment>

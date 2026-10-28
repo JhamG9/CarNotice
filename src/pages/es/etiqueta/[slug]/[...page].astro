@@ -21,6 +21,9 @@ interface Props {
 }
 
 const { nombre, page } = Astro.props;
+
+// Una etiqueta con pocas notas repite lo que ya dicen esas notas: no se indexa hasta que crezca.
+const MINIMO_NOTAS_INDEXABLE = 3;
 ---
 
 <Seccion
@@ -32,4 +35,5 @@ const { nombre, page } = Astro.props;
   pagina={page.currentPage}
   totalPaginas={page.lastPage}
   rutaPagina={(pagina) => rutaEtiqueta(nombre, pagina)}
+  noIndexar={page.total < MINIMO_NOTAS_INDEXABLE}
 />

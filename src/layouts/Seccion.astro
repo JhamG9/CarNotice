@@ -25,9 +25,11 @@ interface Props {
   seccionActiva?: ClaveCategoria;
   /** Muestra la fila de categorías de "Blog y noticias", con esta marcada. */
   filtro?: ClaveCategoria | 'todas';
+  /** La sección no se indexa (etiquetas con pocas notas). */
+  noIndexar?: boolean;
 }
 
-const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva, filtro } =
+const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva, filtro, noIndexar } =
   Astro.props;
 
 const todas = await obtenerNotas();
@@ -43,7 +45,7 @@ const CLASE_PAGINA =
   'inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-5 text-[15px] font-bold transition-colors duration-150 hover:border-accent hover:text-accent';
 ---
 
-<Base titulo={titulo} descripcion={descripcionSeo} seccionActiva={seccionActiva}>
+<Base titulo={titulo} descripcion={descripcionSeo} seccionActiva={seccionActiva} noIndexar={noIndexar}>
   <Fragment slot="head">
     {pagina > 1 && <link rel="prev" href={absoluta(rutaPagina(pagina - 1))} />}
     {pagina < totalPaginas && <link rel="next" href={absoluta(rutaPagina(pagina + 1))} />}

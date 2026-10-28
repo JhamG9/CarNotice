@@ -20,6 +20,8 @@ interface Props {
   imagenSocial?: string;
   /** Páginas que no deben indexarse (404): llevan noindex y no declaran URL canónica. */
   sinIndexar?: boolean;
+  /** Páginas reales que Google no debe indexar por ahora (etiquetas con pocas notas, comparaciones): llevan "noindex, follow" y salen del sitemap, pero cuentan visitas. */
+  noIndexar?: boolean;
 }
 
 const {
@@ -30,8 +32,10 @@ const {
   tipo = 'website',
   imagenSocial,
   sinIndexar = false,
+  noIndexar = false,
 } = Astro.props;
 const canonica = new URL(Astro.url.pathname, Astro.site).href;
+const indexable = !sinIndexar && !noIndexar;
 
 // Google Analytics. Solo se incluye en el sitio compilado, no en el servidor de desarrollo.
 const ID_ANALYTICS = 'G-3C05L6ZDMJ';
@@ -49,12 +53,14 @@ const conAnalytics = import.meta.env.PROD && !sinIndexar;
     <meta name="description" content={descripcion} />
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descripcion} />
-    {sinIndexar ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonica} />}
+    {sinIndexar && <meta name="robots" content="noindex" />}
+    {noIndexar && !sinIndexar && <meta name="robots" content="noindex, follow" />}
+    {indexable && <link rel="canonical" href={canonica} />}
     {/* Fotos grandes en Google Discover y en las búsquedas de imágenes */}
-    {!sinIndexar && <meta name="robots" content="max-image-preview:large" />}
+    {indexable && <meta name="robots" content="max-image-preview:large" />}
     {/* Por ahora solo hay español; cuando se sumen idiomas, cada página declara aquí sus traducciones */}
-    {!sinIndexar && <link rel="alternate" hreflang="es" href={canonica} />}
-    {!sinIndexar && <link rel="alternate" hreflang="x-default" href={canonica} />}
+    {indexable && <link rel="alternate" hreflang="es" href={canonica} />}
+    {indexable && <link rel="alternate" hreflang="x-default" href={canonica} />}
     <meta property="og:type" content={tipo} />
     {!sinIndexar && <meta property="og:url" content={canonica} />}
     <meta property="og:site_name" content="Mejor Eléctrico" />

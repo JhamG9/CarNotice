@@ -35,6 +35,22 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 - La skill `ui-ux-pro-max` (en `.claude/skills/`) se usa para UX, accesibilidad y pautas de Astro. Su paleta, sus fuentes y su patrón de página no se usan: si contradice este archivo, gana este archivo. No usar su `--persist`.
 - El detalle de diseño de cada plantilla está en `design-system/MASTER.md`.
 
+## Redacción de notas y artículos
+
+Toda nota o artículo se escribe siguiendo estas reglas de forma estricta, sin excepción:
+
+1. No usar comentario editorial de relleno ("es importante señalar que", "vale la pena destacar que", "ninguna discusión estaría completa sin", "cabe mencionar que"). Afirmar el punto directamente.
+2. No cerrar con conclusiones estereotipadas ("en conclusión", "en resumen", "en general", "para finalizar"). Terminar con una idea concreta.
+3. No usar calificativos promocionales o exagerados ("impresionante", "revolucionario", "extraordinario", "fascinante") a menos que estén justificados por un dato o ejemplo en la misma oración.
+4. No hacer afirmaciones vagas o grandilocuentes sin evidencia. Si falta evidencia, reducir el alcance de la afirmación.
+5. No hacer análisis superficial: cada hecho va acompañado de una interpretación, causa o consecuencia, no solo enumerado.
+6. Nunca inventar referencias, DOI, ISBN o enlaces. Si no hay una fuente verificada, decirlo explícitamente en vez de inventarla.
+7. No dejar frases de chatbot en el texto final ("aquí está tu artículo sobre...", "espero que esto ayude", "¿necesitas algo más?").
+8. Cuidar el formato: comillas correctas, sin marcado roto, sin errores repetidos. Usar rayas largas (—) solo cuando sean gramaticalmente necesarias; preferir coma o punto y seguido.
+9. No abusar de conectores de relleno ("además", "por otra parte", "asimismo", "moreover"). Máximo uno por párrafo y solo si aporta una transición real.
+10. Variar la longitud y estructura de los párrafos. No repetir el mismo patrón en cada uno. Evitar las listas de tres elementos como recurso automático.
+11. No dejar residuos técnicos: sin placeholders sin rellenar, sin fragmentos de código ni enlaces rotos.
+
 ## Imágenes de las notas
 
 Quien publica suele pasar las imágenes por el chat, junto con el texto de la nota. Todas se guardan en `src/assets/images/`.
@@ -171,7 +187,7 @@ npm run deploy:pages
 
 ## Reels para redes
 
-Los reels, TikToks y vídeos verticales se hacen con la skill `jham-reels` (`.claude/skills/jham-reels/`): vídeo oficial, poco texto, voz local, música propia y datos con fuente. Se monta con Remotion.
+**Todo vídeo que se pida se genera con la skill `jham-reels` (`.claude/skills/jham-reels/`), por defecto**, aunque no la nombren: reels, TikToks, shorts o cualquier pedido de "generar un video". No se usa otra skill de vídeo salvo que la pidan por su nombre. Hace vídeo vertical con imagen oficial, poco texto, voz local, música propia y datos con fuente, y se monta con Remotion.
 
 - Cada reel se trabaja en su propia carpeta fuera del proyecto (`~/reel`, `~/reel2`). Vídeos, audios y dependencias no entran a este repositorio.
 - Necesita Python 3 y Node 18+. La voz local solo funciona en Mac con Apple Silicon; en otro equipo se usa ElevenLabs o una grabación.

@@ -169,6 +169,14 @@ npm run deploy:pages
 - Páginas sin indexar: `noIndexar` en `Base.astro` pone `noindex, follow` y quita canónica y `hreflang`, pero conserva Analytics (lo usan las comparaciones y las etiquetas con menos de 3 notas). `sinIndexar` es solo para la 404.
 - `public/_headers` manda `X-Robots-Tag: noindex` en las direcciones `.pages.dev`. `www.mejorelectrico.com` debe redirigir con 301 a `mejorelectrico.com` mediante una regla de redirección en el panel de Cloudflare (Pages no lo hace desde el código). Si cambia el dominio, cambiarlo también en `robots.txt`.
 
+## Reels para redes
+
+Los reels, TikToks y vídeos verticales se hacen con la skill `jham-reels` (`.claude/skills/jham-reels/`): vídeo oficial, poco texto, voz local, música propia y datos con fuente. Se monta con Remotion.
+
+- Cada reel se trabaja en su propia carpeta fuera del proyecto (`~/reel`, `~/reel2`). Vídeos, audios y dependencias no entran a este repositorio.
+- Necesita Python 3 y Node 18+. La voz local solo funciona en Mac con Apple Silicon; en otro equipo se usa ElevenLabs o una grabación.
+- Publicar un reel lo decide siempre la persona.
+
 ## Entorno de desarrollo
 
 - El puerto 4321 lo ocupa otro proyecto. El sitio corre en el 4330, en segundo plano:

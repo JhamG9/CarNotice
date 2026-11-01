@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { buscarVehiculos, marcas, muestraVariada, nombreMercado, nombreModelo, textoOtroNombre, type Vehiculo } from '../lib/vehiculos';
 
-const MAX_RESULTADOS = 8;
+const MAX_MUESTRA = 8;
 
 interface Props {
   etiqueta: string;
@@ -26,9 +26,9 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
 
   const vacia = consulta.trim() === '';
   const resultados = useMemo(() => buscarVehiculos(vehiculos, consulta), [vehiculos, consulta]);
-  // Sin texto se muestra una muestra de varias marcas, no los primeros del abecedario
+  // Sin texto se muestra una muestra de varias marcas; al escribir, todos los que coinciden
   const visibles = useMemo(
-    () => (vacia ? muestraVariada(vehiculos, MAX_RESULTADOS) : resultados.slice(0, MAX_RESULTADOS)),
+    () => (vacia ? muestraVariada(vehiculos, MAX_MUESTRA) : resultados),
     [vacia, vehiculos, resultados],
   );
   const listaMarcas = useMemo(() => marcas(vehiculos), [vehiculos]);
@@ -42,6 +42,11 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
     document.addEventListener('mousedown', alHacerClic);
     return () => document.removeEventListener('mousedown', alHacerClic);
   }, [abierto]);
+
+  // Con flechas, el resultado activo se mantiene a la vista dentro de la lista
+  useEffect(() => {
+    if (abierto) document.getElementById(`${id}-op-${activo}`)?.scrollIntoView({ block: 'nearest' });
+  }, [abierto, activo, id]);
 
   function cerrar() {
     setAbierto(false);
@@ -123,6 +128,11 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
 
       {abierto && (
         <div className="absolute right-0 left-0 z-20 mt-1 max-h-[480px] overflow-y-auto rounded-lg border border-border bg-surface shadow-lg md:right-auto md:w-[min(460px,calc(100vw-2rem))]">
+          {!vacia && resultados.length > 0 && (
+            <p className="border-b border-border px-3 py-2 text-[13px] text-muted">
+              {resultados.length === 1 ? '1 carro' : `${resultados.length} carros`}
+            </p>
+          )}
           {vacia && (
             <div className="border-b border-border px-3 pt-3 pb-2">
               <p className="text-[13px] text-muted">
@@ -185,11 +195,6 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
                 </span>
               </li>
             ))
-          )}
-          {!vacia && resultados.length > MAX_RESULTADOS && (
-            <li className="px-4 py-2 text-[13px] text-muted" role="presentation">
-              {resultados.length - MAX_RESULTADOS} más. Escribe más para afinar.
-            </li>
           )}
         </ul>
         </div>

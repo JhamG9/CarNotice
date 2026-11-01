@@ -191,7 +191,9 @@ npm run deploy:pages
 
 - Cada reel se trabaja en su propia carpeta fuera del proyecto (`~/reel`, `~/reel2`). Vídeos, audios y dependencias no entran a este repositorio.
 - Necesita Python 3 y Node 18+. La voz local solo funciona en Mac con Apple Silicon; en otro equipo se usa ElevenLabs o una grabación.
-- Publicar un reel lo decide siempre la persona.
+- Publicar un reel lo decide siempre la persona: Claude lo muestra y lo publica solo con su aprobación para ese reel.
+- Las cuentas son `facebook.com/mejorelectrico` e `instagram.com/mejorelectrico`, vinculadas entre sí. Los reels salen con `scripts/publicar-meta.mjs` de la skill, por la API de Meta (app `Mejor Electrico Reels`). El uso está en `references/publicar.md`.
+- El token va en `.env` (`META_PAGE_TOKEN`). No se pega en el chat ni se sube a git; la clave secreta de la app no se guarda en el proyecto.
 
 ## Entorno de desarrollo
 

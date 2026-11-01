@@ -61,6 +61,28 @@ uso de cada recurso (references/recursos.md).
 - Si la voz está hecha con IA, que active la etiqueta de contenido generado con IA al publicar (las dos apps la
   piden para voces sintéticas realistas).
 
+## Publicar en Facebook e Instagram
+
+Sale directo por la API de Meta, con la app `Mejor Electrico Reels`, en la página `facebook.com/mejorelectrico` y en
+`@mejorelectrico`. Por defecto va a las dos; `--solo-facebook` o `--solo-instagram` limitan el destino.
+
+```bash
+node .claude/skills/jham-reels/scripts/publicar-meta.mjs verificar
+node .claude/skills/jham-reels/scripts/publicar-meta.mjs borrador ~/reel/salida/reel.mp4 "Descripción"
+node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel/salida/reel.mp4 "Descripción" --confirmo
+```
+
+- Muestra primero el vídeo y el texto. `publicar --confirmo` se usa solo cuando la persona aprobó ese reel en el chat.
+- `borrador` sirve para probar: en Facebook queda como borrador y en Instagram sube el vídeo sin publicarlo. Nada se ve
+  en público.
+- En Facebook, Meta pide 9:16, de 3 a 90 segundos, y permite 30 publicaciones por API cada 24 horas.
+- En Instagram, la subida por API falló el 2026-10-31 con `ProcessingFailedError` en todos los intentos con reels de 58 y 85 segundos, y a veces con uno de 44 con el mismo archivo. Pasó con fragmentos de hasta 45 segundos y con un vídeo sintético de 59, y un reel real de 57 segundos salió al séptimo intento. Nada de 60 segundos o más ha pasado. No se debe al peso, al formato ni al tipo de token, y la causa sigue sin aclararse. Hasta 59 segundos se reintenta el mismo comando con `--solo-instagram`, hasta 10 veces y sin repetir Facebook; uno más largo se sube desde la app.
+- `--ia` marca el reel de Facebook como generado con IA y `--portada=archivo.png` sube su portada. En Instagram, `--miniatura-ms=1800` solo elige un fotograma del vídeo como portada; la etiqueta de IA y una portada propia se ponen en la app.
+- Si el token deja de servir, Claude abre `scripts/meta-token.mjs` y la persona pega en `http://127.0.0.1:4390/` un token
+  nuevo del Explorador y la clave secreta de la app. Claude no escribe ninguno de los dos. En el Explorador se marcan
+  `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `instagram_basic`, `instagram_content_publish` y
+  `business_management`, y en la ventana de Meta solo la página y el Instagram de Mejor Eléctrico.
+
 ## «Comenta PALABRA» con respuesta automática
 
 - **Instagram**: herramientas como ManyChat (socio oficial de Meta) mandan un mensaje privado a quien comente una

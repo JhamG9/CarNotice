@@ -1,6 +1,6 @@
 ---
 titulo: "Autonomía real de un carro eléctrico en Colombia: por qué la montaña y la autopista cambian todo"
-resumen: "Bajar de Bogotá a Villavicencio gastó menos de 6 % de batería en una prueba; subir de regreso, 34 %. La pendiente pesa más que la distancia, y en autopista la velocidad resta hasta un 30 %."
+resumen: "Bajar de Bogotá a Villavicencio gastó 6 % de batería en una prueba; subir de regreso, 34 %. La pendiente pesa más que la distancia, y en autopista la velocidad resta hasta un 30 %."
 autor: "Redacción Mejor Eléctrico"
 fecha: 2026-10-13
 categoria: electricos
@@ -17,7 +17,7 @@ La cifra de autonomía de la ficha técnica es un punto de partida, no una prome
 
 ## Lo esencial
 
-- **Bajando, el carro recupera energía.** En una prueba de Bogotá a Villavicencio, el descenso gastó menos de 6 % de la batería.
+- **Bajando, el carro recupera energía.** En una prueba de Bogotá a Villavicencio, el descenso gastó 6 % de la batería.
 - **Subiendo, gasta mucho más.** El regreso a Bogotá consumió 34 %.
 - **A 120 km/h**, varios eléctricos perdieron entre 25 % y 26 % de su autonomía WLTP en pruebas en Europa.
 - **El frío**, que en Europa resta hasta 35 % o 45 %, pesa poco en casi toda Colombia.
@@ -66,7 +66,7 @@ Depende del uso. En ciudad suele acercarse a la cifra WLTP; en autopista a 120 k
 
 ### ¿Un eléctrico gasta más subiendo a Bogotá?
 
-Sí. En una prueba con un GAC Aion Y, la bajada a Villavicencio gastó menos de 6 % de batería y la subida de regreso, 34 %.
+Sí. En una prueba con un GAC Aion Y, la bajada a Villavicencio gastó 6 % de batería y la subida de regreso, 34 %.
 
 ### ¿El aire acondicionado baja mucho la autonomía?
 

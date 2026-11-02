@@ -161,6 +161,7 @@ Momentos: 1 entra el móvil · 2 contenido y contador · 3 pegatina. En estilos 
 del fondo: ahí luce más en `nube`, `menta` o `limon`.
 
 ### contador (2 momentos)
+Los números muestran los decimales del dato, hasta 2: `2.3` sale como «2,3». Revisa que un número largo quepa en `cifras`.
 Tarjeta con un número grande que cuenta hasta el valor y da un golpe al llegar.
 Se ve: la etiqueta arriba y el número enorme debajo, con una barra que se llena.
 Campos: `valor` (número, obligatorio), `etiqueta` (obligatorio; mejor ≤28 letras, para que quepa en una línea),

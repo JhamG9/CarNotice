@@ -14,7 +14,7 @@ datos y un vídeo con una etiqueta, el vídeo. El reel `reel-deepal` del usuario
 
 ## Cómo es un reel de esta skill
 
-- 1080×1920, 30 fps, 25–60 s. Fondo con estilo, una escena por frase y nada quieto más de 0,6 s.
+- 1080×1920, 30 fps, 25–59 s (`revisar.py` falla si pasa de 59; para otro tope, `"duracionMax"` en el plan). Fondo con estilo, una escena por frase y nada quieto más de 0,6 s.
 - La escena principal es `Clips`: vídeo oficial a pantalla completa con un título corto y etiquetas.
 - La voz se genera en local con Chatterbox y la voz 01 del usuario. También puede grabarla él o usar ElevenLabs.
 - La música se compone sola con los cortes del reel, sin derechos de terceros.
@@ -72,6 +72,7 @@ Copia esta lista y ve marcando:
 
 ```
 - [ ] 1. Guion con fuentes (references/guion.md); sigue sin esperar aprobación
+- [ ] 1b. Datos verificados: agente reels-verificador sobre el plan y guion.md, y corrige lo que marque
 - [ ] 2. Proyecto preparado (preparar.py)
 - [ ] 3. Recursos oficiales y plan con una escena por frase (references/recursos.md, references/escenas.md)
 - [ ] 4. Voz con voz_local.py (genera, comprueba y alinea) y música con musica.py
@@ -86,7 +87,7 @@ Copia esta lista y ve marcando:
 
 Lee `references/guion.md` y escribe 8–16 frases cortas: gancho en la primera, una idea por frase, una o dos
 palabras clave por frase entre `*asteriscos*` y una llamada a la acción al final. Enséñale el guion al usuario en
-el chat, con la fuente de cada dato, y **sigue sin esperar respuesta: la voz se genera automáticamente, no necesita aprobación
+el chat, con la fuente de cada dato, pásalo por el agente `reels-verificador` y corrige lo que marque. Después **sigue sin esperar respuesta: la voz se genera automáticamente, no necesita aprobación
 del usuario.** Lo mismo para el resto del flujo: no preguntes antes de generar la voz, montar ni renderizar. Si el usuario quiere
 cambios, los pedirá al ver el resultado. Solo para y pregunta si hay que aceptar cookies o condiciones, entrar con una
 cuenta, pagar o publicar: eso siempre es decisión suya.
@@ -157,10 +158,11 @@ La hace `reel.py`. Solo si hay que lanzarla aparte:
   python3 SKILL/scripts/voz_local.py --proyecto ~/reel
   ```
 
-  La primera vez instala el entorno en `~/.cache/jham-reels/venv` y baja los modelos. Genera cada frase con el texto de
-  `voz`, compara lo que oye Whisper con `texto`, une las frases y alinea. Si Whisper entiende mal una frase, prueba
-  sola otras grafías y guarda la mejor en el plan. Si aun así la marca, cambia su `voz` a mano: repetir el mismo texto da lo
-  mismo. Tú no oyes el audio: dile al usuario que lo escuche. Los nombres nuevos van en `assets/voz/pronunciacion.json`.
+  La primera vez instala el entorno en `~/.cache/jham-reels/venv` y baja los modelos. Genera juntas las frases seguidas
+  con el texto de `voz`, en bloques, para que la entonación continúe; compara lo que oye Whisper con `texto`, une los
+  bloques y alinea. Si Whisper entiende mal un bloque, repite la toma hasta 3 veces. Si una palabra sigue mal, cambia su
+  `voz` a mano (`ciclo` salió mejor como `síclo`) y repite con `--solo`. No aceleres la voz: si el reel queda largo, recorta
+  texto. Tú no oyes el audio: dile al usuario que lo escuche. Los nombres nuevos van en `assets/voz/pronunciacion.json`.
 - **Música**: al terminar de alinear, `~/.cache/jham-reels/venv/bin/python SKILL/scripts/musica.py --proyecto ~/reel`.
   Vuelve a crearla si cambian los tiempos. Marca con `"sensible": true` las frases sobre muertes o temas serios.
 - **ElevenLabs**: `python3 SKILL/scripts/voz.py --proyecto ~/reel` saca el texto con etiquetas y los

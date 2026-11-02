@@ -36,7 +36,14 @@ export const rnd = (seed: number) => {
 };
 
 /** Número con separador de miles español. */
-export const numeroES = (n: number, decimales = 0) => {
+// Los decimales que trae el dato, hasta 2: un 2,3 % no debe salir como 2 %.
+export const decimalesDe = (n: number) => {
+  const texto = String(n);
+  const punto = texto.indexOf(".");
+  return punto < 0 ? 0 : Math.min(2, texto.length - punto - 1);
+};
+
+export const numeroES = (n: number, decimales = decimalesDe(n)) => {
   const [ent, dec] = Math.abs(n).toFixed(decimales).split(".");
   const conPuntos = ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `${n < 0 ? "-" : ""}${conPuntos}${dec ? `,${dec}` : ""}`;

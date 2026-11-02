@@ -6,7 +6,7 @@ import { BORDE, C, ESTILO, SOMBRA, SUAVE } from "../motor/actual";
 import { FPS } from "../motor/constantes";
 import { F, alfa } from "../motor/estilos";
 import { pesoTexto, useFuentes } from "../motor/fuentes";
-import { bump, lerp, numeroES, rnd, useFlota, usePop } from "../motor/anim";
+import { bump, decimalesDe, lerp, numeroES, rnd, useFlota, usePop } from "../motor/anim";
 import { Destello, Icono, Llama, Marca, Onda, Pildora, Tachon, useGolpe } from "../piezas/basicas";
 import type { DefEscena, PropsEscena } from "../tipos";
 import { arr, bool, iconos, item, num, obj, reglas, txt } from "./util";
@@ -51,7 +51,7 @@ const Numero: React.FC<{ desde: number; hasta: number; v0: number; v1: number; t
   golpe = -100,
   prefijo = "",
   sufijo = "",
-  decimales = 0,
+  decimales = Math.max(decimalesDe(v0), decimalesDe(v1)),
 }) => {
   const f = useCurrentFrame();
   const v = interpolate(f, [desde, Math.max(desde + 1, hasta)], [v0, v1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });

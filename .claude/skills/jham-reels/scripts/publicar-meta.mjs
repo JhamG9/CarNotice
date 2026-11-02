@@ -7,7 +7,7 @@
 //   node publicar-meta.mjs publicar reel.mp4 "Texto" --confirmo [--solo-facebook | --solo-instagram]
 //
 // Opciones: --ia marca el reel de Facebook como generado con IA, --portada=archivo.png sube su portada a Facebook y
-// --miniatura-ms=1800 elige el fotograma de portada en Instagram.
+// --miniatura-ms=1800 elige el fotograma de portada en Instagram. --intentos-ig=15 limita los reintentos en Instagram.
 //
 // Publicar es decisión de la persona: sin --confirmo no se publica nada.
 import { readFileSync, statSync } from 'node:fs';
@@ -32,6 +32,7 @@ function salir(mensaje) {
   process.exit(1);
 }
 
+const INTENTOS_IG = 15;
 const esperar = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 if (!pageId || !token) salir('Faltan META_PAGE_ID o META_PAGE_TOKEN en .env. Ejecuta primero meta-token.mjs.');
@@ -101,38 +102,49 @@ async function subirFacebook(estado) {
   salir('Meta sigue procesando el vídeo. Revísalo en el Planner de la página.');
 }
 
-// Instagram no tiene borradores por API: el contenedor subido no se ve hasta llamar a media_publish.
-async function subirInstagram(publicar) {
-  const bytes = statSync(archivo).size;
-  const { id: contenedor } = await graph('POST', `/${igId}/media`, {
+async function subirContenedorInstagram(bytes) {
+  const { id } = await graph('POST', `/${igId}/media`, {
     media_type: 'REELS',
     upload_type: 'resumable',
     caption: descripcion ?? '',
     ...(miniatura ? { thumb_offset: miniatura } : {}),
     access_token: token,
   });
-  const subida = await fetch(`${RUPLOAD_IG}/${contenedor}`, {
+  const subida = await fetch(`${RUPLOAD_IG}/${id}`, {
     method: 'POST',
     headers: { Authorization: `OAuth ${token}`, offset: '0', file_size: String(bytes) },
     body: readFileSync(archivo),
   });
   await leerRespuesta(subida);
-
-  for (let intento = 0; intento < 40; intento++) {
+  for (let espera = 0; espera < 40; espera++) {
     await esperar(15000);
-    const { status_code: fase, status } = await graph('GET', `/${contenedor}`, {
-      fields: 'status_code,status',
-      access_token: token,
-    });
+    const { status_code: fase, status } = await graph('GET', `/${id}`, { fields: 'status_code,status', access_token: token });
     console.log(`Instagram: ${fase}`);
-    if (fase === 'ERROR' || fase === 'EXPIRED') salir(`Meta rechazó el vídeo: ${status}`);
-    if (fase === 'FINISHED') {
-      if (!publicar) return console.log('Instagram: vídeo aceptado, sin publicar.');
-      const { id } = await graph('POST', `/${igId}/media_publish`, { creation_id: contenedor, access_token: token });
-      return console.log(`Instagram: publicado, medio ${id}.`);
+    if (fase === 'ERROR' || fase === 'EXPIRED') throw new Error(`Meta rechazó el vídeo: ${status}`);
+    if (fase === 'FINISHED') return id;
+  }
+  throw new Error('Instagram sigue procesando el vídeo.');
+}
+
+// Instagram no tiene borradores por API: el contenedor subido no se ve hasta llamar a media_publish.
+// Su subida falla al azar con el mismo archivo, así que se reintenta con un contenedor nuevo.
+async function subirInstagram(publicar) {
+  const bytes = statSync(archivo).size;
+  const intentos = Number(valorDe('intentos-ig') ?? INTENTOS_IG);
+  let contenedor;
+  for (let intento = 1; !contenedor; intento++) {
+    try {
+      contenedor = await subirContenedorInstagram(bytes);
+    } catch (error) {
+      console.error(`Instagram: intento ${intento} de ${intentos} falló: ${error.message}`);
+      if (intento >= intentos) salir(`Instagram no aceptó el vídeo tras ${intentos} intentos; no se publicó.`);
+      await esperar(15000);
     }
   }
-  salir('Instagram sigue procesando el vídeo y no se publicó. Inténtalo de nuevo más tarde.');
+  if (!publicar) return console.log('Instagram: vídeo aceptado, sin publicar.');
+  // Fuera del reintento: si esto falla, repetirlo a ciegas podría publicar dos veces.
+  const { id } = await graph('POST', `/${igId}/media_publish`, { creation_id: contenedor, access_token: token });
+  console.log(`Instagram: publicado, medio ${id}.`);
 }
 
 try {

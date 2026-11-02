@@ -23,11 +23,29 @@ import mlx_whisper
 import numpy as np
 
 PESO_MAX = 30
+DURACION_MAX = 59  # Instagram rechaza por API los reels largos
+NEGRO_MIN = 0.75  # segundos seguidos de imagen negra para contarlo como fallo
 
 
 def plano(t):
     t = unicodedata.normalize("NFD", t.replace("*", "").lower())
     return re.sub(r"[^a-z0-9 ]+", " ", "".join(c for c in t if unicodedata.category(c) != "Mn")).split()
+
+
+def tramos_negros(video):
+    """Tomas negras entre las muestras de cada frase: mira 4 fotogramas por segundo de todo el vídeo."""
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", video, "-vf", "fps=4,scale=108:192,format=gray", "-f", "rawvideo", "-"], capture_output=True)
+    fotos = np.frombuffer(r.stdout, dtype=np.uint8).reshape(-1, 192, 108)[:, :120]
+    negras = (fotos > 40).mean(axis=(1, 2)) < 0.02
+    fallos, inicio = [], None
+    for i, negra in enumerate(list(negras) + [False]):
+        if negra and inicio is None:
+            inicio = i
+        elif not negra and inicio is not None:
+            if (i - inicio) / 4 >= NEGRO_MIN:
+                fallos.append(f"Toma negra de {inicio / 4:.1f} a {i / 4:.1f} s.")
+            inicio = None
+    return fallos
 
 
 def main():
@@ -51,6 +69,7 @@ def main():
                 fallos.append(f"Frase {k} ({t:.1f} s): pantalla casi vacía.")
             elif (g > 40).mean() < 0.02:  # una nube de puntos es oscura pero tiene detalle: esa no cuenta
                 fallos.append(f"Frase {k} ({t:.1f} s): imagen casi negra.")
+    fallos += tramos_negros(video)
     r = subprocess.run(["ffmpeg", "-hide_banner", "-i", video, "-af", "ebur128=peak=true", "-f", "null", "-"], capture_output=True, text=True).stderr
     i = re.findall(r"I:\s+(-?[0-9.]+) LUFS", r)
     pico = re.findall(r"Peak:\s+(-?[0-9.]+) dBFS", r)
@@ -63,6 +82,9 @@ def main():
     dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", video]).strip())
     if abs(dur - tiempos["duracion"]) > 0.5:
         fallos.append(f"El vídeo dura {dur:.1f} s y debería durar {tiempos['duracion']:.1f} s.")
+    maximo = plan.get("duracionMax", DURACION_MAX)
+    if dur > maximo:
+        fallos.append(f"Dura {dur:.1f} s: pasa de {maximo} s. Recorta texto, o pon \"duracionMax\" en el plan si es a propósito.")
     peso = os.path.getsize(video) / 1e6
     if peso > PESO_MAX:
         fallos.append(f"Pesa {peso:.0f} MB (más de {PESO_MAX}).")

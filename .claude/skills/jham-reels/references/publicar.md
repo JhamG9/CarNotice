@@ -80,8 +80,9 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel/salida/
 - `--ia` marca el reel de Facebook como generado con IA y `--portada=archivo.png` sube su portada. En Instagram, `--miniatura-ms=1800` solo elige un fotograma del vídeo como portada; la etiqueta de IA y una portada propia se ponen en la app.
 - Si el token deja de servir, Claude abre `scripts/meta-token.mjs` y la persona pega en `http://127.0.0.1:4390/` un token
   nuevo del Explorador y la clave secreta de la app. Claude no escribe ninguno de los dos. En el Explorador se marcan
-  `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `instagram_basic`, `instagram_content_publish` y
-  `business_management`, y en la ventana de Meta solo la página y el Instagram de Mejor Eléctrico.
+  `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `instagram_basic`, `instagram_content_publish`,
+  `business_management`, `read_insights` e `instagram_manage_insights` (estos dos, para leer las estadísticas de cada
+  reel), y en la ventana de Meta solo la página y el Instagram de Mejor Eléctrico.
 
 ## «Comenta PALABRA» con respuesta automática
 

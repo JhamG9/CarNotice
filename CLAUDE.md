@@ -192,6 +192,8 @@ npm run deploy:pages
 - Cada reel se trabaja en su propia carpeta fuera del proyecto (`~/reel`, `~/reel2`). Vídeos, audios y dependencias no entran a este repositorio.
 - Necesita Python 3 y Node 18+. La voz local solo funciona en Mac con Apple Silicon; en otro equipo se usa ElevenLabs o una grabación.
 - Publicar un reel lo decide siempre la persona: Claude lo muestra y lo publica solo con su aprobación para ese reel.
+- **Excepción: la tarea programada `reel-automatico`.** Quien administra (Jhampier Giron) decidió el 2026-11-02 que esa tarea elija el tema, haga el reel y lo publique sin pedir aprobación. Solo publica si el agente `reels-verificador` termina en `LISTO PARA VOZ` y `revisar.py` no marca fallos; si no, deja el reel hecho sin publicar y avisa. No hace commit, push ni despliegue. Sale un reel al día: a las 6 p. m. (hora de Colombia), salvo los miércoles, que sale a las 12 p. m. con la tarea `reel-automatico-mediodia`. Si el computador estaba apagado a esa hora, la tarea queda en cola y corre al encenderlo, sin pasar de un reel automático por día. Instrucciones en `.claude/skills/jham-reels/references/automatico.md`.
+- Los temas ya publicados están en `.claude/skills/jham-reels/temas-publicados.md`. Antes de elegir tema se lee, para no repetir, y al publicar se añade una fila.
 - Las cuentas son `facebook.com/mejorelectrico` e `instagram.com/mejorelectrico`, vinculadas entre sí. Los reels salen con `scripts/publicar-meta.mjs` de la skill, por la API de Meta (app `Mejor Electrico Reels`). El uso está en `references/publicar.md`.
 - El token va en `.env` (`META_PAGE_TOKEN`). No se pega en el chat ni se sube a git; la clave secreta de la app no se guarda en el proyecto.
 

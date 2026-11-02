@@ -43,7 +43,10 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
    recientes). Prioriza lo que interese en Latinoamérica sin dejar fuera al resto.
 3. Solo temas con fuentes que se puedan leer: manuales, fabricantes, organismos oficiales, pruebas publicadas. Si a
    mitad de la investigación las fuentes no sostienen el tema, cambia de tema antes de escribir el guion.
-4. Puedes apoyarte en las notas del sitio (`src/content/notas/`) y en la tabla `vehicles` (solo lectura, conector
+4. Alterna noticias y consejos: si el último reel de `temas-publicados.md` fue un consejo (batería, carga, autonomía,
+   mitos), este va de noticia (un lanzamiento, una llegada a un país, un precio nuevo), y al revés. Las noticias son lo
+   que más alcance ha tenido: el reel de Avatr llegó a 4 veces más cuentas que los demás.
+5. Puedes apoyarte en las notas del sitio (`src/content/notas/`) y en la tabla `vehicles` (solo lectura, conector
    `supabase-garash`), citando la fuente original del dato.
 
 ## 2. Hacer el reel
@@ -52,6 +55,12 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
 - Una sola versión de **45 a 58 segundos** para las dos redes. Instagram falla por la API desde 60 s.
 - Guion según `references/guion.md`, con tabla de fuentes en `guion.md`. Las reglas de redacción de `CLAUDE.md` también
   valen para el guion y el texto de la publicación.
+- **Los primeros 8 segundos deciden.** En Instagram la gente ve en promedio entre 7 y 11 segundos de cada reel (datos
+  del 2026-11-02). Por eso:
+  - El primer segundo abre con una pregunta directa o un dato concreto, en pantalla y en voz, sin presentación.
+  - La primera escena es un video real del carro o del tema, no una tarjeta.
+  - El dato principal (la cifra, la respuesta o el giro) llega antes del segundo 8. Lo que sigue lo explica, no lo
+    hace esperar.
 - Pasa el guion y el plan por el agente `reels-verificador` y corrige todo lo que marque, también los textos en
   pantalla. Repite la verificación hasta que termine en `LISTO PARA VOZ`, como mucho tres rondas.
 - Imágenes: video oficial del fabricante del carro del que se habla. Marca `IMAGEN DE REFERENCIA` cuando no sea

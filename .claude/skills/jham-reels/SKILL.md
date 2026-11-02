@@ -42,6 +42,11 @@ para otro reel, otra carpeta (`~/reel2`). `--actualizar` vuelve a copiar el moto
 **Regla: lo que el equipo puede hacer solo, lo hace solo.** No repitas a mano lo que hace un script, no vigiles
 procesos y no leas registros enteros: lanza el comando en segundo plano y lee solo `salida/informe.md`.
 
+**Regla: no te detengas hasta entregar.** Del guion a la entrega (o a la publicación, si la pidieron), encadena los
+pasos sin cerrar el turno: no pares a contar avances ni a preguntar si sigues. Mientras un proceso corre en segundo
+plano, adelanta el paso siguiente (plan, portada, textos) y retoma en cuanto termine. Solo te detienes por algo que
+decide la persona: una cuenta, un pago, condiciones que aceptar o un fallo que no puedas resolver tú.
+
 | Tarea | Quién |
 |---|---|
 | Instalar el entorno, generar y comprobar la voz, reintentar frases mal entendidas | Equipo (`reel.py`) |

@@ -60,8 +60,9 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
   del 2026-11-02). Por eso:
   - El primer segundo abre con una pregunta directa o un dato concreto, en pantalla y en voz, sin presentación.
   - La primera escena es un video real del carro o del tema, no una tarjeta.
-  - El dato principal (la cifra, la respuesta o el giro) llega antes del segundo 8. Lo que sigue lo explica, no lo
-    hace esperar.
+  - El dato principal (la cifra, la respuesta o el giro) llega antes del segundo 8, junto con una pregunta abierta
+    que el reel resuelve más adelante («Pero hay un error que puede dañarlo»). Escribe cinco ganchos y elige según
+    «Dato y pregunta abierta» en `references/guion.md`.
 - Pasa el guion y el plan por el agente `reels-verificador` y corrige todo lo que marque, también los textos en
   pantalla. Repite la verificación hasta que termine en `LISTO PARA VOZ`, como mucho tres rondas.
 - Imágenes: video oficial del fabricante del carro del que se habla. Marca `IMAGEN DE REFERENCIA` cuando no sea

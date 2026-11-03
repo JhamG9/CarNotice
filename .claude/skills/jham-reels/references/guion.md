@@ -44,6 +44,25 @@ Concretos, con algo sorprendente o útil y cumplibles. Fórmulas que funcionan (
 
 Evita los ganchos que prometen algo que el vídeo no da: la gente se va y no vuelve.
 
+**Dato y pregunta abierta.** El gancho da el dato principal pronto, pero no cierra el tema: deja una pregunta que solo
+se resuelve más adelante. Si la respuesta completa llega en el segundo 8, quien la recibe ya no tiene por qué
+quedarse.
+
+- Mal: «Un eléctrico sin batería sigue andando hasta 42 km.» (respondido; se puede ir)
+- Bien: «Sí, sigue andando: hasta 42 km. Pero hay un error con la grúa que puede dañarlo.» (dato + algo pendiente)
+
+En los primeros 8 segundos deben pasar tres cosas: confirmar lo que promete el título o la portada, dar el dato y
+abrir la pregunta. Lo que queda abierto se resuelve de forma explícita antes de la llamada a la acción, nunca se deja
+sin respuesta.
+
+**Escribe cinco y quédate con uno.** Antes del guion escribe cinco ganchos distintos con este patrón y compáralos en
+cinco cosas: concreto (una cifra, un nombre o un año), habla a «tú», algo en juego (perder, dañar, pagar de más),
+deja una pregunta abierta y es breve (9 a 24 palabras). Gana el que no tenga ninguna de las cinco floja, no el que
+sume más: un gancho se cae por su punto débil. Muestra los dos mejores en el chat, con cuál elegiste y por qué.
+
+**El texto en pantalla no repite la voz.** En el gancho, el titular dice la cifra o la pregunta en 2 a 5 palabras,
+y la voz dice la frase completa. Si dicen lo mismo, se pierde uno de los dos canales.
+
 ## 4. Escribir para la voz
 
 - Español hablado: frases cortas, sujeto y verbo pronto, nada de paréntesis ni incisos largos.

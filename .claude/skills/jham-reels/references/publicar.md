@@ -84,6 +84,28 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel/salida/
   `business_management`, `read_insights` e `instagram_manage_insights` (estos dos, para leer las estadísticas de cada
   reel), y en la ventana de Meta solo la página y el Instagram de Mejor Eléctrico.
 
+## Publicar en YouTube Shorts
+
+Sale directo por la API de YouTube, con el proyecto de Google Cloud `mejor-electrico-reels`, en
+`youtube.com/@mejorelectrico`. Va en la categoría Autos y vehículos, en español.
+
+```bash
+node .claude/skills/jham-reels/scripts/publicar-youtube.mjs verificar
+node .claude/skills/jham-reels/scripts/publicar-youtube.mjs borrador ~/reel/salida/reel.mp4 "Título #Shorts" "Descripción"
+node .claude/skills/jham-reels/scripts/publicar-youtube.mjs publicar ~/reel/salida/reel.mp4 "Título #Shorts" "Descripción" --ia --portada=$HOME/reel/salida/portada.png --confirmo
+```
+
+- Título de 100 caracteres como mucho: el gancho, sin emojis, terminado en `#Shorts`. La descripción puede ser la
+  misma de Instagram.
+- `--ia` declara contenido sintético (la voz es generada). `borrador` lo sube privado.
+- Hasta que Google apruebe la auditoría del proyecto (formulario «YouTube API Services - Audit and Quota Extension»),
+  todo lo subido por API queda privado aunque se pida público: se pasa a público en YouTube Studio.
+- La portada propia exige el canal verificado con un teléfono (YouTube Studio → Configuración → Canal → Funciones
+  aptas). Sin eso, el Short sale igual y la portada falla con un aviso.
+- La cuota diaria de la API (10.000 unidades) alcanza para unas 6 subidas al día.
+- Si la conexión deja de servir, se repite `scripts/youtube-token.mjs`. Con `--json=` lee el archivo
+  `client_secret_….json` que da Google al crear un cliente de escritorio, sin pegar nada; ese archivo se borra después.
+
 ## «Comenta PALABRA» con respuesta automática
 
 - **Instagram**: herramientas como ManyChat (socio oficial de Meta) mandan un mensaje privado a quien comente una

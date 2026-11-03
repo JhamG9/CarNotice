@@ -196,6 +196,7 @@ npm run deploy:pages
 - Los temas ya publicados están en `.claude/skills/jham-reels/temas-publicados.md`. Antes de elegir tema se lee, para no repetir, y al publicar se añade una fila.
 - Las cuentas son `facebook.com/mejorelectrico` e `instagram.com/mejorelectrico`, vinculadas entre sí. Los reels salen con `scripts/publicar-meta.mjs` de la skill, por la API de Meta (app `Mejor Electrico Reels`). El uso está en `references/publicar.md`.
 - El token va en `.env` (`META_PAGE_TOKEN`). No se pega en el chat ni se sube a git; la clave secreta de la app no se guarda en el proyecto.
+- YouTube: canal `youtube.com/@mejorelectrico`, de la cuenta de Google `mejorelectrico9@gmail.com`. Los Shorts salen con `scripts/publicar-youtube.mjs`, por la API de YouTube (proyecto de Google Cloud `mejor-electrico-reels`), y la conexión se hace con `scripts/youtube-token.mjs`. Los datos van en `.env` (`YOUTUBE_*`), con las mismas reglas que el token de Meta. Mientras Google no apruebe la auditoría del proyecto, todo lo que se sube por API queda privado y se pasa a público en YouTube Studio.
 
 ## Entorno de desarrollo
 

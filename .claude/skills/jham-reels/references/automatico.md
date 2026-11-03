@@ -1,14 +1,14 @@
 # Reel automático
 
-Instrucciones para la tarea programada `reel-automatico`: elegir tema, hacer el reel y publicarlo en Facebook e
-Instagram sin que nadie lo apruebe. Quien administra lo autorizó el 2026-11-02 (ver `CLAUDE.md`, "Reels para redes").
+Instrucciones para la tarea programada `reel-automatico`: elegir tema, hacer el reel y publicarlo en Facebook,
+Instagram y YouTube sin que nadie lo apruebe. Quien administra lo autorizó el 2026-11-02 (ver `CLAUDE.md`, "Reels para redes").
 Nadie va a responder durante la ejecución: no preguntes, decide.
 
 Trabaja en `/Users/jhamgiron/Desktop/garash` y sigue la skill `jham-reels` (`SKILL.md`) con su regla de no detenerse.
 
 **Cada ejecución hace todo, de principio a fin y sin pararse a mitad:** revisar pendientes, elegir el tema, investigar,
 escribir el guion, verificar, generar la voz y la música, montar y renderizar el video, revisarlo, hacer la portada y el
-texto, publicar en las dos redes y registrar. Un reel hecho pero no publicado no es un reel terminado, salvo que no
+texto, publicar en las tres redes y registrar. Un reel hecho pero no publicado no es un reel terminado, salvo que no
 haya pasado el verificador o la revisión.
 
 ## 0. Publicar lo que quedó pendiente
@@ -16,8 +16,9 @@ haya pasado el verificador o la revisión.
 Antes de hacer el reel del día, busca en `temas-publicados.md` las filas marcadas «pendiente: falló la publicación».
 Son reels que pasaron el verificador y la revisión, pero no salieron por un fallo de Meta, de internet o de un apagón.
 
-- Publícalos primero con `publicar-meta.mjs`, usando el `reel.mp4`, `portada.png` y `texto-publicar.txt` de su carpeta.
-  Si ya salieron en una red, publica solo en la que falta (`--solo-facebook` o `--solo-instagram`).
+- Publícalos primero con `publicar-meta.mjs` o `publicar-youtube.mjs`, usando el `reel.mp4`, `portada.png`,
+  `texto-publicar.txt` y `titulo-youtube.txt` de su carpeta. Publica solo en la red que falta (`--solo-facebook` o
+  `--solo-instagram` en Meta). Los reels anteriores al 2026-11-03 no tienen columna de YouTube: no se suben.
 - Antes de publicar, comprueba que sus datos siguen vigentes (un precio, una fecha de lanzamiento). Si alguno cambió,
   no lo publiques: márcalo «descartado: datos vencidos».
 - Al salir, cambia la fila por los enlaces. Si vuelve a fallar, déjala como estaba.
@@ -52,7 +53,7 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
 ## 2. Hacer el reel
 
 - Carpeta nueva: `~/reel-<slug-del-tema>`.
-- Una sola versión de **45 a 58 segundos** para las dos redes. Instagram falla por la API desde 60 s.
+- Una sola versión de **45 a 58 segundos** para todas las redes. Instagram falla por la API desde 60 s.
 - Guion según `references/guion.md`, con tabla de fuentes en `guion.md`. Las reglas de redacción de `CLAUDE.md` también
   valen para el guion y el texto de la publicación.
 - **Los primeros 8 segundos deciden.** En Instagram la gente ve en promedio entre 7 y 11 segundos de cada reel (datos
@@ -81,6 +82,16 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/
 - Si Instagram agota los 15 intentos y Facebook ya salió, repite una vez con `--solo-instagram`. Si vuelve a fallar,
   deja Facebook publicado, pon el enlace de Facebook en la fila y «pendiente: falló la publicación» en Instagram, y dilo
   en el informe.
+- Después súbelo como Short a YouTube (`youtube.com/@mejorelectrico`):
+
+  ```bash
+  node .claude/skills/jham-reels/scripts/publicar-youtube.mjs publicar ~/reel-<slug>/salida/reel.mp4 "$(cat ~/reel-<slug>/salida/titulo-youtube.txt)" "$(cat ~/reel-<slug>/salida/texto-publicar.txt)" --ia --portada=$HOME/reel-<slug>/salida/portada.png --confirmo
+  ```
+
+  El título va en `salida/titulo-youtube.txt`: el gancho en una línea, sin emojis, de 100 caracteres como mucho y
+  terminado en `#Shorts`. Mientras Google no apruebe la auditoría del proyecto, el Short queda privado aunque se pida
+  público: anótalo así en el registro y en el informe, para que quien administra lo pase a público en YouTube Studio.
+  Si YouTube falla, no repitas Facebook ni Instagram: pon «pendiente: falló la publicación» en la columna de YouTube.
 - Si algo de lo anterior no se cumple, no publiques: deja el reel terminado en su carpeta y explica por qué.
 
 ## 4. Cerrar
@@ -89,7 +100,8 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/
    enlaces. Si no publicaste, añade la fila igual, para que no se repita el tema, y escribe en los enlaces la causa:
    «pendiente: falló la publicación» (el reel pasó todo, pero Meta o internet fallaron; la próxima ejecución lo
    publica) o «no aprobado» (no pasó el verificador o la revisión; no se publica). Saca los enlaces de la API
-   (`permalink` en Instagram, `permalink_url` en Facebook).
+   (`permalink` en Instagram, `permalink_url` en Facebook, `youtube.com/shorts/<id>` en YouTube, con «(privado)»
+   si quedó privado).
 2. No hagas commit, push ni despliegue.
 3. Informe final, corto: tema, duración, enlaces, lo que marcó el verificador y cómo se corrigió, y cualquier riesgo
    (permisos de imágenes, datos que pueden cambiar). Recuerda que la etiqueta de IA de Instagram se pone desde la app.

@@ -1,4 +1,5 @@
 ---
+import { getCollection, render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import Comparador from '../../../components/Comparador.tsx';
 import Migas from '../../../components/Migas.astro';
@@ -15,6 +16,11 @@ import { calcularEjes, calcularVeredicto, enumerar, nombreCompleto, nombreMercad
 
 export async function getStaticPaths() {
   const { pares } = await obtenerCatalogo();
+  // Un texto cuyo par ya no existe (un carro despublicado, un cambio de tamaño) no se publica: se avisa.
+  const slugs = new Set(pares.map((par) => par.slug));
+  for (const texto of await getCollection('comparaciones')) {
+    if (!slugs.has(texto.id)) console.warn(`[comparaciones] ${texto.id}.md no corresponde a ninguna comparación generada.`);
+  }
   return pares.map((par) => ({ params: { par: par.slug }, props: { par } }));
 }
 
@@ -41,7 +47,13 @@ const frase = veredicto
     : `Están parejos en las ${veredicto.ejesComparados} áreas con datos.`
   : '';
 const entrada = `${a.nombre} y ${b.nombre} frente a frente: autonomía, potencia, carga rápida, espacio, seguridad y confort, con las ${fichas}. ${frase}`;
-const descripcion = entrada.length <= 160 ? entrada : `${entrada.slice(0, 157).replace(/\s+\S*$/, '')}…`;
+
+// Texto propio (src/content/comparaciones/<par>.md). Sin él, la página no se indexa.
+// getCollection y no getEntry: getEntry avisa por cada par sin texto, que son la mayoría.
+const texto = (await getCollection('comparaciones')).find((t) => t.id === par.slug);
+const Analisis = texto ? (await render(texto)).Content : null;
+const descripcion =
+  texto?.data.descripcion ?? (entrada.length <= 160 ? entrada : `${entrada.slice(0, 157).replace(/\s+\S*$/, '')}…`);
 
 const titulo = `${a.nombre} vs ${b.nombre}: ¿cuál es mejor?`;
 const conMarca = `${titulo} | Mejor Eléctrico`;
@@ -85,8 +97,8 @@ const jsonLd = JSON.stringify({
 }).replace(/</g, '\\u003c');
 ---
 
-{/* Sin indexar por ahora: cientos de comparaciones con la misma plantilla y poco texto propio bajan la confianza de Google en un sitio nuevo. */}
-<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial} noIndexar>
+{/* Solo se indexan las que tienen texto propio: cientos de comparaciones con la misma plantilla y poco texto bajan la confianza de Google en un sitio nuevo. */}
+<Base titulo={tituloPagina} descripcion={descripcion} imagenSocial={imagenSocial} noIndexar={!texto}>
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={jsonLd} />
   </Fragment>
@@ -112,6 +124,19 @@ const jsonLd = JSON.stringify({
     <div class="pt-8">
       <Comparador client:idle inicialA={va} inicialB={vb} />
     </div>
+
+    {
+      Analisis && (
+        <section aria-labelledby="titulo-analisis" class="mt-14">
+          <h2 id="titulo-analisis" class="t-seccion barra-corta">
+            ¿Cuál conviene?
+          </h2>
+          <div class="cuerpo-nota mt-6 max-w-articulo">
+            <Analisis />
+          </div>
+        </section>
+      )
+    }
 
     {
       preguntas.length > 0 && (

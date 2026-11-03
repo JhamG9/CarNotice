@@ -66,4 +66,18 @@ const vehiculos = defineCollection({
     .passthrough(),
 });
 
-export const collections = { notas, vehiculos };
+/**
+ * Texto propio de una comparación. El nombre del archivo es el slug del par, con los modelos en orden
+ * alfabético ("geely-ex2-vs-kia-ev2.md"). Solo las comparaciones con texto se indexan: las demás siguen
+ * generándose desde la base, con noindex, hasta que tengan el suyo.
+ */
+const comparaciones = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/comparaciones' }),
+  schema: z.object({
+    // Descripción para Google y para compartir; si falta, la página arma una con los datos.
+    descripcion: z.string().min(1).max(160).optional(),
+    fecha: z.coerce.date(),
+  }),
+});
+
+export const collections = { notas, vehiculos, comparaciones };

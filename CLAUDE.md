@@ -201,6 +201,19 @@ npm run deploy:pages
 - El token va en `.env` (`META_PAGE_TOKEN`). No se pega en el chat ni se sube a git; la clave secreta de la app no se guarda en el proyecto.
 - YouTube: canal `youtube.com/@mejorelectrico`, de la cuenta de Google `mejorelectrico9@gmail.com`. Los Shorts salen con `scripts/publicar-youtube.mjs`, por la API de YouTube (proyecto de Google Cloud `mejor-electrico-reels`), y la conexión se hace con `scripts/youtube-token.mjs`. Los datos van en `.env` (`YOUTUBE_*`), con las mismas reglas que el token de Meta. Los Shorts salen públicos directo; si Google deja alguno privado, el script lo avisa y se pasa a público en YouTube Studio.
 
+## Carruseles para redes
+
+**Todo carrusel (publicación de varias imágenes) se hace con la skill `jham-carruseles` (`.claude/skills/jham-carruseles/`), por defecto**, aunque no la nombren: rankings, guías, comparaciones, mitos o noticias, de carros o de cualquier otro tema. Hace láminas de 1080×1350 con el mismo estilo de los reels, datos con fuente (de la tabla `vehicles` o de la web) y las publica por la API de Meta.
+
+- Cada carrusel se trabaja en su propia carpeta fuera del proyecto (`~/carrusel-<slug>`). Las imágenes no entran al repositorio.
+- Cada dato pasa por el agente `carruseles-verificador` antes de pintar las láminas.
+- Imágenes: las de la página oficial de lo que se muestra (decisión del 2026-11-03: es publicidad para la marca), siempre con su crédito en la lámina y la página de origen en `FUENTES.md`. Si no hay oficial, las del comparador o una foto con licencia libre.
+- Publicar un carrusel lo decide la persona, para cada carrusel. **Excepción: las tareas programadas `carrusel-automatico` (lunes y viernes, 12 p. m.) y `carrusel-automatico-miercoles` (miércoles, 9 a. m., para no cruzarse con el reel de mediodía).** Quien administra (Jhampier Giron) decidió el 2026-11-03 que elijan el tema, hagan el carrusel y lo publiquen sin pedir aprobación, solo si el verificador termina en `LISTO PARA RENDER` y `render.mjs` no marca problemas; si no, lo dejan hecho sin publicar y avisan. Solo temas de carros, no hacen commit, push ni despliegue, y no pasan de un carrusel automático por día. Instrucciones en `.claude/skills/jham-carruseles/references/automatico.md`.
+- Un tema que no es de carros no se publica en las cuentas de Mejor Eléctrico salvo que se pida: se entregan las láminas o se conecta la otra cuenta. `marca` y `web` en `carrusel.json` cambian el nombre y la dirección que salen en las láminas.
+- Salen en Facebook (publicación de varias fotos) e Instagram (carrusel) con `scripts/publicar-carrusel.mjs`, con el mismo token de Meta de los reels. La API no permite música en carruseles: si se quiere, se publica desde la app.
+- Los temas publicados están en `.claude/skills/jham-carruseles/carruseles-publicados.md`.
+- Los colores y las fuentes son los del estilo `noche` de los reels (`scripts/estilos.mjs`). Si cambia el estilo de los reels, se cambia también ahí.
+
 ## Entorno de desarrollo
 
 - El puerto 4321 lo ocupa otro proyecto. El sitio corre en el 4330, en segundo plano:

@@ -21,6 +21,34 @@ El sitio queda en `http://localhost:4330/es/`. Se detiene con `npx astro dev sto
 
 Para conectarse a la base de datos, copia `.env.example` como `.env` y completa los valores.
 
+## Cómo publicar el sitio
+
+Todo lo que hace falta va en el `.env`. Quien recibe el proyecto necesita Node 22.12 o más y ese archivo completo, que se le pasa por un canal privado (nunca por git ni por chat):
+
+| Variable | Para qué | Secreta |
+|---|---|---|
+| `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Que el comparador y las páginas de carros tengan datos | No (van al navegador) |
+| `CLOUDFLARE_ACCOUNT_ID` | Cuenta de Cloudflare donde está el proyecto `mejorelectrico` | No |
+| `CLOUDFLARE_API_TOKEN` | Permiso para subir el sitio (Cloudflare Pages: Edit) | Sí |
+
+Con eso:
+
+```bash
+npm install
+```
+
+```bash
+npm run deploy
+```
+
+`npm run deploy` revisa primero el `.env` (`scripts/revisar-env.mjs`): si faltan las variables de Supabase se detiene, porque el sitio saldría con el comparador vacío. Después revisa git (`scripts/revisar-git.mjs`): solo publica si el código está en commit y subido a [github.com/JhamG9/CarNotice](https://github.com/JhamG9/CarNotice), para que el repositorio y el sitio coincidan. Luego compila y sube `dist` a Cloudflare Pages.
+
+Sin `CLOUDFLARE_API_TOKEN`, wrangler usa la sesión de `npx wrangler login`, que solo sirve a quien tenga acceso a la cuenta de Cloudflare. El token se crea en Cloudflare: My Profile > API Tokens > Create Token > Custom token, con el permiso Account / Cloudflare Pages / Edit. Si se filtra, se revoca ahí mismo y se crea otro.
+
+Para probar el token sin publicar, usar `npx wrangler pages project list`: debe salir `mejorelectrico`. `npx wrangler whoami` falla con este token ("Failed to automatically retrieve account IDs") porque intenta listar las cuentas y el token solo tiene permiso sobre Pages; no indica un problema.
+
+Los tokens de Meta y YouTube del `.env` son para publicar reels, no para el sitio. `.claude/settings.local.json` solo guarda permisos de Claude y no interviene en el despliegue.
+
 ## Base de datos: tabla `vehicles`
 
 Guarda las fichas técnicas del comparador de carros. Vive en Supabase, en el proyecto `garash`.

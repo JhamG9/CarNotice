@@ -172,12 +172,15 @@ npm run build
 npm run deploy:pages
 ```
 
-- `npm run deploy:pages` sube la carpeta `dist` con `wrangler`. `npm run deploy` hace las dos cosas seguidas.
+- `npm run deploy:pages` sube la carpeta `dist` con `wrangler`. `npm run deploy` revisa el `.env` (`scripts/revisar-env.mjs`) y git (`scripts/revisar-git.mjs`), compila y sube.
 - Publicar es una acción hacia afuera: Claude no ejecuta `deploy:pages` ni `deploy` sin que se lo pidan en ese momento.
-- La primera vez hay que iniciar sesión con `npx wrangler login`. Eso lo hace la persona, no Claude.
+- Todo lo necesario para desplegar va en `.env`: las dos variables `PUBLIC_SUPABASE_*`, `CLOUDFLARE_ACCOUNT_ID` y `CLOUDFLARE_API_TOKEN` (token de Cloudflare con permiso Cloudflare Pages: Edit). wrangler lee el `.env` solo. Así otra persona despliega con `npm install` y `npm run deploy`. Detalle en "Cómo publicar el sitio" del `README.md`.
+- Sin token, wrangler usa la sesión de `npx wrangler login`. Crear el token o iniciar sesión lo hace la persona, no Claude.
+- Una variable vacía (`CLOUDFLARE_API_TOKEN=`) cuenta como puesta para wrangler y la publicación falla: si no hay token, la línea va comentada.
 - Detener el servidor de desarrollo antes de compilar (`npx astro dev stop`).
 - La compilación toma `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_PUBLISHABLE_KEY` del `.env` local. Sin ese archivo el sitio se publica, pero el comparador sale vacío.
-- Se publica lo que hay en el computador, esté o no en git. Conviene hacer commit y `git push` antes, para que GitHub y el sitio publicado coincidan.
+- **Todo despliegue sale de lo que está subido a GitHub, en `github.com/JhamG9/CarNotice`, sin excepción.** Antes de publicar: commit y `git push` a ese repositorio. `npm run deploy` lo exige (`scripts/revisar-git.mjs`): se detiene si el remoto `origin` no es CarNotice, si hay cambios sin commit o si la rama no coincide con la de GitHub. No saltarse esa revisión con `deploy:pages` suelto ni con `--commit-dirty`.
+- Pedir un despliegue incluye el commit y el push a CarNotice de lo pendiente.
 - Desde la rama `main` se publica en producción; desde otra rama, Cloudflare crea una versión de prueba con su propia dirección.
 - `public/_redirects` lleva la raíz `/` a `/es/` con una redirección de servidor. `public/_headers` da caché larga a `/_astro/`. Son archivos propios de Cloudflare Pages.
 - Google Analytics (propiedad `G-3C05L6ZDMJ`) se carga desde `Base.astro`, solo en el sitio compilado y solo cuenta visitas en `mejorelectrico.com`: ni `localhost` ni las direcciones `.pages.dev`. La página 404 no lo lleva.

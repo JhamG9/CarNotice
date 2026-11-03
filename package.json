@@ -11,7 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "deploy:pages": "wrangler pages deploy dist --project-name mejorelectrico",
-    "deploy": "npm run build && npm run deploy:pages"
+    "deploy": "node --env-file-if-exists=.env scripts/revisar-env.mjs && node scripts/revisar-git.mjs && npm run build && npm run deploy:pages"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.1",

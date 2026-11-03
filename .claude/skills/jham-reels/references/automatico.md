@@ -89,8 +89,9 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/
   ```
 
   El título va en `salida/titulo-youtube.txt`: el gancho en una línea, sin emojis, de 100 caracteres como mucho y
-  terminado en `#Shorts`. Mientras Google no apruebe la auditoría del proyecto, el Short queda privado aunque se pida
-  público: anótalo así en el registro y en el informe, para que quien administra lo pase a público en YouTube Studio.
+  terminado en `#Shorts`. Desde el 2026-11-02 la API publica directo en público. Si Google lo deja privado (puede pasar mientras el
+  proyecto no tenga auditoría), el script lo avisa: anótalo así en el registro y en el informe, para que quien
+  administra lo pase a público en YouTube Studio.
   Si YouTube falla, no repitas Facebook ni Instagram: pon «pendiente: falló la publicación» en la columna de YouTube.
 - Si algo de lo anterior no se cumple, no publiques: deja el reel terminado en su carpeta y explica por qué.
 

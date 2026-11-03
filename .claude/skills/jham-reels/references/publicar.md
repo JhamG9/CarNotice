@@ -98,8 +98,9 @@ node .claude/skills/jham-reels/scripts/publicar-youtube.mjs publicar ~/reel/sali
 - Título de 100 caracteres como mucho: el gancho, sin emojis, terminado en `#Shorts`. La descripción puede ser la
   misma de Instagram.
 - `--ia` declara contenido sintético (la voz es generada). `borrador` lo sube privado.
-- Hasta que Google apruebe la auditoría del proyecto (formulario «YouTube API Services - Audit and Quota Extension»),
-  todo lo subido por API queda privado aunque se pida público: se pasa a público en YouTube Studio.
+- Sale público directo desde el 2026-11-02 (canal verificado con teléfono, proyecto sin auditoría). Si Google
+  llegara a dejarlo privado, el script lo avisa y se pasa a público en YouTube Studio; la solución de fondo es la
+  auditoría (formulario «YouTube API Services - Audit and Quota Extension»).
 - La portada propia exige el canal verificado con un teléfono (YouTube Studio → Configuración → Canal → Funciones
   aptas). Sin eso, el Short sale igual y la portada falla con un aviso.
 - La cuota diaria de la API (10.000 unidades) alcanza para unas 6 subidas al día.

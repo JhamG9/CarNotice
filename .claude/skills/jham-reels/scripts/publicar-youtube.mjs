@@ -8,8 +8,8 @@
 //
 // Opciones: --ia declara contenido sintético (voz generada con IA) y --portada=archivo.png sube la miniatura.
 //
-// Publicar es decisión de la persona: sin --confirmo no se publica nada. Mientras Google no apruebe la auditoría
-// del proyecto, todo lo que se sube por API queda privado aunque se pida público.
+// Publicar es decisión de la persona: sin --confirmo no se publica nada. Si Google deja privado lo que se pidió
+// público (puede pasar mientras el proyecto no tenga auditoría), se avisa.
 import { readFileSync, statSync } from 'node:fs';
 import { leerEnv } from './meta-comun.mjs';
 import { CANAL, leerRespuestaGoogle } from './youtube-comun.mjs';
@@ -67,11 +67,19 @@ async function verificar(token) {
 async function subirPortada(token, videoId) {
   if (!portada) return;
   try {
+    // YouTube acepta portadas de hasta 2 MB: si el PNG pasa, se manda como JPG con sharp (viene con Astro).
+    let imagen = readFileSync(portada);
+    let tipo = 'image/png';
+    if (imagen.length > 2 * 1024 * 1024) {
+      const { default: sharp } = await import('sharp');
+      imagen = await sharp(imagen).jpeg({ quality: 88 }).toBuffer();
+      tipo = 'image/jpeg';
+    }
     await leerRespuestaGoogle(
       await fetch(`${SUBIDAS}/thumbnails/set?videoId=${videoId}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'image/png' },
-        body: readFileSync(portada),
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': tipo },
+        body: imagen,
       }),
     );
     console.log('YouTube: portada subida.');
@@ -117,7 +125,7 @@ async function subir(token, privacidad) {
   console.log(`YouTube: vídeo ${video.id} subido como ${video.status.privacyStatus}.`);
   console.log(`YouTube: https://www.youtube.com/shorts/${video.id}`);
   if (privacidad === 'public' && video.status.privacyStatus !== 'public') {
-    console.log('YouTube: quedó privado porque el proyecto aún no pasa la auditoría de Google. Se cambia a público en YouTube Studio.');
+    console.log('YouTube: Google lo dejó privado (el proyecto no tiene auditoría). Se cambia a público en YouTube Studio.');
   }
   await subirPortada(token, video.id);
   return video.id;

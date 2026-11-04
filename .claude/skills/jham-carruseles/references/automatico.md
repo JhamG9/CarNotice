@@ -45,7 +45,13 @@ publicado no está terminado, salvo que no haya pasado el verificador o el rende
 
 ## 3. Publicar
 
-Solo si el verificador dio `LISTO PARA RENDER` y `render.mjs` terminó sin problemas:
+Solo si el verificador dio `LISTO PARA RENDER` y `render.mjs` terminó sin problemas.
+
+Lo que bloquea es el **contenido**: un dato, una fuente, un crédito o un texto de las láminas o de
+`texto-publicar.txt`. Si en la última ronda el verificador confirma todo el contenido y solo marca algo que no se
+publica (la hoja de vista previa `hoja.png` desactualizada, el formato de `FUENTES.md`), arréglalo y publica: cuenta
+como `LISTO PARA RENDER`. No pidas aprobación por eso. Quien administra lo decidió el 2026-11-04, después de que un
+carrusel ya verificado se quedara sin publicar por la hoja de vista previa.
 
 ```bash
 node .claude/skills/jham-carruseles/scripts/publicar-carrusel.mjs publicar ~/carrusel-<slug> --confirmo

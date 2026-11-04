@@ -113,7 +113,13 @@ ElevenLabs suelen ir a 170–200 palabras por minuto; alinear.py dice a cuántas
 - **Guardar** («Guárdalo para cuando lo necesites»): para listas y trucos.
 - **Seguir** («Sígueme para la parte 2»): para series.
 
-Una sola llamada a la acción. Va en la última frase, con la escena `cta`.
+Una sola llamada a la acción hablada. Va en la última frase, con la escena `cta`.
+
+**Mejor Eléctrico: comentar en voz, seguir en pantalla.** Desde el 2026-11-04 la cuenta necesita seguidores más que
+nada (2 a 3 por red). La voz cierra con una pregunta corta para comentar y la escena `cta` lleva siempre
+`"seguir": "@mejorelectrico"`: la pantalla pide seguir sin alargar el reel ni sumar una segunda acción hablada. Si el
+tema tiene continuación real («parte 2», el siguiente puesto de un ranking), la voz dice «Síguenos para la parte 2» en
+lugar de la pregunta, con `"verbo": "Síguenos"`.
 
 ## 8. Ejemplo completo
 

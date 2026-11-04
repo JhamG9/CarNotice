@@ -1,6 +1,7 @@
 // Escena "cta": la llamada a la acción final. "Comenta PALABRA" con la palabra escribiéndose letra a letra,
 // un texto a mano debajo, un sobre que sale volando hacia los mensajes, confeti e iconos que saltan
-// por turnos para que la pantalla no se quede quieta al final.
+// por turnos para que la pantalla no se quede quieta al final. Con `seguir` ("@cuenta") añade abajo una píldora
+// «Síguenos @cuenta» que entra con los iconos: la voz pide comentar y la pantalla pide seguir.
 import React from "react";
 import { AbsoluteFill, Easing, spring, useCurrentFrame } from "remotion";
 import { BORDE, C, SOMBRA, SUAVE } from "../motor/actual";
@@ -27,6 +28,8 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
   const ciclo = (f - bPalabra - 14) % 22;
   const barrido = f > bPalabra + 14 && ciclo < 12 ? ciclo / 12 : -1;
   const sobre = lerp(f, bTexto - 8, bTexto + 8, 0, 1, Easing.inOut(Easing.cubic));
+  const seguir = txt(p, "seguir");
+  const qSeguir = usePop(bIconos + 12, { damping: 11, stiffness: 200, mass: 0.6 });
   return (
     <AbsoluteFill>
       <div style={{ position: "absolute", left: 120, top: 300 + (1 - caja) * 180 + fl, width: 840, height: 340, borderRadius: 44, background: C.tarjeta, boxShadow: SOMBRA, border: BORDE, opacity: Math.min(1, caja * 1.6), transform: `scale(${0.9 + 0.1 * caja})` }}>
@@ -92,6 +95,15 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
           );
         })}
       </div>
+      {seguir && (
+        <div style={{ position: "absolute", top: 1190, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: Math.min(1, qSeguir * 1.4) }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 22, padding: "26px 44px", borderRadius: 999, background: C.tarjeta, boxShadow: SOMBRA, border: BORDE, transform: `scale(${(0.8 + 0.2 * qSeguir) * (1 + 0.05 * bump(f, bIconos + 40, 12))})` }}>
+            <Icono nombre="user-plus" tam={56} color={C.acento} />
+            <span style={{ fontFamily: F.titulo, fontSize: 52, color: C.tarjetaTexto, letterSpacing: -1 }}>Síguenos</span>
+            <span style={{ fontFamily: F.titulo, fontSize: 52, color: C.acento, letterSpacing: -1 }}>{seguir}</span>
+          </div>
+        </div>
+      )}
       <Confeti desde={bTexto + 6} x={540} y={470} n={60} fuerza={1.25} />
     </AbsoluteFill>
   );
@@ -105,7 +117,7 @@ export const cta: DefEscena = {
     [1, "exito", 0.3],
   ],
   validar: (p) => [
-    ...reglas(p, [["palabra", "texto", { max: 12 }], ["verbo", "texto", { opcional: true, max: 14 }], ["texto", "texto", { opcional: true, max: 50 }], ["iconos", "lista", { opcional: true, maxItems: 5 }]]),
+    ...reglas(p, [["palabra", "texto", { max: 12 }], ["verbo", "texto", { opcional: true, max: 14 }], ["texto", "texto", { opcional: true, max: 50 }], ["iconos", "lista", { opcional: true, maxItems: 5 }], ["seguir", "texto", { opcional: true, max: 24 }]]),
     ...iconos(arr<string>(p, "iconos")),
   ],
 };

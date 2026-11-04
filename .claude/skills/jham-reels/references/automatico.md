@@ -67,6 +67,8 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
   pantalla. Repite la verificación hasta que termine en `LISTO PARA VOZ`, como mucho tres rondas.
 - Imágenes: video oficial del fabricante del carro del que se habla. Marca `IMAGEN DE REFERENCIA` cuando no sea
   exactamente lo que se cuenta, pon el crédito y no uses imágenes de una marca para un dato malo de otra.
+- La última frase pide comentar con una pregunta corta y la escena `cta` lleva `"seguir": "@mejorelectrico"` (ver «Llamada
+  a la acción» en `references/guion.md`).
 - Arregla los huecos que marque `ritmo.py` de más de 1 s.
 - `revisar.py` debe terminar en «Sin fallos».
 
@@ -100,6 +102,11 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/
   ```bash
   node .claude/skills/jham-reels/scripts/publicar-tiktok.mjs borrador ~/reel-<slug>/salida/reel.mp4
   ```
+
+  El borrador llega sin texto: la API no lo permite. Escribe `salida/texto-tiktok.txt`, de 180 caracteres como mucho y
+  en una sola línea: el gancho, el dato principal o la pregunta para comentar, y 3 hashtags. Mándaselo a quien
+  administra con la herramienta PushNotification (mensaje = ese texto exacto, sin nada más, para que lo copie y lo
+  pegue al publicar). Si la notificación no sale, pon el texto en el informe final.
 
   En la columna TikTok del registro escribe «borrador en el buzón». Si falla, escribe «pendiente: falló el borrador» y
   sigue: TikTok no frena el resto. Si dice que falta conexión, no intentes reconectar (necesita a la persona).

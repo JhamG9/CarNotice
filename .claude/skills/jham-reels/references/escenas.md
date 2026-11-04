@@ -239,11 +239,13 @@ Varias imágenes (2–6). `modo`: `"abanico"` (entran juntas y se abren en el mo
 La llamada a la acción: «Comenta PALABRA» con la palabra escribiéndose letra a letra, texto a mano, un sobre que
 sale volando, confeti e iconos que saltan por turnos hasta el final (para que no se quede quieto).
 Campos: `palabra` (≤12, obligatorio; mejor sin tildes), `verbo` (≤14, por defecto «Comenta»), `texto` (≤50, a mano;
-`/` parte líneas), `iconos` (≤5; por defecto mensaje, enviar, regalo, lista y check).
-Momentos: 1 la palabra · 2 el texto · 3 iconos, sobre y confeti. Lleva `"sinSubtitulos": true`.
+`/` parte líneas), `iconos` (≤5; por defecto mensaje, enviar, regalo, lista y check), `seguir` (≤24, opcional: la cuenta, como
+`"@mejorelectrico"`; añade abajo la píldora «Síguenos @cuenta», que entra con los iconos y no se dice en voz).
+Momentos: 1 la palabra · 2 el texto · 3 iconos, sobre, confeti y la píldora de seguir. Lleva `"sinSubtitulos": true`.
 
 ```json
 { "tipo": "cta", "palabra": "LISTA", "texto": "y te mando / todos los trucos", "en": ["LISTA", "mando", "trucos"] }
+{ "tipo": "cta", "palabra": "SÍ o NO", "texto": "¿Has cargado / bajo la lluvia?", "seguir": "@mejorelectrico", "en": ["lluvia", "Comenta", "NO"] }
 { "tipo": "cta", "verbo": "Guarda", "palabra": "ESTE REEL", "texto": "y pruébalo / esta noche", "iconos": ["bookmark", "moon", "bed", "star", "check"], "en": ["Guarda", "pruébalo", "noche"] }
 { "tipo": "cta", "verbo": "Sígueme", "palabra": "PARTE 2", "texto": "mañana, / el truco final", "iconos": ["user-plus", "bell", "sparkles", "play", "check"], "en": ["Sígueme", "mañana", "final"] }
 ```

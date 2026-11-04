@@ -74,7 +74,13 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
 
 ## 3. Publicar
 
-Solo si el verificador dio `LISTO PARA VOZ` y `revisar.py` no tiene fallos:
+Solo si el verificador dio `LISTO PARA VOZ` y `revisar.py` no tiene fallos.
+
+Lo que bloquea es el **contenido**: un dato, una fuente, un crédito o un texto que sale en el reel (voz, textos en
+pantalla, imágenes) o en `texto-publicar.txt`. Si en la última ronda el verificador confirma todo el contenido y solo
+marca algo que no se publica (un archivo de trabajo desactualizado, el formato de las notas de fuentes), arréglalo y
+sigue: cuenta como `LISTO PARA VOZ`. No pidas aprobación por eso. Quien administra lo decidió el 2026-11-04, después
+de que un carrusel ya verificado se quedara sin publicar por la hoja de vista previa.
 
 ```bash
 node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/salida/reel.mp4 "$(cat ~/reel-<slug>/salida/texto-publicar.txt)" --ia --portada=$HOME/reel-<slug>/salida/portada.png --miniatura-ms=1800 --confirmo

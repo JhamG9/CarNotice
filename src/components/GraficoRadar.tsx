@@ -267,7 +267,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
           })()}
           <p className="mt-3 text-[14px] leading-5 text-muted">
             La barra bajo cada dato es el puntaje del área, de 0 a 100, medido contra rangos fijos (por ejemplo, la
-            autonomía va de 200 a 800 km). Con esos puntajes se dibuja el gráfico y se calcula el puntaje general.
+            autonomía va de 0 a 800 km). Con esos puntajes se dibuja el gráfico y se calcula el puntaje general.
           </p>
         </figcaption>
       </div>

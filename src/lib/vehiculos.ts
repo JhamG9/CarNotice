@@ -366,6 +366,38 @@ function autonomiaEnCiclo(v: Vehiculo, ciclo: Ciclo): number | null {
 const cicloComun = (a: Vehiculo, b: Vehiculo) =>
   CICLOS.find((c) => autonomiaEnCiclo(a, c) !== null && autonomiaEnCiclo(b, c) !== null);
 
+/**
+ * Cuántos km WLTP equivalen a 1 km de cada ciclo. Son promedios orientativos: solo se usan cuando dos
+ * carros no comparten ciclo, y el comparador marca el resultado como estimado.
+ * - NEDC: mediana de las fichas de la tabla que traen WLTP y NEDC del mismo carro (10 versiones, NEDC ≈ 1,21 × WLTP).
+ * - CLTC: el Deepal S05 publica 620 km CLTC y 485 km WLTP con la misma batería (CLTC ≈ 1,28 × WLTP, un 22 % menos),
+ *   la cifra que usa la nota «autonomia-electricos-cltc-nedc-wltp-como-leerla». InsideEVs también lo pone por encima del NEDC.
+ * - EPA: InsideEVs, «How To Convert Conflicting EV Range Test Cycles» (WLTP ≈ 22 % más que EPA).
+ */
+const A_WLTP: Record<string, number> = { WLTP: 1, NEDC: 1 / 1.21, EPA: 1.22, CLTC: 1 / 1.28 };
+
+/** Orden en que se elige el ciclo propio de un carro para estimar: primero el que no necesita conversión. */
+const CICLOS_PARA_ESTIMAR = ['WLTP', 'NEDC', 'EPA', 'CLTC'].map((nombre) => CICLOS.find((c) => c.nombre === nombre)!);
+
+/** Autonomía real del carro en su mejor ciclo y su equivalente WLTP estimado. */
+function autonomiaEstimada(v: Vehiculo): { ciclo: Ciclo; km: number; wltp: number } | null {
+  for (const ciclo of CICLOS_PARA_ESTIMAR) {
+    const km = autonomiaEnCiclo(v, ciclo);
+    if (km !== null) return { ciclo, km, wltp: Math.round(km * A_WLTP[ciclo.nombre]) };
+  }
+  return null;
+}
+
+/** Cómo se compara la autonomía de dos carros: en un ciclo común o, si no lo hay, estimada en WLTP. */
+function comparacionAutonomia(a: Vehiculo, b: Vehiculo) {
+  const ciclo = cicloComun(a, b);
+  if (ciclo) return { tipo: 'comun' as const, ciclo };
+  const ea = autonomiaEstimada(a);
+  const eb = autonomiaEstimada(b);
+  if (ea && eb) return { tipo: 'estimada' as const, ea, eb };
+  return null;
+}
+
 const SEGURIDAD = [
   'autonomous_emergency_braking',
   'adaptive_cruise_control',
@@ -403,29 +435,34 @@ function espacio(v: Vehiculo): number | null {
 /**
  * Puntajes orientativos de 0 a 100 por eje. Se calculan contra rangos fijos, no contra
  * el otro carro, para que el puntaje de un carro no cambie según con cuál se compare.
+ * Autonomía, potencia y espacio empiezan en 0: el puntaje es proporcional a la cifra y un carro
+ * pequeño con dato real no queda en 0. La aceleración va hasta 16 s para incluir a los más lentos (14,6 s).
  */
 export function calcularEjes(a: Vehiculo, b: Vehiculo): Eje[] {
-  // La autonomía solo se compara dentro de un ciclo que tengan los dos
-  const ciclo = cicloComun(a, b);
+  // El puntaje de autonomía sale siempre del equivalente WLTP de cada carro (su cifra WLTP si la tiene),
+  // para que no cambie según el rival. La tabla compara las cifras reales en un ciclo común cuando lo hay.
+  const ea = autonomiaEstimada(a);
+  const eb = autonomiaEstimada(b);
+  const todoWltp = [ea, eb].every((e) => !e || e.ciclo.nombre === 'WLTP');
 
   return [
     {
       nombre: 'Autonomía',
-      detalle: ciclo ? `Ciclo ${ciclo.nombre}, de 200 a 800 km` : 'Sin un ciclo de medición en común',
-      a: ciclo ? escala(autonomiaEnCiclo(a, ciclo), 200, 800) : null,
-      b: ciclo ? escala(autonomiaEnCiclo(b, ciclo), 200, 800) : null,
+      detalle: todoWltp ? 'Ciclo WLTP, de 0 a 800 km' : 'Equivalente WLTP (estimado si es de otro ciclo), de 0 a 800 km',
+      a: ea ? escala(ea.wltp, 0, 800) : null,
+      b: eb ? escala(eb.wltp, 0, 800) : null,
     },
     {
       nombre: 'Potencia',
-      detalle: 'De 50 a 400 kW',
-      a: escala(a.power_kw, 50, 400),
-      b: escala(b.power_kw, 50, 400),
+      detalle: 'De 0 a 400 kW',
+      a: escala(a.power_kw, 0, 400),
+      b: escala(b.power_kw, 0, 400),
     },
     {
       nombre: 'Aceleración',
-      detalle: '0 a 100 km/h, de 14 a 3 segundos',
-      a: escala(a.acceleration_0_100_s, 3, 14, true),
-      b: escala(b.acceleration_0_100_s, 3, 14, true),
+      detalle: '0 a 100 km/h, de 16 a 3 segundos',
+      a: escala(a.acceleration_0_100_s, 3, 16, true),
+      b: escala(b.acceleration_0_100_s, 3, 16, true),
     },
     {
       nombre: 'Carga rápida',
@@ -435,9 +472,9 @@ export function calcularEjes(a: Vehiculo, b: Vehiculo): Eje[] {
     },
     {
       nombre: 'Espacio',
-      detalle: 'Baúl trasero y delantero, de 250 a 900 litros',
-      a: escala(espacio(a), 250, 900),
-      b: escala(espacio(b), 250, 900),
+      detalle: 'Baúl trasero y delantero, de 0 a 900 litros',
+      a: escala(espacio(a), 0, 900),
+      b: escala(espacio(b), 0, 900),
     },
     {
       nombre: 'Seguridad',
@@ -532,6 +569,8 @@ export interface ResumenArea {
   /** Puntaje de 0 a 100 de cada carro, para la barra. */
   puntajeA: number | null;
   puntajeB: number | null;
+  /** La comparación usa una equivalencia estimada (autonomía en ciclos distintos), no cifras directas. */
+  estimado?: boolean;
 }
 
 const num = (valor: number, decimales = 0) => formatearNumero(Number(valor.toFixed(decimales)));
@@ -555,7 +594,7 @@ const conteo = (v: Vehiculo, campos: string[]) => {
 
 /** El dato real de cada área para los dos carros. Usa los mismos datos que el puntaje del gráfico. */
 export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea[] {
-  const ciclo = cicloComun(a, b);
+  const autonomia = comparacionAutonomia(a, b);
   const puntaje = (nombre: string) => ejes.find((eje) => eje.nombre === nombre) ?? { a: null, b: null };
 
   const fila = (
@@ -609,13 +648,39 @@ export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea
   const seguridad = [conteo(a, SEGURIDAD), conteo(b, SEGURIDAD)];
   const confort = [conteo(a, CONFORT), conteo(b, CONFORT)];
 
+  // Ciclos distintos: se muestra la cifra real de cada uno y se compara su equivalente WLTP estimado
+  const autonomiaEstimadaFila = (): ResumenArea => {
+    if (autonomia?.tipo !== 'estimada') return fila('Autonomía', 'Sin datos de autonomía', [null, null], String, 'mayor', 'km');
+    const { ea, eb } = autonomia;
+    const extra = (v: Vehiculo, e: typeof ea) =>
+      e.ciclo.nombre === 'WLTP'
+        ? `WLTP${typeof v[e.ciclo.campo] === 'number' ? '' : ', con gasolina'}`
+        : `${e.ciclo.nombre}${typeof v[e.ciclo.campo] === 'number' ? '' : ', con gasolina'} · ≈ ${num(e.wltp)} km WLTP`;
+    // Con una equivalencia aproximada, menos del 10 % de diferencia no basta para dar un ganador
+    const cerca = Math.abs(ea.wltp - eb.wltp) / Math.max(ea.wltp, eb.wltp) < 0.1;
+    const diferencia = cerca ? { ganador: null, texto: 'Casi iguales' } : textoDiferencia(ea.wltp, eb.wltp, 'mayor', 'km');
+    return {
+      nombre: 'Autonomía',
+      aclaracion: 'Ciclos distintos: comparada con un equivalente WLTP estimado',
+      a: `${num(ea.km)} km`,
+      b: `${num(eb.km)} km`,
+      extraA: extra(a, ea),
+      extraB: extra(b, eb),
+      ganador: diferencia.ganador,
+      diferencia: diferencia.ganador ? `≈ ${diferencia.texto}` : diferencia.texto,
+      puntajeA: puntaje('Autonomía').a,
+      puntajeB: puntaje('Autonomía').b,
+      estimado: true,
+    };
+  };
+
   return [
-    ciclo
-      ? fila('Autonomía', `Ciclo ${ciclo.nombre}`, [autonomiaEnCiclo(a, ciclo), autonomiaEnCiclo(b, ciclo)], (x) => `${num(x)} km`, 'mayor', 'km', (v) =>
+    autonomia?.tipo === 'comun'
+      ? fila('Autonomía', `Ciclo ${autonomia.ciclo.nombre}`, [autonomiaEnCiclo(a, autonomia.ciclo), autonomiaEnCiclo(b, autonomia.ciclo)], (x) => `${num(x)} km`, 'mayor', 'km', (v) =>
           // La combinada suma batería y gasolina: se dice para no compararla como si fuera solo eléctrica
-          typeof v[ciclo.campo] === 'number' ? null : 'con gasolina',
+          typeof v[autonomia.ciclo.campo] === 'number' ? null : 'con gasolina',
         )
-      : { ...fila('Autonomía', 'Sin un ciclo de medición en común', [null, null], String, 'mayor', 'km') },
+      : autonomiaEstimadaFila(),
     fila('Potencia', 'Potencia máxima', [numero(a.power_kw), numero(b.power_kw)], (x) => `${num(x)} kW`, 'mayor', 'kW', (v) =>
       typeof v.power_hp === 'number' ? `${num(v.power_hp)} hp` : null,
     ),

@@ -57,7 +57,7 @@ Ningún ciclo reemplaza el uso diario, pero hay patrones que se repiten:
 3. **Mire el consumo, no solo la autonomía.** Un carro que gasta 14 kWh cada 100 km es más eficiente que uno que gasta 18, aunque el segundo tenga una batería más grande y anuncie más kilómetros.
 4. **Calcule con margen.** Planee viajes usando el 70 % de la autonomía WLTP y llegue a cargar con al menos 15 % de batería.
 
-> En el comparador de Mejor Eléctrico las autonomías solo se comparan dentro del mismo ciclo de medición, por eso a veces verá "Sin dato" aunque la marca publique una cifra en otro ciclo.
+> En el comparador de Mejor Eléctrico cada autonomía aparece con su ciclo. Cuando dos carros no comparten ciclo, el puntaje de autonomía sale de un equivalente WLTP estimado con estos mismos descuentos, y la tabla lo marca como estimado.
 
 ## Preguntas frecuentes
 

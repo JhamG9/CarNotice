@@ -5,7 +5,7 @@ fecha: 2026-11-03
 
 Esta comparación usa las versiones que se venden en Colombia: el BYD Seagull GL 300 y el Renault Kwid E-Tech Techno. Son dos eléctricos pequeños de cuatro plazas y compiten por quien busca un segundo carro de ciudad. El Seagull se conoce también como Dolphin Mini en otros países de Latinoamérica.
 
-En autonomía no se pueden poner cifras lado a lado: la ficha del Seagull trae 300 km NEDC y la del Kwid, 225 km WLTP. Son ciclos distintos y el WLTP suele dar números menores para el mismo carro. Lo que sí se compara es la batería: 30,1 kWh contra 26,8 kWh, 3,3 kWh más para el Seagull, un margen real aunque no enorme.
+En autonomía las fichas usan ciclos distintos: 300 km NEDC el Seagull y 225 km WLTP el Kwid. El NEDC da cifras más altas para el mismo carro, y llevados a un equivalente WLTP estimado los 300 km del Seagull quedan en unos 248 km. Son 23 km de ventaja sobre una cifra aproximada, así que en la práctica rinden parecido. La batería sí se compara directo: 30,1 kWh contra 26,8 kWh, 3,3 kWh más para el Seagull, un margen real aunque no enorme.
 
 ### Tamaño y baúl
 

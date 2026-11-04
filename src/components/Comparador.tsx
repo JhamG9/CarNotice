@@ -542,8 +542,9 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
         ))}
 
         <p className="mt-8 text-[14px] leading-5 text-muted">
-          "Sin dato" significa que no hay una fuente confiable para ese valor, no que el carro no lo tenga. Las
-          autonomías solo son comparables dentro del mismo ciclo de medición.
+          "Sin dato" significa que no hay una fuente confiable para ese valor, no que el carro no lo tenga. Cada
+          autonomía va con su ciclo de medición. Si los dos carros no comparten ciclo, el gráfico los compara con un
+          equivalente WLTP estimado (NEDC menos 17 %, CLTC menos 22 %), que es una aproximación.
         </p>
       </section>
 

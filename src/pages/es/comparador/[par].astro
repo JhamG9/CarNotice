@@ -77,7 +77,12 @@ const preguntas = areas
     const detalle = `${a.nombre}: ${area.a}${area.extraA ? ` (${area.extraA})` : ''}; ${b.nombre}: ${area.b}${area.extraB ? ` (${area.extraB})` : ''}.`;
     return {
       pregunta: PREGUNTAS[area.nombre] ?? area.nombre,
-      respuesta: gana ? `El ${gana}. ${detalle}` : `Están casi iguales. ${detalle}`,
+      // Con ciclos distintos la respuesta sale de una equivalencia estimada y se dice así
+      respuesta: area.estimado
+        ? `${gana ? `Probablemente el ${gana}, según un equivalente WLTP estimado` : 'Estarían casi iguales, según un equivalente WLTP estimado'}: sus cifras son de ciclos distintos. ${detalle}`
+        : gana
+          ? `El ${gana}. ${detalle}`
+          : `Están casi iguales. ${detalle}`,
       nota: area.aclaracion,
     };
   });

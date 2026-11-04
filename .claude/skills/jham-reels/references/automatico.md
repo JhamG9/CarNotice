@@ -1,7 +1,7 @@
 # Reel automático
 
 Instrucciones para la tarea programada `reel-automatico`: elegir tema, hacer el reel y publicarlo en Facebook,
-Instagram y YouTube sin que nadie lo apruebe. Quien administra lo autorizó el 2026-11-02 (ver `CLAUDE.md`, "Reels para redes").
+Instagram y YouTube sin que nadie lo apruebe, y deja el borrador en TikTok. Quien administra lo autorizó el 2026-11-02 (ver `CLAUDE.md`, "Reels para redes").
 Nadie va a responder durante la ejecución: no preguntes, decide.
 
 Trabaja en `/Users/jhamgiron/Desktop/garash` y sigue la skill `jham-reels` (`SKILL.md`) con su regla de no detenerse.
@@ -94,6 +94,15 @@ node .claude/skills/jham-reels/scripts/publicar-meta.mjs publicar ~/reel-<slug>/
   proyecto no tenga auditoría), el script lo avisa: anótalo así en el registro y en el informe, para que quien
   administra lo pase a público en YouTube Studio.
   Si YouTube falla, no repitas Facebook ni Instagram: pon «pendiente: falló la publicación» en la columna de YouTube.
+- Por último, súbelo como borrador al buzón de TikTok (`tiktok.com/@mejorelectrico`). La API está en sandbox y no
+  publica directo: quien administra lo termina en la app (canción y «Publicar»).
+
+  ```bash
+  node .claude/skills/jham-reels/scripts/publicar-tiktok.mjs borrador ~/reel-<slug>/salida/reel.mp4
+  ```
+
+  En la columna TikTok del registro escribe «borrador en el buzón». Si falla, escribe «pendiente: falló el borrador» y
+  sigue: TikTok no frena el resto. Si dice que falta conexión, no intentes reconectar (necesita a la persona).
 - Si algo de lo anterior no se cumple, no publiques: deja el reel terminado en su carpeta y explica por qué.
 
 ## 4. Cerrar

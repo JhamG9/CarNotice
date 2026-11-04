@@ -38,7 +38,7 @@ publicado no está terminado, salvo que no haya pasado el verificador o el rende
 - Imágenes de la página oficial de cada marca, con su crédito en cada lámina (ver «Imágenes» en `SKILL.md`). Si no
   hay oficial, la foto del comparador.
 - Pasa la carpeta por el agente `carruseles-verificador` y corrige todo lo que marque. Repite hasta que termine en
-  `LISTO PARA RENDER`, como mucho tres rondas.
+  `LISTO PARA RENDER`, como mucho cinco rondas.
 - `render.mjs` debe terminar en «Sin problemas». Mira `salida/hoja.png` y la portada a tamaño completo: si algo se
   ve mal (un carro cortado, dos láminas seguidas iguales), corrígelo y vuelve a pintar.
 - `salida/texto-publicar.txt` según `references/publicar.md`.

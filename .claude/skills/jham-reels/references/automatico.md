@@ -64,7 +64,7 @@ Son reels que pasaron el verificador y la revisión, pero no salieron por un fal
     que el reel resuelve más adelante («Pero hay un error que puede dañarlo»). Escribe cinco ganchos y elige según
     «Dato y pregunta abierta» en `references/guion.md`.
 - Pasa el guion y el plan por el agente `reels-verificador` y corrige todo lo que marque, también los textos en
-  pantalla. Repite la verificación hasta que termine en `LISTO PARA VOZ`, como mucho tres rondas.
+  pantalla. Repite la verificación hasta que termine en `LISTO PARA VOZ`, como mucho cinco rondas.
 - Imágenes: video oficial del fabricante del carro del que se habla. Marca `IMAGEN DE REFERENCIA` cuando no sea
   exactamente lo que se cuenta, pon el crédito y no uses imágenes de una marca para un dato malo de otra.
 - La última frase pide comentar con una pregunta corta y la escena `cta` lleva `"seguir": "@mejorelectrico"` (ver «Llamada

@@ -43,7 +43,7 @@ Latinoamérica o de juguetes para perros se hace igual, con estas diferencias:
 - [ ] 1. Tipo y tema (references/tipos.md); revisar carruseles-publicados.md para no repetir
 - [ ] 2. Datos con fuente en guion.md (con la consulta SQL si salen de la base)
 - [ ] 3. carrusel.json (references/laminas.md)
-- [ ] 4. Agente carruseles-verificador hasta LISTO PARA RENDER (máx. 3 rondas)
+- [ ] 4. Agente carruseles-verificador hasta LISTO PARA RENDER (máx. 5 rondas)
 - [ ] 5. render.mjs sin problemas + mirar salida/hoja.png y las láminas a tamaño completo
 - [ ] 6. salida/texto-publicar.txt (references/publicar.md)
 - [ ] 7. Enseñar la hoja y el texto; publicar solo con aprobación; anotar en carruseles-publicados.md
@@ -91,7 +91,7 @@ Escribe `~/carrusel-<slug>/carrusel.json` según `references/laminas.md`. Hay si
 ### 4. Verificar
 
 Lanza el agente `carruseles-verificador` con la ruta de la carpeta. Corrige todo lo que marque y repite hasta que
-termine en `LISTO PARA RENDER`, como mucho tres rondas. Si un dato no se sostiene, cámbialo o quita la lámina.
+termine en `LISTO PARA RENDER`, como mucho cinco rondas. Si un dato no se sostiene, cámbialo o quita la lámina.
 
 ### 5. Pintar y mirar
 

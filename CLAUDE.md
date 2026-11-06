@@ -208,7 +208,7 @@ npm run deploy:pages
 
 ## Reels para redes
 
-**Todo vídeo que se pida se genera con la skill `jham-reels` (`.claude/skills/jham-reels/`), por defecto**, aunque no la nombren: reels, TikToks, shorts o cualquier pedido de "generar un video". No se usa otra skill de vídeo salvo que la pidan por su nombre. Hace vídeo vertical con imagen oficial, poco texto, voz local, música propia y datos con fuente, y se monta con Remotion.
+**Todo vídeo corto y vertical que se pida se genera con la skill `jham-reels` (`.claude/skills/jham-reels/`), por defecto**, aunque no la nombren: reels, TikToks, shorts o un "video" sin más detalle. Los vídeos largos y horizontales para YouTube van con `jham-videos` (ver "Vídeos largos para YouTube"). No se usa otra skill de vídeo salvo que la pidan por su nombre. Hace vídeo vertical con imagen oficial, poco texto, voz local, música propia y datos con fuente, y se monta con Remotion.
 
 - Cada reel se trabaja en su propia carpeta fuera del proyecto (`~/reel`, `~/reel2`). Vídeos, audios y dependencias no entran a este repositorio.
 - Necesita Python 3 y Node 18+. La voz local solo funciona en Mac con Apple Silicon; en otro equipo se usa ElevenLabs o una grabación.
@@ -219,6 +219,18 @@ npm run deploy:pages
 - El token va en `.env` (`META_PAGE_TOKEN`). No se pega en el chat ni se sube a git; la clave secreta de la app no se guarda en el proyecto.
 - YouTube: canal `youtube.com/@mejorelectrico`, de la cuenta de Google `mejorelectrico9@gmail.com`. Los Shorts salen con `scripts/publicar-youtube.mjs`, por la API de YouTube (proyecto de Google Cloud `mejor-electrico-reels`), y la conexión se hace con `scripts/youtube-token.mjs`. Los datos van en `.env` (`YOUTUBE_*`), con las mismas reglas que el token de Meta. Los Shorts salen públicos directo; si Google deja alguno privado, el script lo avisa y se pasa a público en YouTube Studio.
 - TikTok: cuenta `tiktok.com/@mejorelectrico`, creada con `mejorelectrico9@gmail.com`. La API (app «Mejor Electrico Reels», en sandbox) solo sube borradores al buzón: `scripts/tiktok-token.mjs` conecta la cuenta (`--web` usa el inicio de sesión web con regreso a `https://mejorelectrico.com/es/`) y `scripts/publicar-tiktok.mjs` sube el borrador. Los datos van en `.env` (`TIKTOK_*`), con las mismas reglas que el token de Meta. La cuenta quedó conectada el 2026-11-04 por la vía web (la de escritorio daba `server_error`). La tarea del reel diario deja cada reel como borrador en el buzón de TikTok y quien administra lo publica desde la app; se anota en la columna TikTok de `temas-publicados.md`. Si hay que reconectar: `tiktok-token.mjs --web`, aceptar los permisos y llevar la dirección final a `http://localhost:4392/vuelta` (o pegarla en `/pegar`). Nunca subir a diario por automatización de navegador.
+
+## Vídeos largos para YouTube
+
+**Todo vídeo largo u horizontal para YouTube (que no sea Short) se hace con la skill `jham-videos` (`.claude/skills/jham-videos/`), por defecto**, aunque no la nombren: "un video para YouTube", "un video explicativo", "convierte esta nota en video". Sirve para cualquier tema, no solo carros.
+
+- Usa el motor de `jham-reels` en 1920×1080, con sus mismos scripts de voz, alineado, música, ritmo y revisión (`../jham-reels/scripts/`) y el mismo diccionario de pronunciación. Lo propio de la skill está en su carpeta: plantilla horizontal, `preparar.py`, `video.py`, `capitulos.py` y `publicar-video.mjs`.
+- Dos formatos (`"formato"` en el plan): `noticia`, una noticia contada como historia con mucho vídeo real, el que más retiene (dos de cada tres escenas con vídeo en movimiento y un golpe cada 40 s como mucho; lo revisa `enganche.py`), y `explicativo`, para responder una pregunta que se busca.
+- De 4 a 15 minutos, por capítulos (`"capitulo"` en la frase que abre cada uno). `capitulos.py` arma los capítulos de YouTube y valida sus reglas. Miniatura de 1280×720.
+- Cada vídeo se trabaja en su propia carpeta fuera del proyecto (`~/video-<tema>`), como los reels.
+- Imágenes: oficiales de salas de prensa o con licencia libre (Wikimedia Commons), siempre con crédito en pantalla y en `salida/FUENTES.md`. No usar vídeos de los canales de YouTube de las marcas: YouTube los reclama.
+- Publicar lo decide la persona en cada vídeo. `publicar-video.mjs` lo sube como vídeo normal (no Short), con miniatura, descripción con capítulos y la marca de contenido sintético (`--ia`), por la misma conexión de YouTube de los reels.
+- Skills de apoyo instaladas (de `github.com/Jakeschincariol/youtube-agent-skill`, MIT, revisadas el 2026-11-06: solo leen archivos locales): `yt-package` (título y miniatura), `yt-seo` (descripción y búsquedas), `yt-chapters` (capítulos desde una transcripción), `yt-retention` (lee la retención exportada de YouTube Studio) y `yt-viral` (qué funciona en el nicho). Sus revisores automáticos de títulos y ganchos solo entienden inglés.
 
 ## Carruseles para redes
 

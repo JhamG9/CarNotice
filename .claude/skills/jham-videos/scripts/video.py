@@ -1,0 +1,120 @@
+"""Hace todo lo que el equipo puede hacer solo con un vídeo largo, de principio a fin, y deja un informe.
+
+Uso:
+  python3 video.py --proyecto ~/video --hasta fotos     voz, alineado, música, resumen y hoja (para revisar la hoja)
+  python3 video.py --proyecto ~/video                   lo anterior y además vídeo, ritmo, portada, revisión, capítulos y textos
+Opciones: --audio voz.mp3 (usa ese audio en vez de generar la voz), --borrador (media resolución), --sin-musica.
+
+Usa los scripts de jham-reels (voz, alineado, música, ritmo, revisión). Un vídeo de 8 min tarda unos 40 min en
+renderizar: lánzalo en segundo plano. Se puede relanzar: lo que está hecho no se repite.
+"""
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+AQUI = os.path.dirname(os.path.abspath(__file__))
+REELS = os.path.join(os.path.dirname(os.path.dirname(AQUI)), "jham-reels", "scripts")
+PY = os.path.expanduser("~/.cache/jham-reels/venv/bin/python")
+HUECO = "1.5"  # en un vídeo largo una escena puede respirar más que en un reel, pero nada quieto más de 1,5 s
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--proyecto", default=".")
+    ap.add_argument("--hasta", choices=["fotos", "todo"], default="todo")
+    ap.add_argument("--audio")
+    ap.add_argument("--borrador", action="store_true")
+    ap.add_argument("--sin-musica", action="store_true")
+    a = ap.parse_args()
+    proy = os.path.abspath(os.path.expanduser(a.proyecto))
+    os.makedirs(os.path.join(proy, "salida"), exist_ok=True)
+    log = open(os.path.join(proy, "salida", "video.log"), "a", encoding="utf-8")
+    informe = []
+    t0 = time.time()
+
+    def paso(nombre, cmd, parar=True):
+        t = time.time()
+        r = subprocess.run(cmd, cwd=proy, capture_output=True, text=True)
+        salida = (r.stdout or "") + (r.stderr or "")
+        log.write(f"\n===== {nombre} =====\n{salida}\n")
+        log.flush()
+        print(f"{'ok ' if r.returncode == 0 else 'OJO'} {nombre} ({time.time() - t:.0f} s)", flush=True)
+        if r.returncode and parar:
+            print(salida[-1500:])
+            sys.exit(f"Paró en «{nombre}». Todo está en salida/video.log")
+        return salida, r.returncode
+
+    if not os.path.exists(PY):
+        paso("entorno", [sys.executable, os.path.join(REELS, "voz_local.py"), "--entorno"])
+    paso("pronunciación y frases sensibles", [PY, os.path.join(REELS, "pronunciacion.py"), "--proyecto", proy])
+    if a.audio:
+        s, _ = paso("alinear audio", [PY, os.path.join(REELS, "alinear.py"), os.path.abspath(a.audio), "--proyecto", proy])
+    else:
+        s, _ = paso("voz", [PY, os.path.join(REELS, "voz_local.py"), "--proyecto", proy])
+        i = s.find("Comprobación")
+        informe.append("## Voz\n```\n" + s[i:s.find("voz unida", i)].strip() + "\n```")
+    avisos = [l for l in s.splitlines() if l.startswith("AVISO")]
+    if avisos:
+        informe.append("## Avisos del alineado\n" + "\n".join(f"- {x}" for x in avisos))
+    plan = json.load(open(os.path.join(proy, "src", "datos", "plan.json"), encoding="utf-8"))
+    if not a.sin_musica and plan.get("musica") is not False:
+        s, _ = paso("música", [PY, os.path.join(REELS, "musica.py"), "--proyecto", proy])
+        informe.append("## Música\n" + s.strip())
+    s, c = paso("capítulos", [sys.executable, os.path.join(AQUI, "capitulos.py"), "--proyecto", proy], parar=False)
+    informe.append("## Capítulos\n```\n" + s.strip() + "\n```")
+    s, _ = paso("enganche", [sys.executable, os.path.join(AQUI, "enganche.py"), "--proyecto", proy], parar=False)
+    informe.append("## Enganche\n" + s.strip())
+    print(s.strip())
+    s, _ = paso("resumen", ["node", "render.mjs", "resumen"])
+    if "PROBLEMAS (" in s:
+        print(s[s.find("PROBLEMAS ("):])
+        sys.exit("El plan tiene problemas: corrígelos y vuelve a lanzarlo.")
+    if "AVISOS (" in s:
+        informe.append("## Avisos del plan\n" + s[s.find("AVISOS ("):].strip())
+    paso("hoja de contacto", ["node", "render.mjs", "fotos"])
+    if a.hasta == "fotos":
+        informe.append("Falta revisar `salida/hoja.png` y lanzar el vídeo.")
+    else:
+        extra = ["--borrador"] if a.borrador else []
+        for _ in range(80):  # render.mjs para solo antes del límite de tiempo y sigue al relanzarlo
+            # al parar a medias sale con código de error: eso no es un fallo, se relanza y sigue donde iba
+            s, r = paso("vídeo", ["node", "render.mjs", "video", *extra], parar=False)
+            if "PARCIAL" in s:
+                continue
+            if r:
+                print(s[-1500:])
+                sys.exit("Paró en «vídeo». Todo está en salida/video.log")
+            break
+        video = "salida/borrador.mp4" if a.borrador else "salida/video.mp4"
+        s, c = paso("ritmo", [PY, os.path.join(REELS, "ritmo.py"), video, "--tiempos", "src/datos/tiempos.json", "--hueco", HUECO], parar=False)
+        informe.append("## Ritmo\n" + s.strip())
+        paso("portada", ["node", "render.mjs", "portada"])
+        s, c = paso("revisión del vídeo", [PY, os.path.join(REELS, "revisar.py"), "--proyecto", proy, "--video", video], parar=False)
+        informe.append("## Revisión del vídeo\n" + "\n".join(l for l in s.strip().splitlines() if "Fetching" not in l))
+        # Borrador de los textos para YouTube: título, descripción con capítulos y fuentes
+        limpio = lambda t: re.sub(r"\s+", " ", t.replace("*", "")).strip()
+        yt = plan.get("youtube", {})
+        caps = os.path.join(proy, "salida", "capitulos.txt")
+        fuentes = os.path.join(proy, "salida", "FUENTES.md")
+        desc = f"{yt.get('descripcion', limpio(plan['frases'][0]['texto']))}\n\n"
+        if yt.get("enlace"):
+            desc += f"La nota completa, con todas las fuentes: {yt['enlace']}\n\n"
+        if os.path.exists(caps):
+            desc += "Capítulos\n" + open(caps, encoding="utf-8").read() + "\n"
+        if os.path.exists(fuentes):
+            desc += "Fuentes\n" + open(fuentes, encoding="utf-8").read()
+        # descripcion.txt va tal cual a publicar-video.mjs; youtube.txt lleva además el título, para revisarlo
+        open(os.path.join(proy, "salida", "descripcion.txt"), "w", encoding="utf-8").write(desc)
+        with open(os.path.join(proy, "salida", "youtube.txt"), "w", encoding="utf-8") as f:
+            f.write(f"TÍTULO\n{yt.get('titulo', plan.get('titulo', ''))}\n\nCATEGORÍA\n{yt.get('categoria', '26')}\n\nDESCRIPCIÓN\n{desc}")
+    with open(os.path.join(proy, "salida", "informe.md"), "w", encoding="utf-8") as f:
+        f.write(f"# Informe de {plan.get('titulo', 'vídeo')} ({time.time() - t0:.0f} s)\n\n" + "\n\n".join(informe) + "\n")
+    print(f"LISTO en {time.time() - t0:.0f} s → salida/informe.md")
+
+
+if __name__ == "__main__":
+    main()

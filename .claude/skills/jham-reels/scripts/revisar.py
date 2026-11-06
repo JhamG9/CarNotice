@@ -86,8 +86,10 @@ def main():
     if dur > maximo:
         fallos.append(f"Dura {dur:.1f} s: pasa de {maximo} s. Recorta texto, o pon \"duracionMax\" en el plan si es a propósito.")
     peso = os.path.getsize(video) / 1e6
-    if peso > PESO_MAX:
-        fallos.append(f"Pesa {peso:.0f} MB (más de {PESO_MAX}).")
+    # "pesoMax": 0 en el plan quita el límite (vídeos largos para YouTube, que no se descargan desde la app)
+    peso_max = plan.get("pesoMax", PESO_MAX)
+    if peso_max and peso > peso_max:
+        fallos.append(f"Pesa {peso:.0f} MB (más de {peso_max}).")
     oido = mlx_whisper.transcribe(video, path_or_hf_repo="mlx-community/whisper-large-v3-turbo", language="es")["text"]
     texto = " ".join(f["texto"] for f in plan["frases"])
     voz_clara = difflib.SequenceMatcher(None, plano(texto), plano(oido)).ratio()

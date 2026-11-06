@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Seccion from '../../../layouts/Seccion.astro';
+import { textos } from '../../../i18n';
+import { NOTAS_POR_PAGINA, obtenerNotas, type Nota } from '../../../lib/notas';
+import { rutaBlog } from '../../../lib/rutas';
+
+const IDIOMA = 'en';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const notas = await obtenerNotas('en');
+  return paginate(notas, { pageSize: NOTAS_POR_PAGINA });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Nota>;
+}
+
+const { page } = Astro.props;
+const t = textos(IDIOMA).seccion;
+---
+
+<Seccion
+  nombre={t.blog}
+  descripcion={t.blogDescripcion}
+  notas={page.data}
+  total={page.total}
+  pagina={page.currentPage}
+  totalPaginas={page.lastPage}
+  rutaPagina={(pagina) => rutaBlog(pagina, IDIOMA)}
+  filtro="todas"
+  alternativas={page.currentPage === 1 ? { es: rutaBlog(1, 'es'), en: rutaBlog(1, 'en') } : undefined}
+/>

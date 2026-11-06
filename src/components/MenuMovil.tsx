@@ -8,9 +8,10 @@ interface Enlace {
 
 interface Props {
   enlaces: Enlace[];
+  textos: { abrir: string; cerrar: string; navAria: string };
 }
 
-export default function MenuMovil({ enlaces }: Props) {
+export default function MenuMovil({ enlaces, textos }: Props) {
   const [abierto, setAbierto] = useState(false);
   const idPanel = useId();
   const contenedor = useRef<HTMLDivElement>(null);
@@ -50,12 +51,12 @@ export default function MenuMovil({ enlaces }: Props) {
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           {abierto ? <path d="M4 4l12 12M16 4L4 16" /> : <path d="M2 5h16M2 10h16M2 15h16" />}
         </svg>
-        {abierto ? 'Cerrar' : 'Menú'}
+        {abierto ? textos.cerrar : textos.abrir}
       </button>
 
       <nav
         id={idPanel}
-        aria-label="Categorías"
+        aria-label={textos.navAria}
         hidden={!abierto}
         className="absolute inset-x-0 top-full z-20 border-b border-border bg-surface"
       >

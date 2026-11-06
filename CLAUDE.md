@@ -9,14 +9,15 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 ## Alcance actual
 
 - Fase 1 (construida): la revista. Portada, página de artículo, página de sección (categorías y etiquetas) y página 404.
+- Inglés (en construcción, desde el 2026-11-05): la revista ya existe en `/en/` (portada, notas, blog, categorías y etiquetas), con todas las notas traducidas. Faltan carros, comparador, páginas institucionales e imágenes `/og/`. Ver "Idiomas".
 - Fase 2 (en construcción): el comparador de carros, en `/es/comparador/`. Ya existe: elegir dos carros, gráfico de araña, ventajas de cada uno y ficha técnica. Además, cada modelo tiene su página (`/es/carros/<modelo>/`) y cada comparación entre rivales también (`/es/comparador/<modelo-a>-vs-<modelo-b>/`), generadas al compilar para que Google las encuentre. Ver "Páginas de carros y comparaciones".
 
 ## Público
 
 - Personas de 25 a 40 años con gusto por los vehículos.
-- Audiencia internacional, no solo Colombia. El sitio tendrá cinco idiomas: español, inglés, francés, alemán y portugués. El español es el primero y, por ahora, el único construido.
-- En la versión en español, todo el texto de la interfaz va en español ("Cargar más", no "Load more").
-- Los textos de interfaz están escritos dentro de los componentes. Para sumar idiomas habrá que sacarlos a un archivo de traducciones.
+- Audiencia internacional, no solo Colombia. El sitio tendrá cinco idiomas: español, inglés, francés, alemán y portugués. El español es el primero; el inglés está en construcción.
+- En cada idioma, todo el texto de la interfaz va en ese idioma ("Cargar más" en español, "Load more" en inglés).
+- Los textos de interfaz de la revista están en `src/i18n/es.ts` y `src/i18n/en.ts`: un texto nuevo se escribe en los dos (TypeScript avisa si falta). Los del comparador y las fichas de carros siguen dentro de sus componentes hasta que se traduzcan esas páginas.
 - Idioma y país son cosas distintas: el prefijo `/es/` indica el idioma de la página, no de dónde viene la noticia.
 
 ## Stack
@@ -25,6 +26,18 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 - React solo para componentes interactivos (islas).
 - Fuentes autoalojadas con Fontsource, no desde el CDN de Google.
 - Tailwind 4 para los estilos, con los tokens de este archivo.
+
+## Idiomas
+
+- `src/i18n/`: idiomas (`idiomas.ts`, con `idiomaDe(url)` que saca el idioma del prefijo de la ruta), textos de interfaz y `LOCALE` para `Intl`. Las fechas (`fechas.ts`) y el `lang`, `og:locale` e `hreflang` de `Base.astro` dependen del idioma de la página.
+- Rutas por idioma en `src/lib/rutas.ts` (`SEGMENTOS`): en inglés `/en/news/<slug>/` (nota), `/en/blog/` (listado), `/en/category/<slug>/`, `/en/tag/<slug>/`, `/en/cars/`, `/en/compare/`. `/en/news/` redirige a `/en/blog/`. Cada función de ruta recibe el idioma (por defecto `es`).
+- `CONSTRUIDAS` en `rutas.ts` dice qué secciones existen ya en inglés. Mientras una no exista, sus enlaces desde las páginas en inglés llevan a la página en español. Al construir una sección en inglés, se añade ahí.
+- Las categorías tienen nombre, slug y descripción en inglés en `src/data/categorias.ts` (`textoCategoria`). La clave (`lanzamientos`…) no cambia.
+- Notas en inglés: colección `notasEn`, en `src/content/notas-en/<slug-en-ingles>.md`. Mismos campos que las de español, más `original` con el slug de la nota en español (la compilación falla si no existe). El slug se elige para búsquedas en inglés; la imagen es la misma de la original. Las etiquetas van en inglés, con el glosario de las ya usadas.
+- Dentro del texto, las notas traducidas dejan los enlaces internos como en español (`/es/notas/…`, `/es/carros/…`): `CuerpoTraducido.astro` los cambia por la página en inglés si existe.
+- Cada nota traducida se enlaza con su original por `hreflang`; `x-default` apunta al inglés. La cabecera lleva un enlace al otro idioma (a la misma página si está traducida, si no a la portada).
+- Se traduce todo: cada nota en español tiene su versión en inglés, también las de Colombia (impuestos, crédito, pico y placa), que dicen "Colombia" en el titular y explican en una línea cada institución local (DIAN, RUNT, SOAT). Una nota nueva se publica en los dos idiomas. En la traducción: km y kW con millas y hp entre paréntesis (no en la potencia de carga), precios en su moneda sin convertir (`COP 89.99 million`), y las mismas reglas de redacción.
+- Las plantillas de nota (`layouts/Articulo.astro`) y portada (`layouts/Portada.astro`) son una sola para los dos idiomas; las páginas de `src/pages/es/` y `src/pages/en/` solo las llaman.
 
 ## Reglas de trabajo
 

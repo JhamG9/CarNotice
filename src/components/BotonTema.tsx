@@ -9,7 +9,11 @@ function temaActual(): Tema {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
-export default function BotonTema() {
+interface Props {
+  textos: { aClaro: string; aOscuro: string };
+}
+
+export default function BotonTema({ textos }: Props) {
   const [tema, setTema] = useState<Tema>('light');
 
   useEffect(() => setTema(temaActual()), []);
@@ -31,7 +35,7 @@ export default function BotonTema() {
     <button
       type="button"
       onClick={alternar}
-      aria-label={tema === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+      aria-label={tema === 'dark' ? textos.aClaro : textos.aOscuro}
       className="enlace flex size-11 cursor-pointer items-center justify-center rounded-full text-ink"
     >
       {/* El icono lo decide el CSS según data-theme, para que no parpadee al hidratar */}

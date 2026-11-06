@@ -3,12 +3,14 @@ import { useState } from 'react';
 interface Props {
   titulo: string;
   url: string;
+  textos: { copiar: string; copiado: string; en: string };
 }
 
 const CLASE_BOTON =
   'inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border border-border bg-surface px-4 text-[15px] font-bold text-ink transition-colors duration-150 hover:border-accent hover:text-accent';
 
-export default function Compartir({ titulo, url }: Props) {
+/** `textos.en` lleva "{red}" donde va el nombre de la red (las islas no reciben funciones). */
+export default function Compartir({ titulo, url, textos }: Props) {
   const [copiado, setCopiado] = useState(false);
   const u = encodeURIComponent(url);
   const t = encodeURIComponent(titulo);
@@ -37,7 +39,7 @@ export default function Compartir({ titulo, url }: Props) {
             href={red.href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Compartir en ${red.nombre} (abre una pestaña nueva)`}
+            aria-label={textos.en.replace('{red}', red.nombre)}
             className={CLASE_BOTON}
           >
             {red.nombre}
@@ -46,7 +48,7 @@ export default function Compartir({ titulo, url }: Props) {
       ))}
       <li>
         <button type="button" onClick={copiar} className={CLASE_BOTON}>
-          <span aria-live="polite">{copiado ? 'Enlace copiado' : 'Copiar enlace'}</span>
+          <span aria-live="polite">{copiado ? textos.copiado : textos.copiar}</span>
         </button>
       </li>
     </ul>

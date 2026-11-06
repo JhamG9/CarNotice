@@ -1,0 +1,15 @@
+---
+import Articulo from '../../../layouts/Articulo.astro';
+import { obtenerNotas, type Nota } from '../../../lib/notas';
+
+export async function getStaticPaths() {
+  const notas = await obtenerNotas('en');
+  return notas.map((nota) => ({ params: { slug: nota.id }, props: { nota } }));
+}
+
+interface Props {
+  nota: Nota;
+}
+---
+
+<Articulo nota={Astro.props.nota} />

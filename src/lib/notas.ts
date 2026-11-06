@@ -1,9 +1,21 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { slugificar } from './rutas';
+import type { Idioma } from '../i18n/idiomas';
+import { rutaNota, slugificar } from './rutas';
 
-export type Nota = CollectionEntry<'notas'>;
+/** Nota en cualquier idioma: las de español en `notas`, las de inglés en `notasEn`. */
+export type Nota = CollectionEntry<'notas'> | CollectionEntry<'notasEn'>;
 
 export const NOTAS_POR_PAGINA = 10;
+
+const COLECCION = { es: 'notas', en: 'notasEn' } as const satisfies Record<Idioma, Nota['collection']>;
+
+export const idiomaDeNota = (nota: Nota): Idioma => (nota.collection === 'notasEn' ? 'en' : 'es');
+
+/** Enlace a una nota, en su idioma. */
+export const enlaceNota = (nota: Nota) => rutaNota(nota.id, idiomaDeNota(nota));
+
+/** Slug de la nota en español de la que sale esta (la misma nota si ya es española). */
+export const slugOriginal = (nota: Nota) => (nota.collection === 'notasEn' ? nota.data.original.id : nota.id);
 
 export interface Etiqueta {
   nombre: string;
@@ -41,7 +53,21 @@ export function notasRelacionadas(nota: Nota, todas: Nota[], cantidad = 3): Nota
   return [...mismaCategoria, ...resto].slice(0, cantidad);
 }
 
-export async function obtenerNotas(): Promise<Nota[]> {
-  const notas = await getCollection('notas');
+/** Notas de un idioma, de la más reciente a la más antigua. */
+export async function obtenerNotas(idioma: Idioma = 'es'): Promise<Nota[]> {
+  const notas: Nota[] = await getCollection(COLECCION[idioma]);
   return notas.sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf());
+}
+
+/**
+ * Traducciones de cada nota: para el slug en español, la ruta de la nota en cada idioma.
+ * Sirve para el hreflang, el selector de idioma y los enlaces dentro del texto.
+ */
+export async function traduccionesDeNotas(): Promise<Map<string, Partial<Record<Idioma, string>>>> {
+  const mapa = new Map<string, Partial<Record<Idioma, string>>>();
+  for (const nota of [...(await obtenerNotas('es')), ...(await obtenerNotas('en'))]) {
+    const original = slugOriginal(nota);
+    mapa.set(original, { ...mapa.get(original), [idiomaDeNota(nota)]: enlaceNota(nota) });
+  }
+  return mapa;
 }

@@ -1,5 +1,6 @@
 ---
-import { categorias, type ClaveCategoria } from '../data/categorias';
+import { categorias, textoCategoria, type ClaveCategoria } from '../data/categorias';
+import { idiomaDe, textos } from '../i18n';
 import type { Nota } from '../lib/notas';
 import { rutaBlog, rutaCategoria } from '../lib/rutas';
 
@@ -10,18 +11,20 @@ interface Props {
 }
 
 const { notas, activa } = Astro.props;
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).seccion;
 const opciones = [
-  { nombre: 'Todas', href: rutaBlog(), total: notas.length, activa: activa === 'todas' },
+  { nombre: t.todas, href: rutaBlog(1, idioma), total: notas.length, activa: activa === 'todas' },
   ...categorias.map((categoria) => ({
-    nombre: categoria.nombre,
-    href: rutaCategoria(categoria),
+    nombre: textoCategoria(categoria, idioma).nombre,
+    href: rutaCategoria(categoria, 1, idioma),
     total: notas.filter((nota) => nota.data.categoria === categoria.clave).length,
     activa: activa === categoria.clave,
   })),
 ];
 ---
 
-<nav aria-label="Categorías del blog" class="mt-6">
+<nav aria-label={t.filtroAria} class="mt-6">
   <ul class="flex flex-wrap gap-2">
     {
       opciones.map((opcion) => (

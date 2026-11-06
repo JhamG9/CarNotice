@@ -1,16 +1,18 @@
 ---
 import type { GetStaticPaths, Page } from 'astro';
 import Seccion from '../../../../layouts/Seccion.astro';
-import { categorias, type Categoria } from '../../../../data/categorias';
+import { categorias, textoCategoria, type Categoria } from '../../../../data/categorias';
 import { NOTAS_POR_PAGINA, obtenerNotas, type Nota } from '../../../../lib/notas';
 import { rutaCategoria } from '../../../../lib/rutas';
 
+const IDIOMA = 'es';
+
 export const getStaticPaths = (async ({ paginate }) => {
-  const notas = await obtenerNotas();
+  const notas = await obtenerNotas('es');
   return categorias.flatMap((categoria) =>
     paginate(
       notas.filter((nota) => nota.data.categoria === categoria.clave),
-      { params: { slug: categoria.slug }, props: { categoria }, pageSize: NOTAS_POR_PAGINA },
+      { params: { slug: textoCategoria(categoria, 'es').slug }, props: { categoria }, pageSize: NOTAS_POR_PAGINA },
     ),
   );
 }) satisfies GetStaticPaths;
@@ -21,16 +23,18 @@ interface Props {
 }
 
 const { categoria, page } = Astro.props;
+const texto = textoCategoria(categoria, IDIOMA);
 ---
 
 <Seccion
-  nombre={categoria.nombre}
-  descripcion={categoria.descripcion}
+  nombre={texto.nombre}
+  descripcion={texto.descripcion}
   notas={page.data}
   total={page.total}
   pagina={page.currentPage}
   totalPaginas={page.lastPage}
-  rutaPagina={(pagina) => rutaCategoria(categoria, pagina)}
+  rutaPagina={(pagina) => rutaCategoria(categoria, pagina, IDIOMA)}
   seccionActiva={categoria.clave}
   filtro={categoria.clave}
+  alternativas={page.currentPage === 1 ? { es: rutaCategoria(categoria, 1, 'es'), en: rutaCategoria(categoria, 1, 'en') } : undefined}
 />

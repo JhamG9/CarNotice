@@ -2,6 +2,7 @@
 import BotonTema from './BotonTema.tsx';
 import MenuMovil from './MenuMovil.tsx';
 import type { ClaveCategoria } from '../data/categorias';
+import { idiomaDe, textos } from '../i18n';
 import { rutaBlog, rutaCarros, rutaComparador, rutaInicio } from '../lib/rutas';
 
 interface Props {
@@ -9,34 +10,40 @@ interface Props {
   logoComoTitulo?: boolean;
   /** Categoría a marcar cuando no se deduce de la URL (p. ej. en un artículo). */
   seccionActiva?: ClaveCategoria;
+  /** Esta página en el otro idioma, o su portada si no está traducida. */
+  enlaceOtroIdioma: string;
 }
 
-const { logoComoTitulo = false, seccionActiva } = Astro.props;
+const { logoComoTitulo = false, seccionActiva, enlaceOtroIdioma } = Astro.props;
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma);
+const c = t.cabecera;
+const hreflangOtro = idioma === 'es' ? 'en' : 'es';
 const Logo = logoComoTitulo ? 'h1' : 'p';
 const ruta = Astro.url.pathname;
 const enlaces = [
-  { nombre: 'Inicio', href: rutaInicio(), activo: ruta === rutaInicio() },
-  { nombre: 'Carros', href: rutaCarros(), activo: ruta.startsWith(rutaCarros()) },
-  { nombre: 'Comparador', href: rutaComparador(), activo: ruta.startsWith(rutaComparador()) },
+  { nombre: c.inicio, href: rutaInicio(idioma), activo: ruta === rutaInicio(idioma) },
+  { nombre: c.carros, href: rutaCarros(idioma), activo: ruta.startsWith(rutaCarros(idioma)) },
+  { nombre: c.comparador, href: rutaComparador(idioma), activo: ruta.startsWith(rutaComparador(idioma)) },
   // Las categorías viven dentro de "Blog y noticias": sus páginas y los artículos marcan ese ítem.
   {
-    nombre: 'Blog y noticias',
-    href: rutaBlog(),
-    activo: Boolean(seccionActiva) || ruta.startsWith(rutaBlog()),
+    nombre: c.blog,
+    href: rutaBlog(1, idioma),
+    activo: Boolean(seccionActiva) || ruta.startsWith(rutaBlog(1, idioma)),
   },
 ];
 ---
 
 <header class="relative border-b border-border bg-surface">
-  <div class="mx-auto flex max-w-pagina items-center justify-between gap-4 px-4 py-3 md:px-6 md:py-4">
+  <div class="mx-auto flex max-w-pagina items-center justify-between gap-2 px-4 sm:gap-4 py-3 md:px-6 md:py-4">
     <Logo class="font-titular text-[21px] leading-none font-bold whitespace-nowrap text-heading md:text-[28px]">
-      <a href={rutaInicio()} class="flex min-h-11 items-center" aria-label="Mejor Eléctrico, inicio">
+      <a href={rutaInicio(idioma)} class="flex min-h-11 items-center" aria-label={c.logoAria}>
         Mejor Eléctrico<span class="text-accent-bright" aria-hidden="true">.</span>
       </a>
     </Logo>
 
-    <div class="flex items-center gap-3 lg:gap-6">
-      <nav aria-label="Principal" class="hidden lg:block">
+    <div class="flex items-center gap-1 sm:gap-3 lg:gap-6">
+      <nav aria-label={c.navAria} class="hidden lg:block">
         <ul class="flex items-center gap-5 xl:gap-8">
           {
             enlaces.map((enlace) => (
@@ -54,10 +61,20 @@ const enlaces = [
         </ul>
       </nav>
 
-      <BotonTema client:load />
+      <a
+        href={enlaceOtroIdioma}
+        hreflang={hreflangOtro}
+        lang={hreflangOtro}
+        aria-label={c.otroIdiomaAria}
+        class="t-menu enlace flex min-h-11 min-w-9 items-center justify-center sm:min-w-11"
+      >
+        {c.otroIdioma}
+      </a>
+
+      <BotonTema client:load textos={t.tema} />
 
       <div class="lg:hidden">
-        <MenuMovil enlaces={enlaces} client:media="(max-width: 1023px)" />
+        <MenuMovil enlaces={enlaces} textos={t.menuMovil} client:media="(max-width: 1023px)" />
       </div>
     </div>
   </div>

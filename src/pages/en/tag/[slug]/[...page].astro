@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Seccion from '../../../../layouts/Seccion.astro';
+import { textos } from '../../../../i18n';
+import { NOTAS_POR_PAGINA, obtenerEtiquetas, obtenerNotas, type Nota } from '../../../../lib/notas';
+import { rutaEtiqueta } from '../../../../lib/rutas';
+
+const IDIOMA = 'en';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const etiquetas = obtenerEtiquetas(await obtenerNotas('en'));
+  return etiquetas.flatMap((etiqueta) =>
+    paginate(etiqueta.notas, {
+      params: { slug: etiqueta.slug },
+      props: { nombre: etiqueta.nombre },
+      pageSize: NOTAS_POR_PAGINA,
+    }),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  nombre: string;
+  page: Page<Nota>;
+}
+
+const { nombre, page } = Astro.props;
+const t = textos(IDIOMA).seccion;
+
+// Una etiqueta con pocas notas repite lo que ya dicen esas notas: no se indexa hasta que crezca.
+const MINIMO_NOTAS_INDEXABLE = 3;
+---
+
+<Seccion
+  nombre={nombre}
+  antetitulo={t.etiqueta}
+  descripcion={t.etiquetaDescripcion(nombre)}
+  notas={page.data}
+  total={page.total}
+  pagina={page.currentPage}
+  totalPaginas={page.lastPage}
+  rutaPagina={(pagina) => rutaEtiqueta(nombre, pagina, IDIOMA)}
+  noIndexar={page.total < MINIMO_NOTAS_INDEXABLE}
+/>

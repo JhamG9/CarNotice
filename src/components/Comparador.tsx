@@ -23,7 +23,7 @@ import {
   type Veredicto,
 } from '../lib/vehiculos';
 import { slugModelo, slugPar } from '../lib/catalogo';
-import { rutaComparacion, rutaComparadorCon, rutaModelo } from '../lib/rutas';
+import { rutaComparacion, rutaComparadorCon, rutaModelo, rutaNota } from '../lib/rutas';
 
 type Estado = 'cargando' | 'listo' | 'error';
 type Lado = 'a' | 'b';
@@ -107,7 +107,7 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
             </a>
             {vehiculo.article_slug && (
               <a
-                href={`/es/notas/${vehiculo.article_slug}/`}
+                href={rutaNota(vehiculo.article_slug)}
                 className="mt-1 inline-flex min-h-11 items-center text-[15px] font-bold text-accent hover:underline"
               >
                 Leer la nota

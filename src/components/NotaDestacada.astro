@@ -2,8 +2,7 @@
 import ImagenNota from './ImagenNota.astro';
 import EtiquetaCategoria from './EtiquetaCategoria.astro';
 import PieNota from './PieNota.astro';
-import type { Nota } from '../lib/notas';
-import { rutaNota } from '../lib/rutas';
+import { enlaceNota, type Nota } from '../lib/notas';
 
 interface Props {
   nota: Nota;
@@ -20,11 +19,11 @@ const { titulo, resumen, autor, fecha, categoria, electrico, imagen, imagenAlt }
   <div class="mt-4">
     <EtiquetaCategoria clave={categoria} electrico={electrico} />
     <Titular class="t-tarjeta md:t-articulo mt-3">
-      <a href={rutaNota(nota.id)} class="enlace-titular after:absolute after:inset-0">
+      <a href={enlaceNota(nota)} class="enlace-titular after:absolute after:inset-0">
         {titulo}
       </a>
     </Titular>
     <p class="t-texto mt-3 text-muted">{resumen}</p>
-    <PieNota autor={autor} fecha={fecha} href={rutaNota(nota.id)} />
+    <PieNota autor={autor} fecha={fecha} href={enlaceNota(nota)} />
   </div>
 </article>

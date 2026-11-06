@@ -1,2 +1,3 @@
 # Cloudflare Pages: la raíz lleva a la versión en español con una redirección de servidor.
 / /es/ 301
+/en/news/ /en/blog/ 301

@@ -7,6 +7,7 @@ import TarjetaNota from '../components/TarjetaNota.astro';
 import type { ClaveCategoria } from '../data/categorias';
 import { obtenerNotas, type Nota } from '../lib/notas';
 import { rutaInicio } from '../lib/rutas';
+import { idiomaDe, textos, type Idioma } from '../i18n';
 
 interface Props {
   /** Nombre de la categoría o etiqueta: es el h1. */
@@ -27,25 +28,29 @@ interface Props {
   filtro?: ClaveCategoria | 'todas';
   /** La sección no se indexa (etiquetas con pocas notas). */
   noIndexar?: boolean;
+  /** Esta sección en cada idioma en que existe, para el hreflang. */
+  alternativas?: Partial<Record<Idioma, string>>;
 }
 
-const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva, filtro, noIndexar } =
+const { nombre, antetitulo, descripcion, notas, total, pagina, totalPaginas, rutaPagina, seccionActiva, filtro, noIndexar, alternativas } =
   Astro.props;
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).seccion;
 
-const todas = await obtenerNotas();
+const todas = await obtenerNotas(idioma);
 // La más reciente va destacada, solo en la primera página
 const destacada = pagina === 1 ? notas[0] : undefined;
 const resto = destacada ? notas.slice(1) : notas;
 
-const sufijo = pagina > 1 ? `, página ${pagina}` : '';
+const sufijo = pagina > 1 ? t.sufijoPagina(pagina) : '';
 const titulo = `${nombre}${sufijo} | Mejor Eléctrico`;
-const descripcionSeo = pagina > 1 ? `${descripcion} Página ${pagina} de ${totalPaginas}.` : descripcion;
+const descripcionSeo = pagina > 1 ? `${descripcion} ${t.paginaDeSeo(pagina, totalPaginas)}` : descripcion;
 const absoluta = (ruta: string) => new URL(ruta, Astro.site).href;
 const CLASE_PAGINA =
   'inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-5 text-[15px] font-bold transition-colors duration-150 hover:border-accent hover:text-accent';
 ---
 
-<Base titulo={titulo} descripcion={descripcionSeo} seccionActiva={seccionActiva} noIndexar={noIndexar}>
+<Base titulo={titulo} descripcion={descripcionSeo} seccionActiva={seccionActiva} noIndexar={noIndexar} alternativas={alternativas}>
   <Fragment slot="head">
     {pagina > 1 && <link rel="prev" href={absoluta(rutaPagina(pagina - 1))} />}
     {pagina < totalPaginas && <link rel="next" href={absoluta(rutaPagina(pagina + 1))} />}
@@ -60,8 +65,8 @@ const CLASE_PAGINA =
         <h1 class="t-seccion barra-corta">{nombre}</h1>
         <p class="t-texto mt-4 text-muted">{descripcion}</p>
         <p class="mt-2 text-[14px] leading-5 text-muted">
-          {total === 1 ? '1 nota' : `${total} notas`}
-          {totalPaginas > 1 && ` · Página ${pagina} de ${totalPaginas}`}
+          {t.totalNotas(total)}
+          {totalPaginas > 1 && ` · ${t.paginaDe(pagina, totalPaginas)}`}
         </p>
         {filtro && <FiltroCategorias notas={todas} activa={filtro} />}
       </header>
@@ -69,13 +74,13 @@ const CLASE_PAGINA =
       {
         total === 0 ? (
           <div class="py-12">
-            <p class="t-lateral text-heading">Todavía no hay notas aquí.</p>
-            <p class="t-texto mt-3 text-muted">Estamos preparando contenido para esta sección. Mientras tanto, mira lo más reciente en la portada.</p>
+            <p class="t-lateral text-heading">{t.vacioTitulo}</p>
+            <p class="t-texto mt-3 text-muted">{t.vacioTexto}</p>
             <a
-              href={rutaInicio()}
+              href={rutaInicio(idioma)}
               class="mt-6 inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
             >
-              Ir a la portada
+              {t.irPortada}
             </a>
           </div>
         ) : (
@@ -94,20 +99,20 @@ const CLASE_PAGINA =
 
       {
         totalPaginas > 1 && (
-          <nav aria-label="Paginación" class="mt-8 flex items-center justify-between gap-4">
+          <nav aria-label={t.paginacion} class="mt-8 flex items-center justify-between gap-4">
             {pagina > 1 ? (
               <a href={rutaPagina(pagina - 1)} rel="prev" class={CLASE_PAGINA}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M14 8H2M7 3L2 8l5 5" />
                 </svg>
-                Anterior
+                {t.anterior}
               </a>
             ) : (
               <span />
             )}
             {pagina < totalPaginas && (
               <a href={rutaPagina(pagina + 1)} rel="next" class={CLASE_PAGINA}>
-                Siguiente
+                {t.siguiente}
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M2 8h12M9 3l5 5-5 5" />
                 </svg>

@@ -1,5 +1,6 @@
 ---
-import { buscarCategoria, type ClaveCategoria } from '../data/categorias';
+import { buscarCategoria, textoCategoria, type ClaveCategoria } from '../data/categorias';
+import { idiomaDe, textos } from '../i18n';
 import { rutaCategoria } from '../lib/rutas';
 
 interface Props {
@@ -10,19 +11,20 @@ interface Props {
 
 const { clave, electrico = false } = Astro.props;
 const categoria = buscarCategoria(clave);
+const idioma = idiomaDe(Astro.url);
 ---
 
 <div>
   <div class="flex items-center gap-3">
     <a
-      href={rutaCategoria(categoria)}
+      href={rutaCategoria(categoria, 1, idioma)}
       class="t-meta relative z-10 -my-3.5 inline-flex min-h-11 items-center tracking-[0.5px] text-accent uppercase hover:underline"
     >
-      {categoria.nombre}
+      {textoCategoria(categoria, idioma).nombre}
     </a>
     {
       (electrico || categoria.electrica) && (
-        <span class="t-meta rounded-full border border-ev px-2 py-0.5 text-ev">Eléctrico</span>
+        <span class="t-meta rounded-full border border-ev px-2 py-0.5 text-ev">{textos(idioma).nota.electrico}</span>
       )
     }
   </div>

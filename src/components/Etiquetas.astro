@@ -1,4 +1,5 @@
 ---
+import { idiomaDe } from '../i18n';
 import { rutaEtiqueta } from '../lib/rutas';
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
 }
 
 const { etiquetas } = Astro.props;
+const idioma = idiomaDe(Astro.url);
 ---
 
 <ul class="flex flex-wrap gap-2">
@@ -13,7 +15,7 @@ const { etiquetas } = Astro.props;
     etiquetas.map((etiqueta) => (
       <li>
         <a
-          href={rutaEtiqueta(etiqueta)}
+          href={rutaEtiqueta(etiqueta, 1, idioma)}
           class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-[15px] transition-colors duration-150 hover:border-accent hover:text-accent"
         >
           {etiqueta}

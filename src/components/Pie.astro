@@ -1,17 +1,20 @@
 ---
-import { categorias } from '../data/categorias';
+import { categorias, textoCategoria } from '../data/categorias';
+import { idiomaDe, textos } from '../i18n';
 import { rutaAvisoLegal, rutaCarros, rutaCategoria, rutaComparador, rutaInicio, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
 
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).pie;
 const anio = new Date().getFullYear();
 const paginasCarros = [
-  { nombre: 'Fichas técnicas', href: rutaCarros() },
-  { nombre: 'Comparador', href: rutaComparador() },
+  { nombre: t.fichas, href: rutaCarros(idioma) },
+  { nombre: t.comparador, href: rutaComparador(idioma) },
 ];
 const paginasSitio = [
-  { nombre: 'Nosotros', href: rutaNosotros() },
-  { nombre: 'Aviso legal', href: rutaAvisoLegal() },
-  { nombre: 'Política de privacidad', href: rutaPrivacidad() },
-  { nombre: 'Cookies', href: `${rutaPrivacidad()}#cookies` },
+  { nombre: t.nosotros, href: rutaNosotros(idioma) },
+  { nombre: t.avisoLegal, href: rutaAvisoLegal(idioma) },
+  { nombre: t.privacidad, href: rutaPrivacidad(idioma) },
+  { nombre: t.cookies, href: `${rutaPrivacidad(idioma)}#cookies` },
 ];
 ---
 
@@ -19,17 +22,17 @@ const paginasSitio = [
   <div class="mx-auto grid max-w-pagina gap-8 px-4 py-10 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
     <div>
       <p class="font-titular text-[24px] leading-none font-bold">
-        <a href={rutaInicio()} class="inline-flex min-h-11 items-center">
+        <a href={rutaInicio(idioma)} class="inline-flex min-h-11 items-center">
           Mejor Eléctrico<span class="text-accent-bright" aria-hidden="true">.</span>
         </a>
       </p>
       <p class="mt-2 max-w-[46ch] text-muted">
-        Revista de carros: noticias, lanzamientos, eléctricos y pruebas para quienes disfrutan manejar.
+        {t.lema}
       </p>
     </div>
 
-    <nav aria-label="Carros en el pie">
-      <h2 class="t-menu text-muted">Carros</h2>
+    <nav aria-label={t.carrosAria}>
+      <h2 class="t-menu text-muted">{t.carros}</h2>
       <ul class="mt-2">
         {
           paginasCarros.map((pagina) => (
@@ -43,14 +46,14 @@ const paginasSitio = [
       </ul>
     </nav>
 
-    <nav aria-label="Categorías en el pie">
-      <h2 class="t-menu text-muted">Categorías</h2>
+    <nav aria-label={t.categoriasAria}>
+      <h2 class="t-menu text-muted">{t.categorias}</h2>
       <ul class="mt-2">
         {
           categorias.map((categoria) => (
             <li>
-              <a href={rutaCategoria(categoria)} class="enlace flex min-h-11 items-center">
-                {categoria.nombre}
+              <a href={rutaCategoria(categoria, 1, idioma)} class="enlace flex min-h-11 items-center">
+                {textoCategoria(categoria, idioma).nombre}
               </a>
             </li>
           ))
@@ -58,8 +61,8 @@ const paginasSitio = [
       </ul>
     </nav>
 
-    <nav aria-label="Sobre el sitio">
-      <h2 class="t-menu text-muted">Sobre el sitio</h2>
+    <nav aria-label={t.sitio}>
+      <h2 class="t-menu text-muted">{t.sitio}</h2>
       <ul class="mt-2">
         {
           paginasSitio.map((pagina) => (
@@ -76,7 +79,7 @@ const paginasSitio = [
 
   <div class="border-t border-border">
     <p class="t-meta mx-auto max-w-pagina px-4 py-4 text-muted md:px-6">
-      © {anio} Mejor Eléctrico. Todos los derechos reservados.
+      © {anio} Mejor Eléctrico. {t.derechos}
     </p>
   </div>
 </footer>

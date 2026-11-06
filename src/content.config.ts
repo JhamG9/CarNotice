@@ -1,32 +1,47 @@
-import { defineCollection } from 'astro:content';
+import { defineCollection, reference, type SchemaContext } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { clavesCategoria } from './data/categorias';
 
+/** Campos de una nota, en cualquier idioma. */
+const camposNota = ({ image }: SchemaContext) =>
+  z.object({
+    titulo: z.string().min(1).max(110),
+    resumen: z.string().min(1).max(220),
+    autor: z.string().min(1),
+    fecha: z.coerce.date(),
+    categoria: z.enum(clavesCategoria),
+    etiquetas: z.array(z.string().min(1)).min(1).max(5),
+    // Marca la nota con la etiqueta "Eléctrico" aunque esté en otra categoría (p. ej. un híbrido en Lanzamientos).
+    electrico: z.boolean().default(false),
+    // Foto en src/assets/images/, en 16:9. Sin imagen, la plantilla pinta un marcador de posición.
+    imagen: image().optional(),
+    imagenAlt: z.string().default(''),
+    // Pie de foto y crédito de la imagen principal (p. ej. "Foto: sala de prensa de la marca").
+    imagenPie: z.string().optional(),
+    imagenCredito: z.string().optional(),
+    destacada: z.boolean().default(false),
+  });
+
+const conAlt = <T extends { imagen?: unknown; imagenAlt: string }>(nota: T) => !nota.imagen || nota.imagenAlt.trim() !== '';
+const errorAlt = { message: 'Una nota con imagen necesita imagenAlt (descripción de la foto).', path: ['imagenAlt'] };
+
 const notas = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/notas' }),
-  schema: ({ image }) =>
-    z.object({
-      titulo: z.string().min(1).max(110),
-      resumen: z.string().min(1).max(220),
-      autor: z.string().min(1),
-      fecha: z.coerce.date(),
-      categoria: z.enum(clavesCategoria),
-      etiquetas: z.array(z.string().min(1)).min(1).max(5),
-      // Marca la nota con la etiqueta "Eléctrico" aunque esté en otra categoría (p. ej. un híbrido en Lanzamientos).
-      electrico: z.boolean().default(false),
-      // Foto en src/assets/images/, en 16:9. Sin imagen, la plantilla pinta un marcador de posición.
-      imagen: image().optional(),
-      imagenAlt: z.string().default(''),
-      // Pie de foto y crédito de la imagen principal (p. ej. "Foto: sala de prensa de la marca").
-      imagenPie: z.string().optional(),
-      imagenCredito: z.string().optional(),
-      destacada: z.boolean().default(false),
-    })
-    .refine((nota) => !nota.imagen || nota.imagenAlt.trim() !== '', {
-      message: 'Una nota con imagen necesita imagenAlt (descripción de la foto).',
-      path: ['imagenAlt'],
-    }),
+  schema: (contexto) => camposNota(contexto).refine(conAlt, errorAlt),
+});
+
+/**
+ * Notas en inglés. Cada una es la traducción de una nota en español: `original` lleva el slug de esa
+ * nota (la compilación falla si no existe). El slug de la nota en inglés es el nombre de su archivo,
+ * pensado para búsquedas en inglés. Las imágenes son las mismas de la nota original.
+ */
+const notasEn = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/notas-en' }),
+  schema: (contexto) =>
+    camposNota(contexto)
+      .extend({ original: reference('notas') })
+      .refine(conAlt, errorAlt),
 });
 
 /**
@@ -80,4 +95,4 @@ const comparaciones = defineCollection({
   }),
 });
 
-export const collections = { notas, vehiculos, comparaciones };
+export const collections = { notas, notasEn, vehiculos, comparaciones };

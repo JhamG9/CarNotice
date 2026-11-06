@@ -1,0 +1,33 @@
+---
+/**
+ * Cuerpo de una nota traducida. Las traducciones conservan los enlaces internos en español
+ * (/es/notas/..., /es/carros/..., /es/comparador/...); aquí se cambian por la página en el idioma
+ * de la nota cuando existe. Si la nota enlazada no está traducida, o la sección todavía no existe
+ * en ese idioma, el enlace sigue llevando a la página en español.
+ */
+import type { Idioma } from '../i18n';
+import { rutaComparador, rutaModelo } from '../lib/rutas';
+
+interface Props {
+  idioma: Idioma;
+  /** Slug en español → ruta de la nota en cada idioma (de traduccionesDeNotas). */
+  traducciones: Map<string, Partial<Record<Idioma, string>>>;
+}
+
+const { idioma, traducciones } = Astro.props;
+const html = await Astro.slots.render('default');
+
+const reescrito = html.replace(/href="\/es\/(notas|carros|comparador)\/([^"]*)"/g, (original, seccion: string, resto: string) => {
+  const [slug, ...cola] = resto.split('/');
+  const restoTras = cola.join('/');
+  if (seccion === 'notas') {
+    const destino = traducciones.get(slug)?.[idioma];
+    return destino ? `href="${destino}${restoTras}"` : original;
+  }
+  if (seccion === 'carros' && slug) return `href="${rutaModelo(slug, idioma)}${restoTras}"`;
+  if (seccion === 'comparador') return `href="${rutaComparador(idioma)}${resto}"`;
+  return original;
+});
+---
+
+<Fragment set:html={reescrito} />

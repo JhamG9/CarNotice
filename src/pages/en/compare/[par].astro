@@ -6,10 +6,10 @@ import { obtenerCatalogo } from '../../../lib/catalogoDatos';
 
 export async function getStaticPaths() {
   const { pares } = await obtenerCatalogo();
-  // Cada texto en español tiene su versión en inglés; sin ella, la página en inglés no se indexa.
+  // Cada texto en español tiene su versión en inglés; sin ella, la página en inglés sale sin «¿Cuál conviene?».
   const enIngles = new Set((await getCollection('comparacionesEn')).map((texto) => texto.id));
   for (const texto of await getCollection('comparaciones')) {
-    if (!enIngles.has(texto.id)) console.warn(`[comparaciones] Falta comparaciones-en/${texto.id}.md: la página en inglés no se indexa.`);
+    if (!enIngles.has(texto.id)) console.warn(`[comparaciones] Falta comparaciones-en/${texto.id}.md: la página en inglés sale sin «¿Cuál conviene?».`);
   }
   return pares.map((par) => ({ params: { par: par.slug }, props: { par } }));
 }

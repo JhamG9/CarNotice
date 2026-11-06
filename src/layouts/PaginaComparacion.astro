@@ -101,12 +101,11 @@ const jsonLd = JSON.stringify({
 }).replace(/</g, '\\u003c');
 ---
 
-{/* Solo se indexan las que tienen texto propio: cientos de comparaciones con la misma plantilla y poco texto bajan la confianza de Google en un sitio nuevo. */}
+{/* Todas las comparaciones se indexan desde el 2026-11-06 (decisión de quien administra); las que tienen texto propio suman «¿Cuál conviene?». */}
 <Base
   titulo={tituloPagina}
   descripcion={descripcion}
   imagenSocial={imagenSocial}
-  noIndexar={!texto}
   alternativas={{ es: rutaComparacion(par.slug, 'es'), en: rutaComparacion(par.slug, 'en') }}
 >
   <Fragment slot="head">

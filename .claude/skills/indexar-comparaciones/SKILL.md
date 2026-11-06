@@ -1,13 +1,15 @@
 ---
 name: indexar-comparaciones
-description: Abre a Google un nuevo lote de páginas de comparación del sitio (/es/comparador/<a>-vs-<b>/) escribiendo su texto propio «¿Cuál conviene?» con agentes, solo con los datos de la tabla vehicles, y verificándolo antes de compilar. Usar cuando pidan indexar, abrir o escribir más comparaciones, o el siguiente lote de comparaciones.
+description: Escribe el texto propio «¿Cuál conviene?» de un nuevo lote de páginas de comparación del sitio (/es/comparador/<a>-vs-<b>/ y /en/compare/<a>-vs-<b>/), en español e inglés, con agentes, solo con los datos de la tabla vehicles, y verificándolo antes de compilar. Usar cuando pidan indexar, abrir o escribir más comparaciones, o el siguiente lote de comparaciones.
 ---
 
 # indexar-comparaciones
 
-Las páginas de comparación se generan solas desde la tabla `vehicles` al compilar, pero solo se indexan las que
-tienen texto propio en `src/content/comparaciones/<par>.md` (ver `CLAUDE.md`, «Páginas de carros y comparaciones»).
-Esta skill escribe ese texto para un lote nuevo. El primer lote (20) salió el 2026-11-03.
+Las páginas de comparación se generan solas desde la tabla `vehicles` al compilar y, desde el 2026-11-06, todas se
+indexan. El texto propio en `src/content/comparaciones/<par>.md` (y su versión en inglés en
+`src/content/comparaciones-en/<par>.md`) es lo que distingue una comparación de la plantilla (ver `CLAUDE.md`,
+«Páginas de carros y comparaciones»). Esta skill escribe ese texto para un lote nuevo, en los dos idiomas. El primer
+lote (20) salió el 2026-11-03.
 
 ## Flujo
 
@@ -16,7 +18,7 @@ Esta skill escribe ese texto para un lote nuevo. El primer lote (20) salió el 2
 - [ ] 2. Sacar las fichas de las dos versiones de cada par
 - [ ] 3. Redactar con agentes (5 pares por agente)
 - [ ] 4. Verificar con agentes (10 pares por agente) y revisar sus cambios
-- [ ] 5. Compilar y comprobar qué se indexa
+- [ ] 5. Compilar y comprobar los textos en los dos idiomas
 - [ ] 6. Commit y push; desplegar solo si está pedido o autorizado
 ```
 
@@ -69,20 +71,21 @@ o quita ese par del lote.
 
 ```bash
 npx astro dev stop; npm run build
-for d in dist/es/comparador/*-vs-*/; do grep -q 'content="noindex' $d/index.html || basename $d; done | wc -l
-grep -o 'comparador/[a-z0-9-]*-vs-[a-z0-9-]*/' dist/sitemap-0.xml | sort -u | wc -l
+diff <(ls src/content/comparaciones) <(ls src/content/comparaciones-en)
+grep -l 'content="noindex' dist/es/comparador/*-vs-*/index.html dist/en/compare/*-vs-*/index.html | wc -l
 ```
 
-Cada texto se traduce también en `src/content/comparaciones-en/<par>.md`, con las reglas de "Idiomas" de `CLAUDE.md`; si falta, la página en inglés queda con `noindex` y la compilación avisa.
-
-Los dos números deben ser iguales al total de archivos en `src/content/comparaciones/`. La compilación avisa si un
-texto ya no tiene par: en ese caso, revisa por qué (un carro despublicado) y quita el archivo.
+Cada texto lleva su versión en inglés en `src/content/comparaciones-en/<par>.md`, con las reglas de "Idiomas" de
+`CLAUDE.md`: el `diff` no debe mostrar nada y ninguna comparación debe tener `noindex` (el segundo número, 0). Cada
+par nuevo debe mostrar «¿Cuál conviene?» en `/es/comparador/<par>/` y su sección en `/en/compare/<par>/`. La
+compilación avisa si un texto ya no tiene par: en ese caso, revisa por qué (un carro despublicado) y quita el
+archivo.
 
 ### 6. Publicar
 
 Commit y push a `github.com/JhamG9/CarNotice`. Desplegar (`npm run deploy`) solo si quien administra lo pidió en el
 momento o si lo autoriza la tarea programada que corre esta skill. Si se despliega, comprueba en
-`https://mejorelectrico.com` una página nueva (sin `noindex`, con «¿Cuál conviene?») y el sitemap en vivo.
+`https://mejorelectrico.com` una página nueva de cada idioma (con «¿Cuál conviene?» y su sección en inglés).
 
 Al terminar, actualiza el lote en la memoria del proyecto y en la línea de `CLAUDE.md` que dice cuántas van, si
 cambió el criterio.

@@ -41,7 +41,7 @@ PAQUETES = ["mlx-audio==0.6.4", "misaki", "mlx-whisper", "num2words", "numpy", "
 MOTORES = {
     # cps: caracteres por segundo medidos sin acelerar, para estimar la duración antes de generar
     "chatterbox": {"repo": "mlx-community/chatterbox-multilingual-v3", "cps": 15.7, "bloque": 450},
-    "voxcpm2": {"repo": "mlx-community/VoxCPM2-8bit", "cps": 18.5, "bloque": 260},
+    "voxcpm2": {"repo": "mlx-community/VoxCPM2-8bit", "cps": 17.0, "bloque": 260},
 }
 MOTOR = "voxcpm2"  # elegido el 2026-11-06: más natural y mejor R/RR que chatterbox
 TONO = None  # sin instrucción: voz02 tal cual sonó mejor (2026-11-06; el tono G la apagaba). "tonoVoz" en el plan pide uno

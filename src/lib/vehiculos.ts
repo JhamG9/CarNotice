@@ -1,3 +1,5 @@
+import { LOCALE, textos, type Idioma, type Textos } from '../i18n';
+
 /** Fila de la tabla `vehicles` de Supabase. La explicación de cada campo está en el README. */
 export type Vehiculo = {
   slug: string;
@@ -30,75 +32,44 @@ export async function obtenerVehiculos(): Promise<Vehiculo[]> {
 }
 
 export const nombreModelo = (v: Vehiculo) => `${v.brand} ${v.model}`;
-export const nombreCompleto = (v: Vehiculo) => `${v.brand} ${v.model} ${v.version}`;
+export const nombreCompleto = (v: Vehiculo, idioma: Idioma = 'es') => `${v.brand} ${v.model} ${nombreVersion(v, idioma)}`;
 
 // 'always' para que 4620 salga como 4.620: en español el separador no se pone solo en cifras de cuatro dígitos
-const numero = new Intl.NumberFormat('es', { maximumFractionDigits: 2, useGrouping: 'always' });
-export const formatearNumero = (valor: number) => numero.format(valor);
-
-// --- Traducción de los valores guardados (en inglés) al español de la interfaz
-
-const TEXTOS: Record<string, Record<string, string>> = {
-  powertrain: {
-    electric: 'Eléctrico',
-    range_extender: 'Eléctrico de rango extendido',
-    plug_in_hybrid: 'Híbrido enchufable',
-    hybrid: 'Híbrido',
-    mild_hybrid: 'Híbrido ligero',
-    gasoline: 'Gasolina',
-    diesel: 'Diésel',
-  },
-  segment: {
-    mini: 'Mini',
-    small: 'Pequeño',
-    compact: 'Compacto',
-    midsize: 'Mediano',
-    large: 'Grande',
-    luxury: 'Lujo',
-  },
-  body_style: {
-    hatchback: 'Hatchback',
-    sedan: 'Sedán',
-    suv: 'SUV',
-    coupe_suv: 'SUV cupé',
-    wagon: 'Familiar',
-    coupe: 'Cupé',
-    convertible: 'Convertible',
-    pickup: 'Pickup',
-    minivan: 'Minivan',
-    van: 'Van',
-  },
-  drivetrain: { fwd: 'Delantera', rwd: 'Trasera', awd: 'Total' },
-  transmission: {
-    manual: 'Manual',
-    automatic: 'Automática',
-    cvt: 'CVT',
-    dual_clutch: 'Doble embrague',
-    single_speed: 'Una sola relación',
-  },
-  battery_chemistry: { sodium_ion: 'Sodio', solid_state: 'Estado sólido', other: 'Otra' },
-  emission_standard: {
-    euro_4: 'Euro 4',
-    euro_5: 'Euro 5',
-    euro_6: 'Euro 6',
-    euro_7: 'Euro 7',
-    china_6: 'China 6',
-    epa_tier_3: 'EPA Tier 3',
-    other: 'Otra',
-  },
-  connector: { GBT: 'GB/T', Type1: 'Tipo 1', Type2: 'Tipo 2' },
-  ncap_body: {
-    euro_ncap: 'Euro NCAP',
-    latin_ncap: 'Latin NCAP',
-    c_ncap: 'C-NCAP',
-    ancap: 'ANCAP',
-    asean_ncap: 'ASEAN NCAP',
-    global_ncap: 'Global NCAP',
-    nhtsa: 'NHTSA',
-  },
+const NUMERO: Record<Idioma, Intl.NumberFormat> = {
+  es: new Intl.NumberFormat(LOCALE.es, { maximumFractionDigits: 2, useGrouping: 'always' }),
+  en: new Intl.NumberFormat(LOCALE.en, { maximumFractionDigits: 2, useGrouping: 'always' }),
 };
+export const formatearNumero = (valor: number, idioma: Idioma = 'es') => NUMERO[idioma].format(valor);
 
-export const traducir = (campo: string, valor: string) => TEXTOS[campo]?.[valor] ?? valor;
+/** Millas de una cifra en km, para los idiomas que las muestran entre paréntesis. */
+export const aMillas = (km: number) => Math.round(km * 0.621371);
+
+/** "510 km" o, en inglés, "510 km (317 mi)". */
+export function conMillas(km: number, idioma: Idioma = 'es'): string {
+  const texto = `${formatearNumero(km, idioma)} km`;
+  return idioma === 'es' ? texto : `${texto} (${formatearNumero(aMillas(km), idioma)} mi)`;
+}
+
+// --- Traducción de los valores guardados (en inglés) al idioma de la interfaz
+
+export const traducir = (campo: string, valor: string, idioma: Idioma = 'es') =>
+  (textos(idioma).valores as Record<string, Record<string, string>>)[campo]?.[valor] ?? valor;
+
+/** Palabras en español que la tabla guarda como texto libre; cada idioma las cambia al mostrarlas. */
+const VERSIONES: Partial<Record<Idioma, Record<string, string>>> = { en: { Única: 'Single trim' } };
+export const nombreVersion = (v: Vehiculo, idioma: Idioma = 'es') => VERSIONES[idioma]?.[v.version] ?? v.version;
+
+const CREDITOS: Partial<Record<Idioma, [RegExp, string][]>> = {
+  en: [
+    [/foto oficial/g, 'official photo'],
+    [/ España\b/g, ' Spain'],
+    [/ Europa\b/g, ' Europe'],
+    [/ México\b/g, ' Mexico'],
+  ],
+};
+/** El crédito se guarda en español ("Kia España, foto oficial"). */
+export const creditoFoto = (credito: string, idioma: Idioma = 'es') =>
+  (CREDITOS[idioma] ?? []).reduce((texto, [patron, cambio]) => texto.replace(patron, cambio), credito);
 
 // --- Filas de la comparación
 
@@ -120,123 +91,143 @@ export interface Seccion {
   filas: Fila[];
 }
 
-export const SECCIONES: Seccion[] = [
+const UNIDAD_ANIOS = 'anios';
+const UNIDAD_PULGADAS = 'pulgadas';
+
+type FilaBase = Omit<Fila, 'etiqueta'> & { campo: keyof Textos['filasFicha'] };
+
+/** Filas de la ficha; sus nombres están en src/i18n/. */
+const BASE_SECCIONES: { id: keyof Textos['seccionesFicha']; filas: FilaBase[] }[] = [
   {
     id: 'general',
-    titulo: 'General',
     filas: [
-      { campo: 'powertrain', etiqueta: 'Motorización' },
-      { campo: 'body_style', etiqueta: 'Carrocería' },
-      { campo: 'segment', etiqueta: 'Tamaño' },
-      { campo: 'model_year', etiqueta: 'Año modelo' },
-      { campo: 'market', etiqueta: 'Mercado de la ficha' },
-      { campo: 'warranty_years', etiqueta: 'Garantía', unidad: 'años', mejor: 'mayor' },
-      { campo: 'warranty_km', etiqueta: 'Garantía por kilometraje', unidad: 'km', mejor: 'mayor', sinLimite: 'warranty_km_unlimited' },
+      { campo: 'powertrain' },
+      { campo: 'body_style' },
+      { campo: 'segment' },
+      { campo: 'model_year' },
+      { campo: 'market' },
+      { campo: 'warranty_years', unidad: UNIDAD_ANIOS, mejor: 'mayor' },
+      { campo: 'warranty_km', unidad: 'km', mejor: 'mayor', sinLimite: 'warranty_km_unlimited' },
     ],
   },
   {
     id: 'rendimiento',
-    titulo: 'Rendimiento',
     filas: [
-      { campo: 'power_kw', etiqueta: 'Potencia', unidad: 'kW', mejor: 'mayor' },
-      { campo: 'power_hp', etiqueta: 'Potencia en caballos', unidad: 'hp', mejor: 'mayor' },
-      { campo: 'torque_nm', etiqueta: 'Torque', unidad: 'Nm', mejor: 'mayor' },
-      { campo: 'acceleration_0_100_s', etiqueta: '0 a 100 km/h', unidad: 's', mejor: 'menor' },
-      { campo: 'top_speed_kmh', etiqueta: 'Velocidad máxima', unidad: 'km/h', mejor: 'mayor' },
-      { campo: 'drivetrain', etiqueta: 'Tracción' },
-      { campo: 'motor_count', etiqueta: 'Motores eléctricos' },
-      { campo: 'transmission', etiqueta: 'Caja' },
-      { campo: 'gear_count', etiqueta: 'Marchas' },
+      { campo: 'power_kw', unidad: 'kW', mejor: 'mayor' },
+      { campo: 'power_hp', unidad: 'hp', mejor: 'mayor' },
+      { campo: 'torque_nm', unidad: 'Nm', mejor: 'mayor' },
+      { campo: 'acceleration_0_100_s', unidad: 's', mejor: 'menor' },
+      { campo: 'top_speed_kmh', unidad: 'km/h', mejor: 'mayor' },
+      { campo: 'drivetrain' },
+      { campo: 'motor_count' },
+      { campo: 'transmission' },
+      { campo: 'gear_count' },
     ],
   },
   {
     id: 'bateria',
-    titulo: 'Batería y autonomía',
     filas: [
-      { campo: 'battery_kwh', etiqueta: 'Batería', unidad: 'kWh', mejor: 'mayor' },
-      { campo: 'battery_chemistry', etiqueta: 'Química de la batería' },
-      { campo: 'range_wltp_km', etiqueta: 'Autonomía WLTP', unidad: 'km', mejor: 'mayor' },
-      { campo: 'range_cltc_km', etiqueta: 'Autonomía CLTC', unidad: 'km', mejor: 'mayor' },
-      { campo: 'range_epa_km', etiqueta: 'Autonomía EPA', unidad: 'km', mejor: 'mayor' },
-      { campo: 'range_nedc_km', etiqueta: 'Autonomía NEDC', unidad: 'km', mejor: 'mayor' },
-      { campo: 'consumption_kwh_100km', etiqueta: 'Consumo eléctrico', unidad: 'kWh/100 km', mejor: 'menor' },
-      { campo: 'battery_warranty_years', etiqueta: 'Garantía de la batería', unidad: 'años', mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
-      { campo: 'battery_warranty_km', etiqueta: 'Garantía de la batería por kilometraje', unidad: 'km', mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
+      { campo: 'battery_kwh', unidad: 'kWh', mejor: 'mayor' },
+      { campo: 'battery_chemistry' },
+      { campo: 'range_wltp_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'range_cltc_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'range_epa_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'range_nedc_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'consumption_kwh_100km', unidad: 'kWh/100 km', mejor: 'menor' },
+      { campo: 'battery_warranty_years', unidad: UNIDAD_ANIOS, mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
+      { campo: 'battery_warranty_km', unidad: 'km', mejor: 'mayor', sinLimite: 'battery_warranty_unlimited' },
     ],
   },
   {
     id: 'carga',
-    titulo: 'Carga',
     filas: [
-      { campo: 'dc_charge_kw', etiqueta: 'Carga rápida', unidad: 'kW', mejor: 'mayor', noTiene: 'dc_charging' },
-      { campo: 'dc_charge_min', etiqueta: 'Tiempo de carga rápida', unidad: 'min', mejor: 'menor', noTiene: 'dc_charging' },
-      { campo: 'ac_charge_kw', etiqueta: 'Carga lenta', unidad: 'kW', mejor: 'mayor' },
-      { campo: 'connector', etiqueta: 'Conector' },
-      { campo: 'v2l', etiqueta: 'Alimenta aparatos externos (V2L)' },
+      { campo: 'dc_charge_kw', unidad: 'kW', mejor: 'mayor', noTiene: 'dc_charging' },
+      { campo: 'dc_charge_min', unidad: 'min', mejor: 'menor', noTiene: 'dc_charging' },
+      { campo: 'ac_charge_kw', unidad: 'kW', mejor: 'mayor' },
+      { campo: 'connector' },
+      { campo: 'v2l' },
     ],
   },
   {
     id: 'combustion',
-    titulo: 'Combustión e híbridos',
     filas: [
-      { campo: 'displacement_cc', etiqueta: 'Cilindrada', unidad: 'cc' },
-      { campo: 'cylinder_count', etiqueta: 'Cilindros' },
-      { campo: 'turbo', etiqueta: 'Turbo' },
-      { campo: 'fuel_consumption_l_100km', etiqueta: 'Consumo combinado', unidad: 'L/100 km', mejor: 'menor' },
-      { campo: 'fuel_consumption_city_l_100km', etiqueta: 'Consumo en ciudad', unidad: 'L/100 km', mejor: 'menor' },
-      { campo: 'fuel_consumption_highway_l_100km', etiqueta: 'Consumo en carretera', unidad: 'L/100 km', mejor: 'menor' },
-      { campo: 'fuel_tank_l', etiqueta: 'Tanque', unidad: 'L', mejor: 'mayor' },
-      { campo: 'electric_range_km', etiqueta: 'Autonomía solo eléctrica', unidad: 'km', mejor: 'mayor' },
-      { campo: 'combined_range_km', etiqueta: 'Autonomía total', unidad: 'km', mejor: 'mayor' },
-      { campo: 'co2_g_km', etiqueta: 'Emisiones de CO2', unidad: 'g/km', mejor: 'menor' },
-      { campo: 'emission_standard', etiqueta: 'Norma de emisiones' },
+      { campo: 'displacement_cc', unidad: 'cc' },
+      { campo: 'cylinder_count' },
+      { campo: 'turbo' },
+      { campo: 'fuel_consumption_l_100km', unidad: 'L/100 km', mejor: 'menor' },
+      { campo: 'fuel_consumption_city_l_100km', unidad: 'L/100 km', mejor: 'menor' },
+      { campo: 'fuel_consumption_highway_l_100km', unidad: 'L/100 km', mejor: 'menor' },
+      { campo: 'fuel_tank_l', unidad: 'L', mejor: 'mayor' },
+      { campo: 'electric_range_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'combined_range_km', unidad: 'km', mejor: 'mayor' },
+      { campo: 'co2_g_km', unidad: 'g/km', mejor: 'menor' },
+      { campo: 'emission_standard' },
     ],
   },
   {
     id: 'medidas',
-    titulo: 'Medidas y espacio',
     filas: [
-      { campo: 'length_mm', etiqueta: 'Largo', unidad: 'mm' },
-      { campo: 'width_mm', etiqueta: 'Ancho', unidad: 'mm' },
-      { campo: 'height_mm', etiqueta: 'Alto', unidad: 'mm' },
-      { campo: 'wheelbase_mm', etiqueta: 'Distancia entre ejes', unidad: 'mm', mejor: 'mayor' },
-      { campo: 'trunk_l', etiqueta: 'Baúl', unidad: 'L', mejor: 'mayor' },
-      { campo: 'front_trunk_l', etiqueta: 'Baúl delantero', unidad: 'L', mejor: 'mayor' },
-      { campo: 'curb_weight_kg', etiqueta: 'Peso en vacío', unidad: 'kg', mejor: 'menor' },
-      { campo: 'ground_clearance_mm', etiqueta: 'Altura al suelo', unidad: 'mm', mejor: 'mayor' },
-      { campo: 'seats', etiqueta: 'Puestos' },
+      { campo: 'length_mm', unidad: 'mm' },
+      { campo: 'width_mm', unidad: 'mm' },
+      { campo: 'height_mm', unidad: 'mm' },
+      { campo: 'wheelbase_mm', unidad: 'mm', mejor: 'mayor' },
+      { campo: 'trunk_l', unidad: 'L', mejor: 'mayor' },
+      { campo: 'front_trunk_l', unidad: 'L', mejor: 'mayor' },
+      { campo: 'curb_weight_kg', unidad: 'kg', mejor: 'menor' },
+      { campo: 'ground_clearance_mm', unidad: 'mm', mejor: 'mayor' },
+      { campo: 'seats' },
     ],
   },
   {
     id: 'seguridad',
-    titulo: 'Seguridad',
     filas: [
-      { campo: 'airbags', etiqueta: 'Bolsas de aire', mejor: 'mayor' },
-      { campo: 'autonomous_emergency_braking', etiqueta: 'Frenado autónomo de emergencia' },
-      { campo: 'adaptive_cruise_control', etiqueta: 'Control de crucero adaptativo' },
-      { campo: 'lane_keeping_assist', etiqueta: 'Mantenimiento de carril' },
-      { campo: 'blind_spot_monitor', etiqueta: 'Alerta de punto ciego' },
-      { campo: 'camera_360', etiqueta: 'Cámara de 360 grados' },
-      { campo: 'isofix', etiqueta: 'Anclajes ISOFIX' },
-      { campo: 'ncap_stars', etiqueta: 'Estrellas en pruebas de choque', mejor: 'mayor' },
-      { campo: 'ncap_body', etiqueta: 'Organismo de la prueba' },
+      { campo: 'airbags', mejor: 'mayor' },
+      { campo: 'autonomous_emergency_braking' },
+      { campo: 'adaptive_cruise_control' },
+      { campo: 'lane_keeping_assist' },
+      { campo: 'blind_spot_monitor' },
+      { campo: 'camera_360' },
+      { campo: 'isofix' },
+      { campo: 'ncap_stars', mejor: 'mayor' },
+      { campo: 'ncap_body' },
     ],
   },
   {
     id: 'confort',
-    titulo: 'Confort y tecnología',
     filas: [
-      { campo: 'screen_inches', etiqueta: 'Pantalla central', unidad: 'pulgadas', mejor: 'mayor' },
-      { campo: 'apple_carplay', etiqueta: 'Apple CarPlay' },
-      { campo: 'android_auto', etiqueta: 'Android Auto' },
-      { campo: 'panoramic_roof', etiqueta: 'Techo panorámico' },
-      { campo: 'ventilated_seats', etiqueta: 'Asientos ventilados' },
-      { campo: 'heated_seats', etiqueta: 'Asientos con calefacción' },
-      { campo: 'wireless_charger', etiqueta: 'Cargador inalámbrico' },
-      { campo: 'heat_pump', etiqueta: 'Bomba de calor' },
+      { campo: 'screen_inches', unidad: UNIDAD_PULGADAS, mejor: 'mayor' },
+      { campo: 'apple_carplay' },
+      { campo: 'android_auto' },
+      { campo: 'panoramic_roof' },
+      { campo: 'ventilated_seats' },
+      { campo: 'heated_seats' },
+      { campo: 'wireless_charger' },
+      { campo: 'heat_pump' },
     ],
   },
 ];
+
+const unidadEn = (unidad: string | undefined, idioma: Idioma) => {
+  const u = textos(idioma).unidades;
+  return unidad === UNIDAD_ANIOS ? u.anios : unidad === UNIDAD_PULGADAS ? u.pulgadas : unidad;
+};
+
+const SECCIONES_POR_IDIOMA = new Map<Idioma, Seccion[]>();
+
+/** Secciones de la ficha en un idioma. */
+export function secciones(idioma: Idioma = 'es'): Seccion[] {
+  let lista = SECCIONES_POR_IDIOMA.get(idioma);
+  if (!lista) {
+    const t = textos(idioma);
+    lista = BASE_SECCIONES.map((seccion) => ({
+      id: seccion.id,
+      titulo: t.seccionesFicha[seccion.id],
+      filas: seccion.filas.map((fila) => ({ ...fila, etiqueta: t.filasFicha[fila.campo], unidad: unidadEn(fila.unidad, idioma) })),
+    }));
+    SECCIONES_POR_IDIOMA.set(idioma, lista);
+  }
+  return lista;
+}
 
 /** Valor que se muestra en una garantía sin límite; no es un número y gana frente a cualquier cifra. */
 export const SIN_LIMITE = 'sin_limite';
@@ -256,17 +247,20 @@ export function valorDe(fila: Fila, v: Vehiculo): string | number | boolean | nu
 }
 
 /** Texto de una celda: número con unidad, sí o no, o el valor traducido. */
-export function formatearValor(fila: Fila, valor: string | number | boolean | null): string | null {
+export function formatearValor(fila: Fila, valor: string | number | boolean | null, idioma: Idioma = 'es'): string | null {
   if (valor === null || valor === undefined) return null;
-  if (valor === SIN_LIMITE) return 'Sin límite';
-  if (valor === NO_TIENE) return 'No tiene';
-  if (typeof valor === 'boolean') return valor ? 'Sí' : 'No';
+  const t = textos(idioma).ficha;
+  if (valor === SIN_LIMITE) return t.sinLimite;
+  if (valor === NO_TIENE) return t.noTiene;
+  if (typeof valor === 'boolean') return valor ? t.si : t.no;
   if (typeof valor === 'number') {
+    if (fila.unidad === 'km') return conMillas(valor, idioma);
     // Los años no llevan separador de miles
-    const texto = fila.campo === 'model_year' ? String(valor) : formatearNumero(valor);
+    const texto = fila.campo === 'model_year' ? String(valor) : formatearNumero(valor, idioma);
+    if (fila.unidad === 'km/h' && idioma !== 'es') return `${texto} km/h (${formatearNumero(aMillas(valor), idioma)} mph)`;
     return fila.unidad ? `${texto} ${fila.unidad}` : texto;
   }
-  return traducir(fila.campo, valor);
+  return traducir(fila.campo, valor, idioma);
 }
 
 /** 'a' o 'b' si uno gana en esa fila; null si empatan, falta un dato o la fila no tiene ganador. */
@@ -285,37 +279,13 @@ export function ganador(fila: Fila, a: Vehiculo, b: Vehiculo): 'a' | 'b' | null 
   return (va > vb) === (fila.mejor === 'mayor') ? 'a' : 'b';
 }
 
-/** Frases del tipo "100 km más en autonomía CLTC" a favor de `propio` frente a `otro`. */
-export function ventajas(propio: Vehiculo, otro: Vehiculo): string[] {
-  const lista: string[] = [];
-  const yaDichas = new Set<string>();
-  for (const seccion of SECCIONES) {
-    for (const fila of seccion.filas) {
-      // La potencia en hp repite la de kW
-      if (fila.campo === 'power_hp' || ganador(fila, propio, otro) !== 'a') continue;
-      // Solo la inicial en minúscula, para no dañar siglas como CLTC
-      const etiqueta = fila.etiqueta.charAt(0).toLowerCase() + fila.etiqueta.slice(1);
-      if (valorDe(fila, propio) === SIN_LIMITE) {
-        lista.push(`${etiqueta} sin límite`);
-        continue;
-      }
-      // Varias filas dependen de la misma columna (kW y minutos de carga rápida): se dice una vez
-      if (valorDe(fila, otro) === NO_TIENE) {
-        if (!yaDichas.has(fila.noTiene!)) lista.push(`tiene ${etiqueta}`);
-        yaDichas.add(fila.noTiene!);
-        continue;
-      }
-      const diferencia = Math.abs((propio[fila.campo] as number) - (otro[fila.campo] as number));
-      const cantidad = fila.unidad ? `${formatearNumero(diferencia)} ${fila.unidad}` : formatearNumero(diferencia);
-      lista.push(`${cantidad} ${fila.mejor === 'mayor' ? 'más' : 'menos'} en ${etiqueta}`);
-    }
-  }
-  return lista;
-}
-
 // --- Puntajes del gráfico de araña
 
+/** Clave de un área del gráfico, igual en todos los idiomas. */
+export type ClaveArea = keyof Textos['areas'];
+
 export interface Eje {
+  clave: ClaveArea;
   nombre: string;
   /** Qué mide el eje, para la nota al pie del gráfico. */
   detalle: string;
@@ -438,7 +408,8 @@ function espacio(v: Vehiculo): number | null {
  * Autonomía, potencia y espacio empiezan en 0: el puntaje es proporcional a la cifra y un carro
  * pequeño con dato real no queda en 0. La aceleración va hasta 16 s para incluir a los más lentos (14,6 s).
  */
-export function calcularEjes(a: Vehiculo, b: Vehiculo): Eje[] {
+export function calcularEjes(a: Vehiculo, b: Vehiculo, idioma: Idioma = 'es'): Eje[] {
+  const { areas, ficha } = textos(idioma);
   // El puntaje de autonomía sale siempre del equivalente WLTP de cada carro (su cifra WLTP si la tiene),
   // para que no cambie según el rival. La tabla compara las cifras reales en un ciclo común cuando lo hay.
   const ea = autonomiaEstimada(a);
@@ -447,44 +418,51 @@ export function calcularEjes(a: Vehiculo, b: Vehiculo): Eje[] {
 
   return [
     {
-      nombre: 'Autonomía',
-      detalle: todoWltp ? 'Ciclo WLTP, de 0 a 800 km' : 'Equivalente WLTP (estimado si es de otro ciclo), de 0 a 800 km',
+      clave: 'autonomia',
+      nombre: areas.autonomia.nombre,
+      detalle: todoWltp ? ficha.cicloWltpDetalle : ficha.equivalenteDetalle,
       a: ea ? escala(ea.wltp, 0, 800) : null,
       b: eb ? escala(eb.wltp, 0, 800) : null,
     },
     {
-      nombre: 'Potencia',
-      detalle: 'De 0 a 400 kW',
+      clave: 'potencia',
+      nombre: areas.potencia.nombre,
+      detalle: ficha.potenciaDetalle,
       a: escala(a.power_kw, 0, 400),
       b: escala(b.power_kw, 0, 400),
     },
     {
-      nombre: 'Aceleración',
-      detalle: '0 a 100 km/h, de 16 a 3 segundos',
+      clave: 'aceleracion',
+      nombre: areas.aceleracion.nombre,
+      detalle: ficha.aceleracionDetalle,
       a: escala(a.acceleration_0_100_s, 3, 16, true),
       b: escala(b.acceleration_0_100_s, 3, 16, true),
     },
     {
-      nombre: 'Carga rápida',
-      detalle: 'Puntos de batería por minuto, de 0,5 a 5',
+      clave: 'carga',
+      nombre: areas.carga.nombre,
+      detalle: ficha.cargaDetalle,
       a: escala(velocidadDeCarga(a), 0.5, 5),
       b: escala(velocidadDeCarga(b), 0.5, 5),
     },
     {
-      nombre: 'Espacio',
-      detalle: 'Baúl trasero y delantero, de 0 a 900 litros',
+      clave: 'espacio',
+      nombre: areas.espacio.nombre,
+      detalle: ficha.espacioDetalle,
       a: escala(espacio(a), 0, 900),
       b: escala(espacio(b), 0, 900),
     },
     {
-      nombre: 'Seguridad',
-      detalle: 'Ayudas a la conducción que trae, entre las conocidas',
+      clave: 'seguridad',
+      nombre: areas.seguridad.nombre,
+      detalle: ficha.seguridadDetalle,
       a: porcentaje(a, SEGURIDAD),
       b: porcentaje(b, SEGURIDAD),
     },
     {
-      nombre: 'Confort',
-      detalle: 'Equipamiento de confort que trae, entre el conocido',
+      clave: 'confort',
+      nombre: areas.confort.nombre,
+      detalle: ficha.confortDetalle,
       a: porcentaje(a, CONFORT),
       b: porcentaje(b, CONFORT),
     },
@@ -508,21 +486,11 @@ export interface Veredicto {
   ejesComparados: number;
 }
 
-const MOTIVOS: Record<string, string> = {
-  Autonomía: 'viajar más lejos sin cargar',
-  Potencia: 'tener más potencia',
-  Aceleración: 'una respuesta más rápida al acelerar',
-  'Carga rápida': 'pasar menos tiempo cargando',
-  Espacio: 'tener más espacio para equipaje',
-  Seguridad: 'contar con más ayudas a la conducción',
-  Confort: 'tener más equipamiento de confort',
-};
-
 /**
  * Compara los puntajes del gráfico. Solo cuentan los ejes con dato en los dos carros.
  * No incluye el precio, porque la tabla no lo guarda.
  */
-export function calcularVeredicto(ejes: Eje[]): Veredicto | null {
+export function calcularVeredicto(ejes: Eje[], idioma: Idioma = 'es'): Veredicto | null {
   const comparables = ejes.filter((eje) => eje.a !== null && eje.b !== null);
   if (comparables.length < 3) return null;
 
@@ -537,7 +505,7 @@ export function calcularVeredicto(ejes: Eje[]): Veredicto | null {
     comparables
       .filter((eje) => (eje[serie] as number) > (eje[otra] as number))
       .sort((x, y) => (y[serie] as number) - (y[otra] as number) - ((x[serie] as number) - (x[otra] as number)))
-      .map((eje) => MOTIVOS[eje.nombre] ?? eje.nombre.toLowerCase());
+      .map((eje) => textos(idioma).areas[eje.clave].motivo);
 
   return {
     ganador: margen === 'parejos' ? null : promedioA > promedioB ? 'a' : 'b',
@@ -554,6 +522,7 @@ export function calcularVeredicto(ejes: Eje[]): Veredicto | null {
 // --- Resumen de cada área con datos reales, para la tabla junto al gráfico
 
 export interface ResumenArea {
+  clave: ClaveArea;
   nombre: string;
   /** Aclaración corta bajo el nombre del área ("Ciclo WLTP", "Baúl trasero y delantero"). */
   aclaracion: string;
@@ -573,18 +542,19 @@ export interface ResumenArea {
   estimado?: boolean;
 }
 
-const num = (valor: number, decimales = 0) => formatearNumero(Number(valor.toFixed(decimales)));
+const num = (valor: number, idioma: Idioma, decimales = 0) => formatearNumero(Number(valor.toFixed(decimales)), idioma);
 
 /** Diferencia en palabras entre dos números, según qué valor es mejor. */
-function textoDiferencia(va: number, vb: number, mejor: 'mayor' | 'menor', unidad: string, decimales = 0) {
+function textoDiferencia(va: number, vb: number, mejor: 'mayor' | 'menor', unidad: string, idioma: Idioma, decimales = 0) {
+  const t = textos(idioma).ficha;
   const mayor = Math.max(va, vb);
   const menor = Math.min(va, vb);
-  if (mayor === 0 || (mayor - menor) / mayor < 0.05) return { ganador: null, texto: 'Casi iguales' };
+  if (mayor === 0 || (mayor - menor) / mayor < 0.05) return { ganador: null, texto: t.casiIguales };
   const ganador: 'a' | 'b' = (va > vb) === (mejor === 'mayor') ? 'a' : 'b';
   // Desde el doble se lee mejor como multiplicador, pero solo cuando más es mejor
-  if (mejor === 'mayor' && menor > 0 && mayor / menor >= 2) return { ganador, texto: `${num(mayor / menor, 1)}× más` };
+  if (mejor === 'mayor' && menor > 0 && mayor / menor >= 2) return { ganador, texto: t.vecesMas(num(mayor / menor, idioma, 1)) };
   const signo = mejor === 'mayor' ? '+' : '−';
-  return { ganador, texto: `${signo}${num(mayor - menor, decimales)} ${unidad}` };
+  return { ganador, texto: `${signo}${num(mayor - menor, idioma, decimales)} ${unidad}` };
 }
 
 const conteo = (v: Vehiculo, campos: string[]) => {
@@ -593,33 +563,39 @@ const conteo = (v: Vehiculo, campos: string[]) => {
 };
 
 /** El dato real de cada área para los dos carros. Usa los mismos datos que el puntaje del gráfico. */
-export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea[] {
+export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo, idioma: Idioma = 'es'): ResumenArea[] {
+  const { areas, ficha: t } = textos(idioma);
+  const n = (valor: number, decimales = 0) => num(valor, idioma, decimales);
   const autonomia = comparacionAutonomia(a, b);
-  const puntaje = (nombre: string) => ejes.find((eje) => eje.nombre === nombre) ?? { a: null, b: null };
+  const puntaje = (clave: ClaveArea) => ejes.find((eje) => eje.clave === clave) ?? { a: null, b: null };
+  // Las millas van en la línea de abajo: la cifra principal no se parte
+  const millas = (km: number) => (idioma === 'es' ? null : `${formatearNumero(aMillas(km), idioma)} mi`);
+  const unir = (...partes: (string | null)[]) => partes.filter(Boolean).join(' · ') || null;
 
   const fila = (
-    nombre: string,
+    clave: ClaveArea,
     aclaracion: string,
     valores: [number | null, number | null],
     formato: (valor: number) => string,
     mejor: 'mayor' | 'menor',
     unidad: string,
-    extra: (v: Vehiculo) => string | null = () => null,
+    extra: (v: Vehiculo, valor: number) => string | null = () => null,
     decimales = 0,
   ): ResumenArea => {
     const [va, vb] = valores;
-    const diferencia = va !== null && vb !== null ? textoDiferencia(va, vb, mejor, unidad, decimales) : null;
+    const diferencia = va !== null && vb !== null ? textoDiferencia(va, vb, mejor, unidad, idioma, decimales) : null;
     return {
-      nombre,
+      clave,
+      nombre: areas[clave].nombre,
       aclaracion,
       a: va === null ? null : formato(va),
       b: vb === null ? null : formato(vb),
-      extraA: va === null ? null : extra(a),
-      extraB: vb === null ? null : extra(b),
+      extraA: va === null ? null : extra(a, va),
+      extraB: vb === null ? null : extra(b, vb),
       ganador: diferencia?.ganador ?? null,
       diferencia: diferencia?.texto ?? null,
-      puntajeA: puntaje(nombre).a,
-      puntajeB: puntaje(nombre).b,
+      puntajeA: puntaje(clave).a,
+      puntajeB: puntaje(clave).b,
     };
   };
   const numero = (valor: unknown) => (typeof valor === 'number' ? valor : null);
@@ -631,18 +607,18 @@ export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea
     carga(a) && carga(b) && a.dc_charge_from_pct === b.dc_charge_from_pct && a.dc_charge_to_pct === b.dc_charge_to_pct;
   // Equipamiento: "4 de 6"; gana quien trae una proporción mayor de lo conocido
   const equipamiento = (
-    nombre: string,
+    clave: ClaveArea,
     aclaracion: string,
     campos: string[],
     cuentas: ({ tiene: number; de: number } | null)[],
     texto: string,
   ): ResumenArea => {
-    const base = fila(nombre, aclaracion, [porcentaje(a, campos), porcentaje(b, campos)], () => '', 'mayor', '');
+    const base = fila(clave, aclaracion, [porcentaje(a, campos), porcentaje(b, campos)], () => '', 'mayor', '');
     return {
       ...base,
-      a: cuentas[0] ? `${cuentas[0].tiene} de ${cuentas[0].de}` : null,
-      b: cuentas[1] ? `${cuentas[1].tiene} de ${cuentas[1].de}` : null,
-      diferencia: cuentas[0] && cuentas[1] ? (base.ganador ? texto : 'Parejos') : null,
+      a: cuentas[0] ? t.deTotal(cuentas[0].tiene, cuentas[0].de) : null,
+      b: cuentas[1] ? t.deTotal(cuentas[1].tiene, cuentas[1].de) : null,
+      diferencia: cuentas[0] && cuentas[1] ? (base.ganador ? texto : t.parejos) : null,
     };
   };
   const seguridad = [conteo(a, SEGURIDAD), conteo(b, SEGURIDAD)];
@@ -650,101 +626,100 @@ export function resumirAreas(ejes: Eje[], a: Vehiculo, b: Vehiculo): ResumenArea
 
   // Ciclos distintos: se muestra la cifra real de cada uno y se compara su equivalente WLTP estimado
   const autonomiaEstimadaFila = (): ResumenArea => {
-    if (autonomia?.tipo !== 'estimada') return fila('Autonomía', 'Sin datos de autonomía', [null, null], String, 'mayor', 'km');
+    if (autonomia?.tipo !== 'estimada') return fila('autonomia', t.sinAutonomia, [null, null], String, 'mayor', 'km');
     const { ea, eb } = autonomia;
+    const gasolina = (v: Vehiculo, e: typeof ea) => (typeof v[e.ciclo.campo] === 'number' ? '' : `, ${t.conGasolina}`);
     const extra = (v: Vehiculo, e: typeof ea) =>
-      e.ciclo.nombre === 'WLTP'
-        ? `WLTP${typeof v[e.ciclo.campo] === 'number' ? '' : ', con gasolina'}`
-        : `${e.ciclo.nombre}${typeof v[e.ciclo.campo] === 'number' ? '' : ', con gasolina'} · ≈ ${num(e.wltp)} km WLTP`;
+      unir(
+        millas(e.km),
+        e.ciclo.nombre === 'WLTP'
+          ? `WLTP${gasolina(v, e)}`
+          : `${e.ciclo.nombre}${gasolina(v, e)} · ≈ ${n(e.wltp)} km WLTP`,
+      );
     // Con una equivalencia aproximada, menos del 10 % de diferencia no basta para dar un ganador
     const cerca = Math.abs(ea.wltp - eb.wltp) / Math.max(ea.wltp, eb.wltp) < 0.1;
-    const diferencia = cerca ? { ganador: null, texto: 'Casi iguales' } : textoDiferencia(ea.wltp, eb.wltp, 'mayor', 'km');
+    const diferencia = cerca ? { ganador: null, texto: t.casiIguales } : textoDiferencia(ea.wltp, eb.wltp, 'mayor', 'km', idioma);
     return {
-      nombre: 'Autonomía',
-      aclaracion: 'Ciclos distintos: comparada con un equivalente WLTP estimado',
-      a: `${num(ea.km)} km`,
-      b: `${num(eb.km)} km`,
+      clave: 'autonomia',
+      nombre: areas.autonomia.nombre,
+      aclaracion: t.ciclosDistintos,
+      a: `${n(ea.km)} km`,
+      b: `${n(eb.km)} km`,
       extraA: extra(a, ea),
       extraB: extra(b, eb),
       ganador: diferencia.ganador,
       diferencia: diferencia.ganador ? `≈ ${diferencia.texto}` : diferencia.texto,
-      puntajeA: puntaje('Autonomía').a,
-      puntajeB: puntaje('Autonomía').b,
+      puntajeA: puntaje('autonomia').a,
+      puntajeB: puntaje('autonomia').b,
       estimado: true,
     };
   };
 
   return [
     autonomia?.tipo === 'comun'
-      ? fila('Autonomía', `Ciclo ${autonomia.ciclo.nombre}`, [autonomiaEnCiclo(a, autonomia.ciclo), autonomiaEnCiclo(b, autonomia.ciclo)], (x) => `${num(x)} km`, 'mayor', 'km', (v) =>
+      ? fila('autonomia', t.ciclo(autonomia.ciclo.nombre), [autonomiaEnCiclo(a, autonomia.ciclo), autonomiaEnCiclo(b, autonomia.ciclo)], (x) => `${n(x)} km`, 'mayor', 'km', (v, km) =>
           // La combinada suma batería y gasolina: se dice para no compararla como si fuera solo eléctrica
-          typeof v[autonomia.ciclo.campo] === 'number' ? null : 'con gasolina',
+          unir(millas(km), typeof v[autonomia.ciclo.campo] === 'number' ? null : t.conGasolina),
         )
       : autonomiaEstimadaFila(),
-    fila('Potencia', 'Potencia máxima', [numero(a.power_kw), numero(b.power_kw)], (x) => `${num(x)} kW`, 'mayor', 'kW', (v) =>
-      typeof v.power_hp === 'number' ? `${num(v.power_hp)} hp` : null,
+    fila('potencia', t.potenciaMaxima, [numero(a.power_kw), numero(b.power_kw)], (x) => `${n(x)} kW`, 'mayor', 'kW', (v) =>
+      typeof v.power_hp === 'number' ? `${n(v.power_hp)} hp` : null,
     ),
-    fila('Aceleración', 'De 0 a 100 km/h', [numero(a.acceleration_0_100_s), numero(b.acceleration_0_100_s)], (x) => `${num(x, 1)} s`, 'menor', 's', undefined, 1),
+    fila('aceleracion', t.de0a100, [numero(a.acceleration_0_100_s), numero(b.acceleration_0_100_s)], (x) => `${n(x, 1)} s`, 'menor', 's', undefined, 1),
     // La carga se compara por velocidad; si los dos miden el mismo tramo, la diferencia va en minutos
     mismoTramo
-      ? fila(
-          'Carga rápida',
-          `Del ${a.dc_charge_from_pct} al ${a.dc_charge_to_pct} %`,
-          [numero(a.dc_charge_min), numero(b.dc_charge_min)],
-          (x) => `${num(x)} min`,
-          'menor',
-          'min',
-        )
+      ? fila('carga', t.tramo(a.dc_charge_from_pct, a.dc_charge_to_pct), [numero(a.dc_charge_min), numero(b.dc_charge_min)], (x) => `${n(x)} min`, 'menor', 'min')
       : (() => {
-          const base = fila('Carga rápida', 'Tiempo de carga rápida', [velocidadDeCarga(a), velocidadDeCarga(b)], () => '', 'mayor', '');
+          const base = fila('carga', t.tiempoCarga, [velocidadDeCarga(a), velocidadDeCarga(b)], () => '', 'mayor', '');
           return {
             ...base,
             diferencia:
               base.diferencia === null
                 ? null
                 : base.ganador
-                  ? textoDiferenciaVelocidad(velocidadDeCarga(a)!, velocidadDeCarga(b)!)
+                  ? textoDiferenciaVelocidad(velocidadDeCarga(a)!, velocidadDeCarga(b)!, idioma)
                   : a.dc_charging === false && b.dc_charging === false
-                    ? 'Ninguno tiene'
-                    : 'Casi iguales',
-          a: carga(a) ? `${num(a.dc_charge_min as number)} min` : a.dc_charging === false ? 'No tiene' : null,
-          b: carga(b) ? `${num(b.dc_charge_min as number)} min` : b.dc_charging === false ? 'No tiene' : null,
-          extraA: carga(a) ? `del ${a.dc_charge_from_pct} al ${a.dc_charge_to_pct} %` : null,
-          extraB: carga(b) ? `del ${b.dc_charge_from_pct} al ${b.dc_charge_to_pct} %` : null,
+                    ? t.ningunoTiene
+                    : t.casiIguales,
+            a: carga(a) ? `${n(a.dc_charge_min as number)} min` : a.dc_charging === false ? t.noTiene : null,
+            b: carga(b) ? `${n(b.dc_charge_min as number)} min` : b.dc_charging === false ? t.noTiene : null,
+            extraA: carga(a) ? t.tramoMinuscula(a.dc_charge_from_pct, a.dc_charge_to_pct) : null,
+            extraB: carga(b) ? t.tramoMinuscula(b.dc_charge_from_pct, b.dc_charge_to_pct) : null,
           };
         })(),
-    fila('Espacio', 'Baúl trasero y delantero', [espacio(a), espacio(b)], (x) => `${num(x)} L`, 'mayor', 'L', (v) =>
-      typeof v.front_trunk_l === 'number' ? `incluye ${num(v.front_trunk_l)} L adelante` : null,
+    fila('espacio', t.baulTraseroDelantero, [espacio(a), espacio(b)], (x) => `${n(x)} L`, 'mayor', 'L', (v) =>
+      typeof v.front_trunk_l === 'number' ? t.incluyeFrunk(n(v.front_trunk_l)) : null,
     ),
-    equipamiento('Seguridad', 'Ayudas a la conducción que trae, entre las conocidas', SEGURIDAD, seguridad, 'Más ayudas'),
-    equipamiento('Confort', 'Equipamiento de confort que trae, entre el conocido', CONFORT, confort, 'Más equipado'),
+    equipamiento('seguridad', t.seguridadDetalle, SEGURIDAD, seguridad, t.masAyudas),
+    equipamiento('confort', t.confortDetalle, CONFORT, confort, t.masEquipado),
   ];
 }
 
 /** Con tramos de carga distintos no se pueden restar minutos: se dice cuál carga más rápido. */
-function textoDiferenciaVelocidad(va: number, vb: number): string {
+function textoDiferenciaVelocidad(va: number, vb: number, idioma: Idioma): string {
+  const t = textos(idioma).ficha;
   const mayor = Math.max(va, vb);
   const menor = Math.min(va, vb);
-  if ((mayor - menor) / mayor < 0.05) return 'Casi iguales';
+  if ((mayor - menor) / mayor < 0.05) return t.casiIguales;
   // Contra un carro sin carga rápida no hay proporción que dar
-  if (menor === 0) return 'Solo este la tiene';
-  return menor > 0 && mayor / menor >= 2 ? `${num(mayor / menor, 1)}× más rápida` : 'Carga más rápido';
+  if (menor === 0) return t.soloEste;
+  return menor > 0 && mayor / menor >= 2 ? t.vecesMasRapida(num(mayor / menor, idioma, 1)) : t.cargaMasRapido;
 }
 
 // --- Áreas del gráfico: qué filas de la ficha explican cada eje
 
-export const CAMPOS_POR_AREA: Record<string, string[]> = {
-  Autonomía: ['range_wltp_km', 'range_cltc_km', 'range_epa_km', 'range_nedc_km', 'battery_kwh', 'consumption_kwh_100km'],
-  Potencia: ['power_kw', 'torque_nm', 'top_speed_kmh', 'motor_count'],
-  Aceleración: ['acceleration_0_100_s', 'power_kw', 'curb_weight_kg'],
-  'Carga rápida': ['dc_charge_kw', 'dc_charge_min', 'ac_charge_kw', 'connector'],
-  Espacio: ['trunk_l', 'front_trunk_l', 'length_mm', 'wheelbase_mm', 'seats'],
-  Seguridad: [...SEGURIDAD, 'airbags', 'ncap_stars'],
-  Confort: [...CONFORT, 'screen_inches'],
+export const CAMPOS_POR_AREA: Record<ClaveArea, string[]> = {
+  autonomia: ['range_wltp_km', 'range_cltc_km', 'range_epa_km', 'range_nedc_km', 'battery_kwh', 'consumption_kwh_100km'],
+  potencia: ['power_kw', 'torque_nm', 'top_speed_kmh', 'motor_count'],
+  aceleracion: ['acceleration_0_100_s', 'power_kw', 'curb_weight_kg'],
+  carga: ['dc_charge_kw', 'dc_charge_min', 'ac_charge_kw', 'connector'],
+  espacio: ['trunk_l', 'front_trunk_l', 'length_mm', 'wheelbase_mm', 'seats'],
+  seguridad: [...SEGURIDAD, 'airbags', 'ncap_stars'],
+  confort: [...CONFORT, 'screen_inches'],
 };
 
-const FILAS = SECCIONES.flatMap((seccion) => seccion.filas);
-export const buscarFila = (campo: string) => FILAS.find((fila) => fila.campo === campo);
+const filasDe = (idioma: Idioma) => secciones(idioma).flatMap((seccion) => seccion.filas);
+export const buscarFila = (campo: string, idioma: Idioma = 'es') => filasDe(idioma).find((fila) => fila.campo === campo);
 
 // --- Mayores diferencias
 
@@ -758,9 +733,9 @@ export interface Diferencia {
 }
 
 /** Las filas con más diferencia relativa entre los dos carros, de mayor a menor. */
-export function mayoresDiferencias(a: Vehiculo, b: Vehiculo, cantidad = 5): Diferencia[] {
+export function mayoresDiferencias(a: Vehiculo, b: Vehiculo, idioma: Idioma = 'es', cantidad = 5): Diferencia[] {
   const lista: Diferencia[] = [];
-  for (const fila of FILAS) {
+  for (const fila of filasDe(idioma)) {
     // La potencia en hp repite la de kW
     if (fila.campo === 'power_hp') continue;
     const quien = ganador(fila, a, b);
@@ -774,8 +749,8 @@ export function mayoresDiferencias(a: Vehiculo, b: Vehiculo, cantidad = 5): Dife
     // Desde el doble se lee mejor como "2×"; por debajo, la diferencia con su unidad
     const ventaja =
       peso >= 1 && menor > 0
-        ? `${formatearNumero(Math.round((mayor / menor) * 10) / 10)}×`
-        : `${fila.mejor === 'menor' ? '−' : '+'}${formatearNumero(Math.round((mayor - menor) * 10) / 10)}${fila.unidad ? ` ${fila.unidad}` : ''}`;
+        ? `${formatearNumero(Math.round((mayor / menor) * 10) / 10, idioma)}×`
+        : `${fila.mejor === 'menor' ? '−' : '+'}${formatearNumero(Math.round((mayor - menor) * 10) / 10, idioma)}${fila.unidad ? ` ${fila.unidad}` : ''}`;
     lista.push({ fila, ganador: quien, ventaja, peso });
   }
   return lista.sort((x, y) => y.peso - x.peso).slice(0, cantidad);
@@ -790,24 +765,8 @@ export const normalizar = (texto: string) =>
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase();
 
-const MERCADOS: Record<string, string> = {
-  CO: 'Colombia',
-  CN: 'China',
-  EU: 'Europa',
-  DE: 'Alemania',
-  US: 'Estados Unidos',
-  MX: 'México',
-  BR: 'Brasil',
-  CL: 'Chile',
-  AR: 'Argentina',
-  PE: 'Perú',
-  EC: 'Ecuador',
-  ES: 'España',
-  FR: 'Francia',
-  GB: 'Reino Unido',
-  CA: 'Canadá',
-};
-export const nombreMercado = (codigo: string) => MERCADOS[codigo] ?? codigo;
+export const nombreMercado = (codigo: string, idioma: Idioma = 'es') =>
+  (textos(idioma).mercados as Record<string, string>)[codigo] ?? codigo;
 
 /**
  * Carros que contienen todas las palabras escritas, en marca, modelo, versión, año,
@@ -820,7 +779,8 @@ export function buscarVehiculos(vehiculos: Vehiculo[], consulta: string): Vehicu
     .map((v) => {
       const nombre = normalizar(`${v.brand} ${v.model}`);
       const texto = normalizar(
-        [v.brand, v.model, v.version, v.model_year, v.market, nombreMercado(v.market), v.latam_name ?? ''].join(' '),
+        // El mercado se busca en todos los idiomas: quien lee en inglés puede escribir "Europa" o "Europe"
+        [v.brand, v.model, v.version, v.model_year, v.market, nombreMercado(v.market, 'es'), nombreMercado(v.market, 'en'), v.latam_name ?? ''].join(' '),
       );
       if (!palabras.every((palabra) => texto.includes(palabra))) return null;
       const orden = nombre.startsWith(palabras.join(' ')) ? 0 : normalizar(v.model).startsWith(palabras[0]) ? 1 : 2;
@@ -859,8 +819,12 @@ export function marcas(vehiculos: Vehiculo[]): { marca: string; total: number }[
 }
 
 /** Cómo presentar el otro nombre: en una ficha de fuera, el de Latinoamérica; en una latinoamericana, el alterno. */
-export const textoOtroNombre = (v: Vehiculo) =>
-  v.latam_name ? (['CO', 'MX', 'BR', 'CL', 'AR', 'PE', 'EC'].includes(v.market) ? `También se conoce como ${v.latam_name}` : `En Latinoamérica: ${v.latam_name}`) : null;
+export function textoOtroNombre(v: Vehiculo, idioma: Idioma = 'es'): string | null {
+  if (!v.latam_name) return null;
+  const t = textos(idioma).ficha;
+  return ['CO', 'MX', 'BR', 'CL', 'AR', 'PE', 'EC'].includes(v.market) ? t.otroNombreTambien(v.latam_name) : t.otroNombreLatam(v.latam_name);
+}
 
 /** Une una lista en una frase: "a, b y c". */
-export const enumerar = (lista: string[]) => new Intl.ListFormat('es', { type: 'conjunction' }).format(lista);
+export const enumerar = (lista: string[], idioma: Idioma = 'es') =>
+  new Intl.ListFormat(LOCALE[idioma], { type: 'conjunction' }).format(lista);

@@ -45,7 +45,7 @@ type Seccion = keyof (typeof SEGMENTOS)['es'];
  */
 const CONSTRUIDAS: Record<Idioma, ReadonlySet<Seccion | 'inicio'>> = {
   es: new Set(['inicio', ...(Object.keys(SEGMENTOS.es) as Seccion[])]),
-  en: new Set(['inicio', 'notas', 'blog', 'categoria', 'etiqueta']),
+  en: new Set(['inicio', ...(Object.keys(SEGMENTOS.en) as Seccion[])]),
 };
 
 /** Idioma en que se enlaza una sección: el pedido si ya existe, si no el español. */
@@ -68,8 +68,10 @@ export const rutaComparacion = (par: string, idioma: Idioma = 'es') => `${base('
 export const rutaCarros = (idioma: Idioma = 'es') => base('carros', idioma);
 export const rutaModelo = (modelo: string, idioma: Idioma = 'es') => `${base('carros', idioma)}${modelo}/`;
 /** Imágenes para compartir, generadas al compilar. */
-export const rutaImagenModelo = (modelo: string) => `/og/carros/${modelo}.jpg`;
-export const rutaImagenComparacion = (par: string) => `/og/comparador/${par}.jpg`;
+export const rutaImagenModelo = (modelo: string, idioma: Idioma = 'es') =>
+  idioma === 'es' ? `/og/carros/${modelo}.jpg` : `/og/${idioma}/${SEGMENTOS[idioma].carros}/${modelo}.jpg`;
+export const rutaImagenComparacion = (par: string, idioma: Idioma = 'es') =>
+  idioma === 'es' ? `/og/comparador/${par}.jpg` : `/og/${idioma}/${SEGMENTOS[idioma].comparador}/${par}.jpg`;
 /** Nota por su slug. En inglés, el slug es el de la nota traducida (src/content/notas-en/). */
 export const rutaNota = (id: string, idioma: Idioma = 'es') => `${base('notas', idioma)}${id}/`;
 export const rutaNosotros = (idioma: Idioma = 'es') => base('nosotros', idioma);

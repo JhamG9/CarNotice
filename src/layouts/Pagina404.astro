@@ -1,0 +1,65 @@
+---
+import Base from './Base.astro';
+import TarjetaRelacionada from '../components/TarjetaRelacionada.astro';
+import { categorias, textoCategoria } from '../data/categorias';
+import { idiomaDe, textos } from '../i18n';
+import { obtenerNotas } from '../lib/notas';
+import { rutaCategoria, rutaInicio } from '../lib/rutas';
+
+/** Página 404, en cualquier idioma. /en/404.html la sirve Cloudflare para las rutas de /en/ que no existen. */
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).error404;
+const recientes = (await obtenerNotas(idioma)).slice(0, 3);
+---
+
+<Base
+  titulo={t.titulo}
+  descripcion={t.descripcion}
+  sinIndexar
+>
+  <div class="mx-auto max-w-pagina px-4 py-12 md:px-6 md:py-20">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14">
+      <div class="max-w-articulo">
+        <p class="font-titular text-[88px] leading-none font-bold text-accent-bright md:text-[128px]" aria-hidden="true">
+          404
+        </p>
+        <h1 class="t-seccion barra-corta mt-4">{t.h1}</h1>
+        <p class="t-texto mt-6 text-muted">
+          {t.texto}
+        </p>
+        <a
+          href={rutaInicio(idioma)}
+          class="mt-8 inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
+        >
+          {t.irPrincipal}
+        </a>
+      </div>
+
+      <nav aria-labelledby="titulo-secciones-404" class="content-start">
+        <h2 id="titulo-secciones-404" class="t-lateral barra-corta">{t.secciones}</h2>
+        <ul class="mt-2">
+          {
+            categorias.map((categoria) => (
+              <li class="border-b border-border">
+                <a href={rutaCategoria(categoria, 1, idioma)} class="t-item enlace flex min-h-12 items-center">
+                  {textoCategoria(categoria, idioma).nombre}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    {
+      recientes.length > 0 && (
+        <section aria-labelledby="titulo-recientes-404" class="mt-14 border-t border-border pt-10">
+          <h2 id="titulo-recientes-404" class="t-seccion">{t.recientes}</h2>
+          <div class="mt-6 grid gap-8 md:grid-cols-3 md:gap-6">
+            {recientes.map((nota) => <TarjetaRelacionada nota={nota} />)}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>

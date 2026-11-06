@@ -1,5 +1,6 @@
 ---
-import { SECCIONES, formatearValor, valorDe, type Vehiculo } from '../lib/vehiculos';
+import { idiomaDe } from '../i18n';
+import { secciones as seccionesDe, formatearValor, valorDe, type Vehiculo } from '../lib/vehiculos';
 
 /** Ficha técnica de una sola versión, por secciones. Solo las filas con dato. */
 interface Props {
@@ -7,10 +8,11 @@ interface Props {
 }
 
 const { vehiculo } = Astro.props;
-const secciones = SECCIONES.map((seccion) => ({
+const idioma = idiomaDe(Astro.url);
+const secciones = seccionesDe(idioma).map((seccion) => ({
   ...seccion,
   filas: seccion.filas
-    .map((fila) => ({ fila, texto: formatearValor(fila, valorDe(fila, vehiculo)) }))
+    .map((fila) => ({ fila, texto: formatearValor(fila, valorDe(fila, vehiculo), idioma) }))
     .filter(({ texto }) => texto !== null),
 })).filter((seccion) => seccion.filas.length > 0);
 ---

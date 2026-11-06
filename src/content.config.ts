@@ -86,13 +86,21 @@ const vehiculos = defineCollection({
  * alfabético ("geely-ex2-vs-kia-ev2.md"). Solo las comparaciones con texto se indexan: las demás siguen
  * generándose desde la base, con noindex, hasta que tengan el suyo.
  */
-const comparaciones = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/comparaciones' }),
-  schema: z.object({
-    // Descripción para Google y para compartir; si falta, la página arma una con los datos.
-    descripcion: z.string().min(1).max(160).optional(),
-    fecha: z.coerce.date(),
-  }),
+const camposComparacion = z.object({
+  // Descripción para Google y para compartir; si falta, la página arma una con los datos.
+  descripcion: z.string().min(1).max(160).optional(),
+  fecha: z.coerce.date(),
 });
 
-export const collections = { notas, notasEn, vehiculos, comparaciones };
+const comparaciones = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/comparaciones' }),
+  schema: camposComparacion,
+});
+
+/** Los mismos textos en inglés, con el mismo nombre de archivo. Sin él, la página en inglés no se indexa. */
+const comparacionesEn = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/comparaciones-en' }),
+  schema: camposComparacion,
+});
+
+export const collections = { notas, notasEn, vehiculos, comparaciones, comparacionesEn };

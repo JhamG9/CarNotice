@@ -1,0 +1,83 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO } from '../../data/contacto';
+import { rutaAvisoLegal, rutaBlog, rutaComparador, rutaPrivacidad } from '../../lib/rutas';
+---
+
+<Institucional
+  pagina="nosotros"
+  nombre="About us"
+  descripcion="Mejor Eléctrico is a car magazine and a spec comparison tool, made for people who enjoy vehicles and want to decide with data."
+>
+  <p>
+    <strong>Mejor Eléctrico</strong> was created to answer a question that comes up whenever someone thinks about
+    changing cars: <em>which one suits me best?</em> We have two tools for that: a magazine with news, launches and
+    guides, and a comparison tool that puts two cars side by side with their technical data.
+  </p>
+  <p>
+    We write about electric, hybrid and combustion cars. The name, Spanish for "best electric", says where the market
+    is heading, but we do not take sides: we report the good and the bad of each technology so that everyone can decide
+    with the full picture.
+  </p>
+
+  <h2>What you will find here</h2>
+  <ul>
+    <li>
+      <a href={rutaBlog(1, 'en')}>Blog & news</a>: launches, market news, safety tests and practical guides on charging,
+      batteries, maintenance, taxes and running costs.
+    </li>
+    <li>
+      <a href={rutaComparador('en')}>Car comparison tool</a>: pick two models and see where each one is better in range,
+      power, acceleration, fast charging, space, safety and comfort, with their full specs.
+    </li>
+  </ul>
+
+  <h2>Who we write for</h2>
+  <p>
+    For people who like cars and want to understand them without the runaround. Our audience is international: we
+    publish in Spanish and English today, and we are preparing French, German and Portuguese versions. Many articles
+    are about Colombia and Latin America, and when a story is about a specific country, we say so.
+  </p>
+
+  <h2>How we work</h2>
+  <ul>
+    <li>
+      <strong>Data with a source.</strong> Each spec sheet in the comparison tool records where it came from: the
+      manufacturer's website, the official spec sheet for a market or an independent test. If we cannot find a confirmed
+      figure, we leave it blank and the tool says "No data". We do not estimate figures.
+    </li>
+    <li>
+      <strong>Every range with its cycle.</strong> A WLTP, CLTC, EPA or NEDC range cannot be compared with one from a
+      different cycle. That is why we store each figure under its cycle and only compare those measured the same way.
+    </li>
+    <li>
+      <strong>Scores that do not change with the rival.</strong> The tool rates each area from 0 to 100 against fixed
+      ranges, not against the other car. It does not take price into account either, and it says so in every comparison.
+    </li>
+    <li>
+      <strong>Photos with credit.</strong> We use photos from manufacturers' press rooms or freely licensed images, and
+      we always say where they come from.
+    </li>
+    <li>
+      <strong>Corrections.</strong> If you find a mistake in an article or a spec sheet, write to us. We check it against
+      the source and correct it where needed.
+    </li>
+  </ul>
+
+  <h2>Independence</h2>
+  <p>
+    Articles are written by the Mejor Eléctrico newsroom. No brand pays to appear in the comparison tool or to score
+    better. The site may show advertising to cover its costs; ads are clearly shown as such and have no influence on
+    what we publish.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    For suggestions, corrections, press releases or any other inquiry, write to us at{' '}
+    <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>.
+  </p>
+  <p>
+    The terms of use of the site are in the <a href={rutaAvisoLegal('en')}>legal notice</a>, and data processing and
+    cookies are covered in the <a href={rutaPrivacidad('en')}>privacy policy</a>.
+  </p>
+</Institucional>

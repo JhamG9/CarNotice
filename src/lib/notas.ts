@@ -71,3 +71,9 @@ export async function traduccionesDeNotas(): Promise<Map<string, Partial<Record<
   }
   return mapa;
 }
+
+/** Slug de cada nota en español → enlace de su traducción. Vacío en español: ahí el slug ya es el enlace. */
+export async function enlacesDeNotas(idioma: Idioma): Promise<Record<string, string>> {
+  if (idioma === 'es') return {};
+  return Object.fromEntries((await obtenerNotas(idioma)).map((nota) => [slugOriginal(nota), enlaceNota(nota)]));
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { textos, type Idioma } from '../i18n';
 import { enumerar, type Eje, type ResumenArea } from '../lib/vehiculos';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   /** Área elegida (índice del eje); null si ninguna. */
   seleccion: number | null;
   alElegir: (indice: number | null) => void;
+  idioma?: Idioma;
 }
 
 const ANCHO = 480;
@@ -19,7 +21,9 @@ const CY = ALTO / 2;
 const RADIO = 125;
 const ANILLOS = [25, 50, 75, 100];
 
-export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccion, alElegir }: Props) {
+export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccion, alElegir, idioma = 'es' }: Props) {
+  const t = textos(idioma).comparador;
+  const f = textos(idioma).ficha;
   const [encima, setEncima] = useState<number | null>(null);
   const activo = encima ?? seleccion;
 
@@ -39,7 +43,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
       .map((_, i) => punto(i, valor))
       .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
       .join(' ');
-  const texto = (valor: number | null) => (valor === null ? 'Sin dato' : String(valor));
+  const texto = (valor: number | null) => (valor === null ? f.sinDato : String(valor));
   const alternar = (i: number) => alElegir(seleccion === i ? null : i);
 
   return (
@@ -66,7 +70,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
             viewBox={`0 0 ${ANCHO} ${ALTO}`}
             className="mx-auto w-full max-w-[540px]"
             role="img"
-            aria-label={`Gráfico de araña que compara ${nombreA} y ${nombreB} en ${ejes.length} áreas. Los puntajes están en la tabla de al lado.`}
+            aria-label={t.graficoAria(nombreA, nombreB, ejes.length)}
             onMouseLeave={() => setEncima(null)}
           >
             {ANILLOS.map((valor) => (
@@ -102,7 +106,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
               const sinDatos = eje.a === null && eje.b === null;
               const alto = sinDatos ? 40 : 30;
               return (
-                <g key={eje.nombre}>
+                <g key={eje.clave}>
                   {/* Anillo del color del fondo para que los puntos superpuestos se distingan */}
                   {a && <circle cx={a.x} cy={a.y} r={resaltado ? 6 : 4.5} fill="var(--chart-a)" stroke="var(--bg)" strokeWidth="2" />}
                   {b && <rect x={b.x - (resaltado ? 5.5 : 4.5)} y={b.y - (resaltado ? 5.5 : 4.5)} width={resaltado ? 11 : 9} height={resaltado ? 11 : 9} fill="var(--chart-b)" stroke="var(--bg)" strokeWidth="2" />}
@@ -146,7 +150,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
                         fontSize="11"
                         fontFamily="var(--font-texto)"
                       >
-                        sin datos
+                        {f.sinDatos}
                       </text>
                     )}
                   </g>
@@ -157,17 +161,17 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
 
           <p className="min-h-6 text-center text-[15px] text-muted" aria-hidden="true">
             {activo === null
-              ? 'Toca un área para ver en qué se diferencian.'
+              ? t.tocaArea
               : `${ejes[activo].nombre}: ${nombreA} ${texto(ejes[activo].a)} · ${nombreB} ${texto(ejes[activo].b)}`}
           </p>
         </div>
 
         <figcaption>
           <table className="w-full text-left text-[15px]">
-            <caption className="sr-only">Dato de cada carro por área y cuál gana. Elige un área para ver su detalle.</caption>
+            <caption className="sr-only">{t.tablaCaption}</caption>
             <thead>
               <tr className="border-b-2 border-heading text-heading">
-                <th scope="col" className="py-2 pr-3 font-bold">Área</th>
+                <th scope="col" className="py-2 pr-3 font-bold">{t.area}</th>
                 <th scope="col" className="px-2 py-2 font-bold">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="inline-block size-2.5 shrink-0 rounded-full" style={{ backgroundColor: 'var(--chart-a)' }} aria-hidden="true" />
@@ -180,7 +184,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
                     {nombreB}
                   </span>
                 </th>
-                <th scope="col" className="hidden py-2 pl-2 text-right font-bold sm:table-cell">Gana</th>
+                <th scope="col" className="hidden py-2 pl-2 text-right font-bold sm:table-cell">{t.gana}</th>
               </tr>
             </thead>
             <tbody>
@@ -190,7 +194,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
                 const celda = (valor: string | null, extra: string | null, puntaje: number | null, lado: 'a' | 'b') => (
                   <td className="px-2 py-2 align-top">
                     {valor === null ? (
-                      <span className="text-muted">Sin dato</span>
+                      <span className="text-muted">{f.sinDato}</span>
                     ) : (
                       <>
                         <span className={`whitespace-nowrap tabular-nums ${fila.ganador === lado ? 'font-bold text-heading' : ''}`}>{valor}</span>
@@ -206,7 +210,7 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
                 );
                 return (
                   <tr
-                    key={fila.nombre}
+                    key={fila.clave}
                     className={`border-b border-border ${activo === i ? 'bg-tint' : ''}`}
                     onMouseEnter={() => setEncima(i)}
                     onMouseLeave={() => setEncima(null)}
@@ -262,12 +266,11 @@ export default function GraficoRadar({ ejes, resumen, nombreA, nombreB, seleccio
           {(() => {
             const vacias = resumen.filter((fila) => fila.a === null && fila.b === null).map((fila) => fila.nombre.toLowerCase());
             return vacias.length > 0 ? (
-              <p className="mt-3 text-[14px] leading-5 text-muted">Sin datos de {enumerar(vacias)} para estos dos carros.</p>
+              <p className="mt-3 text-[14px] leading-5 text-muted">{t.sinDatosDe(enumerar(vacias, idioma))}</p>
             ) : null;
           })()}
           <p className="mt-3 text-[14px] leading-5 text-muted">
-            La barra bajo cada dato es el puntaje del área, de 0 a 100, medido contra rangos fijos (por ejemplo, la
-            autonomía va de 0 a 800 km). Con esos puntajes se dibuja el gráfico y se calcula el puntaje general.
+            {t.notaGrafico}
           </p>
         </figcaption>
       </div>

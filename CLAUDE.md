@@ -9,15 +9,15 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 ## Alcance actual
 
 - Fase 1 (construida): la revista. Portada, página de artículo, página de sección (categorías y etiquetas) y página 404.
-- Inglés (en construcción, desde el 2026-11-05): la revista ya existe en `/en/` (portada, notas, blog, categorías y etiquetas), con todas las notas traducidas. Faltan carros, comparador, páginas institucionales e imágenes `/og/`. Ver "Idiomas".
+- Inglés (desde el 2026-11-05): todo el sitio existe en `/en/`: revista, carros, comparador, comparaciones, páginas institucionales, 404 e imágenes `/og/`. Ver "Idiomas".
 - Fase 2 (en construcción): el comparador de carros, en `/es/comparador/`. Ya existe: elegir dos carros, gráfico de araña, ventajas de cada uno y ficha técnica. Además, cada modelo tiene su página (`/es/carros/<modelo>/`) y cada comparación entre rivales también (`/es/comparador/<modelo-a>-vs-<modelo-b>/`), generadas al compilar para que Google las encuentre. Ver "Páginas de carros y comparaciones".
 
 ## Público
 
 - Personas de 25 a 40 años con gusto por los vehículos.
-- Audiencia internacional, no solo Colombia. El sitio tendrá cinco idiomas: español, inglés, francés, alemán y portugués. El español es el primero; el inglés está en construcción.
+- Audiencia internacional, no solo Colombia. El sitio tendrá cinco idiomas: español, inglés, francés, alemán y portugués. El español es el primero y el inglés ya está completo.
 - En cada idioma, todo el texto de la interfaz va en ese idioma ("Cargar más" en español, "Load more" en inglés).
-- Los textos de interfaz de la revista están en `src/i18n/es.ts` y `src/i18n/en.ts`: un texto nuevo se escribe en los dos (TypeScript avisa si falta). Los del comparador y las fichas de carros siguen dentro de sus componentes hasta que se traduzcan esas páginas.
+- Los textos de interfaz están en `src/i18n/es.ts` y `src/i18n/en.ts`, también los del comparador, las fichas y los valores guardados en inglés en la tabla: un texto nuevo se escribe en los dos (TypeScript avisa si falta).
 - Idioma y país son cosas distintas: el prefijo `/es/` indica el idioma de la página, no de dónde viene la noticia.
 
 ## Stack
@@ -31,11 +31,16 @@ Sitio web de carros: un comparador de carros y una revista con noticias, lanzami
 
 - `src/i18n/`: idiomas (`idiomas.ts`, con `idiomaDe(url)` que saca el idioma del prefijo de la ruta), textos de interfaz y `LOCALE` para `Intl`. Las fechas (`fechas.ts`) y el `lang`, `og:locale` e `hreflang` de `Base.astro` dependen del idioma de la página.
 - Rutas por idioma en `src/lib/rutas.ts` (`SEGMENTOS`): en inglés `/en/news/<slug>/` (nota), `/en/blog/` (listado), `/en/category/<slug>/`, `/en/tag/<slug>/`, `/en/cars/`, `/en/compare/`. `/en/news/` redirige a `/en/blog/`. Cada función de ruta recibe el idioma (por defecto `es`).
-- `CONSTRUIDAS` en `rutas.ts` dice qué secciones existen ya en inglés. Mientras una no exista, sus enlaces desde las páginas en inglés llevan a la página en español. Al construir una sección en inglés, se añade ahí.
+- `CONSTRUIDAS` en `rutas.ts` dice qué secciones existen en cada idioma; en inglés ya están todas. Al sumar un idioma, sus secciones se añaden ahí a medida que existan: mientras tanto, sus enlaces llevan a la página en español.
+- Las plantillas de carros, comparador, comparación y 404 están en `src/layouts/` (`PaginaModelo`, `IndiceCarros`, `ComparadorLibre`, `PaginaComparacion`, `Pagina404`) y sacan el idioma de la URL; las páginas de `src/pages/es/` y `src/pages/en/` solo las llaman. Las institucionales usan `Institucional.astro` con el texto de cada idioma en su página (`/en/about/`, `/en/legal-notice/`, `/en/privacy-policy/`).
+- `Comparador.tsx` y sus componentes reciben `idioma` como prop y sacan los textos de `src/i18n/`. Las funciones de `src/lib/vehiculos.ts` y `catalogo.ts` reciben el idioma (por defecto `es`). Las áreas del gráfico se identifican por `clave` (`autonomia`…), no por su nombre.
+- Los datos en la interfaz en inglés: km con millas al lado (`conMillas`), km/h con mph, potencia con hp, números con formato inglés. La tabla guarda en español `image_credit` ("foto oficial", "Kia España") y la versión "Única": `creditoFoto` y `nombreVersion` los traducen al mostrarlos. Un crédito con un país nuevo se añade a `CREDITOS` en `vehiculos.ts`.
+- La 404 en inglés se compila en `/en/404/` y una integración de `astro.config.mjs` la copia a `dist/en/404.html`, que Cloudflare sirve para las rutas de `/en/` que no existen.
+- Imágenes para compartir en inglés: `/og/en/cars/<modelo>.jpg` y `/og/en/compare/<par>.jpg`.
 - Las categorías tienen nombre, slug y descripción en inglés en `src/data/categorias.ts` (`textoCategoria`). La clave (`lanzamientos`…) no cambia.
 - Notas en inglés: colección `notasEn`, en `src/content/notas-en/<slug-en-ingles>.md`. Mismos campos que las de español, más `original` con el slug de la nota en español (la compilación falla si no existe). El slug se elige para búsquedas en inglés; la imagen es la misma de la original. Las etiquetas van en inglés, con el glosario de las ya usadas.
 - Dentro del texto, las notas traducidas dejan los enlaces internos como en español (`/es/notas/…`, `/es/carros/…`): `CuerpoTraducido.astro` los cambia por la página en inglés si existe.
-- Cada nota traducida se enlaza con su original por `hreflang`; `x-default` apunta al inglés. La cabecera lleva un enlace al otro idioma (a la misma página si está traducida, si no a la portada).
+- Cada página traducida se enlaza con su original por `hreflang` (prop `alternativas` de `Base.astro`); `x-default` apunta al inglés. La cabecera lleva un enlace al otro idioma (a la misma página si está traducida, si no a la portada).
 - Se traduce todo: cada nota en español tiene su versión en inglés, también las de Colombia (impuestos, crédito, pico y placa), que dicen "Colombia" en el titular y explican en una línea cada institución local (DIAN, RUNT, SOAT). Una nota nueva se publica en los dos idiomas. En la traducción: km y kW con millas y hp entre paréntesis (no en la potencia de carga), precios en su moneda sin convertir (`COP 89.99 million`), y las mismas reglas de redacción.
 - Las plantillas de nota (`layouts/Articulo.astro`) y portada (`layouts/Portada.astro`) son una sola para los dos idiomas; las páginas de `src/pages/es/` y `src/pages/en/` solo las llaman.
 
@@ -261,7 +266,7 @@ Referencia: elcarrocolombiano.com. Se copia la estructura, no el aspecto.
   - Paginación de 10 notas por página (`/2/`, `/3/`...), con enlaces "Anterior" y "Siguiente". Cada página paginada es su propia URL canónica.
   - Estado vacío cuando no hay notas.
 - Página 404 con enlaces a la portada y a las secciones.
-- Todas las rutas van bajo el prefijo de idioma y terminan en `/`. Por ahora solo existe `/es/`.
+- Todas las rutas van bajo el prefijo de idioma (`/es/`, `/en/`) y terminan en `/`.
 - Blog y noticias (`/es/blog/`): listado de todas las notas, con la plantilla de sección y paginado igual. Bajo el encabezado lleva una fila de botones con las categorías ("Todas" más las cuatro, con su número de notas), que también aparece en cada página de categoría con la suya marcada.
 - Las categorías no van en el menú superior: se llega a ellas desde "Blog y noticias" y desde la barra lateral.
 - Páginas institucionales (`Institucional.astro`): Nosotros (`/es/nosotros/`), Aviso legal (`/es/aviso-legal/`) y Política de privacidad (`/es/politica-de-privacidad/`, con la sección de cookies en `#cookies`). Van enlazadas en la columna "Sobre el sitio" del pie, que exige Google AdSense. El correo y el domicilio están en `src/data/contacto.ts`. Si se suma un proveedor que trate datos (otro servicio de anuncios, un formulario, comentarios), actualizar la política de privacidad y su fecha.
@@ -373,8 +378,8 @@ Página `/es/comparador/`. No aparece en la portada. Es una isla de React (`Comp
 - Ficha técnica por secciones. Cada tabla (y el detalle de un área del gráfico) empieza con una fila que dice qué carro va en cada columna: la marca del color del carro, el nombre del modelo y la versión. Solo aparecen las filas donde al menos un carro tiene el dato; el que falta dice "Sin dato". En los sí o no, el "Sí" lleva un punto del color del carro.
 - Barra fija abajo con los dos carros, su puntaje y un botón "Cambiar" que lleva a los buscadores.
 - Los dos carros se distinguen con `--chart-a` y `--chart-b`, que son colores solo para gráficos, y nunca solo por color: la leyenda lleva el nombre, el carro 2 usa línea punteada y marcas cuadradas, y el ganador de cada fila lleva la palabra "Mejor".
-- Los valores guardados en inglés (`electric`, `rwd`) se traducen al español en `src/lib/vehiculos.ts`.
-- Al agregar una columna a `vehicles`, añadirla también a la lista de filas de ese archivo para que aparezca en el comparador.
+- Los valores guardados en inglés (`electric`, `rwd`) se traducen en `valores` de `src/i18n/`.
+- Al agregar una columna a `vehicles`, añadirla a `BASE_SECCIONES` en `src/lib/vehiculos.ts` y a `filasFicha` en `src/i18n/es.ts` y `en.ts` para que aparezca en el comparador.
 
 ## Páginas de carros y comparaciones
 
@@ -386,13 +391,13 @@ Pensadas para que gente de todo el mundo llegue desde Google: el comparador inte
 - Índice `/es/carros/`: todos los modelos agrupados por tamaño.
 - Comparaciones con página propia: `/es/comparador/<modelo-a>-vs-<modelo-b>/`, en orden alfabético (cada par existe una vez). Solo entre rivales reales: tamaño igual o vecino y al menos 5 de las 7 áreas comparables. Se comparan las versiones más básicas de un mercado que tengan los dos; si no comparten mercado, la representativa de cada uno. La página pinta el comparador completo desde el servidor (`Comparador.tsx` con `inicialA` e `inicialB`), una frase con el veredicto, preguntas rápidas por área ("¿Cuál tiene más autonomía?"), enlaces a los dos modelos y otras comparaciones. Cambiar un carro lleva al comparador libre.
 - Solo se indexan las comparaciones con texto propio. Las demás llevan `noindex, follow` y no van en el sitemap (decisión del 2026-10-28, tras la caída en Google): cientos de páginas con la misma plantilla y poco texto propio bajan la confianza en un sitio nuevo. Las fichas de modelos sí se indexan.
-- El texto propio va en la colección `comparaciones` (`src/content/comparaciones/<par>.md`, con el slug del par en orden alfabético) y sale bajo «¿Cuál conviene?». Con él, la página se indexa y entra sola al sitemap. Se abren por lotes (el primero, de 20, el 2026-11-03) entre rivales que la gente busca y del mismo mercado, y se mide en Search Console de 3 a 4 semanas antes del siguiente.
+- El texto propio va en la colección `comparaciones` (`src/content/comparaciones/<par>.md`, con el slug del par en orden alfabético) y sale bajo «¿Cuál conviene?». Con él, la página se indexa y entra sola al sitemap. Su versión en inglés va en `comparacionesEn` (`src/content/comparaciones-en/<par>.md`, mismo nombre, con las reglas de traducción de "Idiomas"); sin ella, la página en inglés lleva `noindex` y la compilación avisa. Se abren por lotes (el primero, de 20, el 2026-11-03) entre rivales que la gente busca y del mismo mercado, y se mide en Search Console de 3 a 4 semanas antes del siguiente.
 - Los lotes nuevos se hacen con la skill `indexar-comparaciones`. **Excepción a «publicar se pide en el momento»:** la tarea programada `indexar-comparaciones-lote-2` (2026-11-24, 8 a. m.) tiene autorización de quien administra (Jhampier Giron, 2026-11-03) para escribir, verificar, hacer commit, push y desplegar ese lote sin preguntar, y avisar al terminar. No despliega si algo falla.
 - Cada texto: 300 a 450 palabras con las reglas de redacción, solo con los datos de las dos versiones que compara la página (sin precios ni datos de fuera) y diciendo de qué mercado son. Si un par deja de existir (un carro despublicado), la compilación avisa y su texto deja de publicarse; si cambian las versiones comparadas, el texto se revisa.
 - El comparador libre (`/es/comparador/?a=&b=`) enlaza a la ficha de cada modelo y, si la pareja tiene página propia, a esa página.
 - Las notas que hablan de un modelo (por `article_slug` o porque lo nombran en el titular) muestran al final el enlace a su ficha.
-- Imágenes para compartir, generadas al compilar con `sharp` (`src/lib/imagenesSociales.ts`): `/og/carros/<modelo>.jpg` y `/og/comparador/<par>.jpg`, de 1200 × 630.
-- Migas de pan con JSON-LD `BreadcrumbList` (`Migas.astro`). `Base.astro` declara `max-image-preview:large` y `hreflang` (por ahora solo `es` y `x-default`; al sumar idiomas, cada página declara sus traducciones ahí).
+- Imágenes para compartir, generadas al compilar con `sharp` (`src/lib/imagenesSociales.ts`): `/og/carros/<modelo>.jpg` y `/og/comparador/<par>.jpg`, de 1200 × 630. En inglés, ver "Idiomas".
+- Migas de pan con JSON-LD `BreadcrumbList` (`Migas.astro`). `Base.astro` declara `max-image-preview:large` y `hreflang` (cada página declara sus traducciones con `alternativas`).
 
 ## Reglas de calidad
 

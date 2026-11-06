@@ -73,6 +73,8 @@ for d in dist/es/comparador/*-vs-*/; do grep -q 'content="noindex' $d/index.html
 grep -o 'comparador/[a-z0-9-]*-vs-[a-z0-9-]*/' dist/sitemap-0.xml | sort -u | wc -l
 ```
 
+Cada texto se traduce también en `src/content/comparaciones-en/<par>.md`, con las reglas de "Idiomas" de `CLAUDE.md`; si falta, la página en inglés queda con `noindex` y la compilación avisa.
+
 Los dos números deben ser iguales al total de archivos en `src/content/comparaciones/`. La compilación avisa si un
 texto ya no tiene par: en ese caso, revisa por qué (un carro despublicado) y quita el archivo.
 

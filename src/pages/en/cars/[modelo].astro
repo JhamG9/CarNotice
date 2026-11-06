@@ -1,0 +1,16 @@
+---
+import PaginaModelo from '../../../layouts/PaginaModelo.astro';
+import type { Modelo } from '../../../lib/catalogo';
+import { obtenerCatalogo } from '../../../lib/catalogoDatos';
+
+export async function getStaticPaths() {
+  const { modelos } = await obtenerCatalogo();
+  return modelos.map((modelo) => ({ params: { modelo: modelo.slug }, props: { modelo } }));
+}
+
+interface Props {
+  modelo: Modelo;
+}
+---
+
+<PaginaModelo modelo={Astro.props.modelo} />

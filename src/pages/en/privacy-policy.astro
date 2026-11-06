@@ -1,0 +1,200 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO, DOMICILIO } from '../../data/contacto';
+import { rutaAvisoLegal } from '../../lib/rutas';
+
+const navegadores = [
+  { nombre: 'Google Chrome', href: 'https://support.google.com/chrome/answer/95647?hl=en' },
+  {
+    nombre: 'Mozilla Firefox',
+    href: 'https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop',
+  },
+  { nombre: 'Apple Safari', href: 'https://support.apple.com/en-us/guide/safari/sfri11471/mac' },
+  {
+    nombre: 'Microsoft Edge',
+    href: 'https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09',
+  },
+];
+---
+
+<Institucional
+  pagina="privacidad"
+  nombre="Privacy policy"
+  descripcion="What data is collected when you visit Mejor Eléctrico, what it is used for, which cookies the site and its providers set, and how to exercise your rights."
+  actualizado="2026-10-19"
+>
+  <p>
+    At Mejor Eléctrico we collect as little data as possible. You can read the articles and use the comparison tool
+    without registering, without giving your name and without filling in forms. This policy explains what information
+    is processed when you visit <strong>mejorelectrico.com</strong>, who processes it and how you can control it.
+  </p>
+
+  <h2>1. Data controller</h2>
+  <ul>
+    <li><strong>Controller:</strong> Mejor Eléctrico</li>
+    <li><strong>Address:</strong> {DOMICILIO}</li>
+    <li>
+      <strong>Email for privacy matters:</strong> <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    </li>
+  </ul>
+
+  <h2>2. What data we process</h2>
+  <ul>
+    <li>
+      <strong>Browsing data.</strong> When a page loads, your browser automatically sends technical data such as your IP
+      address, browser and device type, language and referring page. It is used by the services that host and measure
+      the site (see section 4).
+    </li>
+    <li>
+      <strong>Usage statistics.</strong> Google Analytics tells us which pages are visited, for how long, from which
+      approximate country and on what type of device. This data is aggregated: we do not use it to identify you.
+    </li>
+    <li>
+      <strong>Theme preference.</strong> If you choose the light or dark theme, that choice is saved in your own browser
+      (local storage, key <code>tema</code>). It does not leave your device and we do not receive it.
+    </li>
+    <li>
+      <strong>Emails you send us.</strong> If you write to us, we process your email address and whatever you tell us,
+      only to reply to you.
+    </li>
+  </ul>
+  <p>
+    The site has no comments, user accounts or forms, and we do not ask for sensitive data. Fonts are served from our own
+    domain, so loading them does not send data to third parties. The share buttons are plain links: they load nothing
+    from WhatsApp, X or Facebook until you click them.
+  </p>
+
+  <h2>3. What we use it for</h2>
+  <ul>
+    <li>Showing the site and protecting it from attacks and abuse.</li>
+    <li>Understanding which content is of most interest and improving the articles and the comparison tool.</li>
+    <li>Showing advertising that helps fund the site (see section 6).</li>
+    <li>Answering the inquiries, corrections and requests you send us.</li>
+  </ul>
+  <p>
+    The legal basis is your consent for measurement and advertising cookies, and our legitimate interest in keeping the
+    site working and secure for the essential technical data. We do not sell your data.
+  </p>
+
+  <h2>4. Who it is shared with</h2>
+  <p>The data is processed, on our behalf or as independent controllers, by these providers:</p>
+  <ul>
+    <li>
+      <strong>Cloudflare</strong>, which hosts the site and delivers it from servers in different countries. It receives
+      the technical data of each visit in order to serve the pages and block malicious traffic.
+    </li>
+    <li>
+      <strong>Supabase</strong>, which stores the spec sheets of the comparison tool. When you open the tool, your browser
+      requests the car data from it and, with that request, sends technical data such as your IP address.
+    </li>
+    <li>
+      <strong>Google</strong>, which provides Google Analytics and, when the site shows ads, Google AdSense. You can read{' '}
+      <a href="https://policies.google.com/technologies/partner-sites?hl=en" rel="noopener">
+        how Google uses information from sites that use its services</a
+      >.
+    </li>
+  </ul>
+  <p>
+    Some of these providers process data outside your country, for example in the United States. We work with providers
+    that offer adequate protection guarantees. We may also hand over data to an authority when the law requires it.
+  </p>
+
+  <h2 id="cookies">5. Cookies</h2>
+  <p>
+    A cookie is a small file that a site stores in your browser to remember information between one visit and the next.
+    Cookies are tied to the browser, not the person, and do not store data such as your name or your card.
+  </p>
+  <p>Mejor Eléctrico does not set its own cookies. The ones that may appear are from third parties:</p>
+  <ul>
+    <li>
+      <strong>Measurement (Google Analytics):</strong> <code>_ga</code> and <code>_ga_*</code>. They distinguish visitors
+      and sessions for statistics. They last up to two years. They are only set on mejorelectrico.com.
+    </li>
+    <li>
+      <strong>Advertising (Google AdSense and its partners):</strong> for example <code>__gads</code>,
+      <code>__gpi</code> and <code>IDE</code>. They are used to show ads, limit how many times you see the same one and
+      measure their performance. They can last up to thirteen months.
+    </li>
+  </ul>
+  <p>If you block these cookies, the site works just the same: you can read every article and use the comparison tool.</p>
+
+  <h2>6. Google advertising</h2>
+  <p>
+    The site may show Google AdSense ads. Third-party vendors, including Google, use cookies to serve ads based on your
+    prior visits to this or other websites. Advertising cookies enable Google and its partners to show you ads based on
+    your browsing on the internet.
+  </p>
+  <p>
+    You can turn off personalized advertising in <a href="https://adssettings.google.com/" rel="noopener"
+      >Google's ad settings</a
+    >, and that of other providers at <a href="https://www.aboutads.info/choices/" rel="noopener">aboutads.info</a> or, if
+    you are in Europe, at <a href="https://www.youronlinechoices.eu/" rel="noopener">youronlinechoices.eu</a>. If you turn
+    it off, you will still see ads, but they will not be based on your interests.
+  </p>
+  <p>In the European Economic Area, the United Kingdom and Switzerland, Google only shows personalized ads with your consent.</p>
+
+  <h2>7. How to control cookies</h2>
+  <p>
+    You can view, block or delete cookies from your browser settings, and reject only third-party ones. Keep in mind that
+    the setting is made in each browser and on each device you use:
+  </p>
+  <ul>
+    {
+      navegadores.map((navegador) => (
+        <li>
+          <a href={navegador.href} rel="noopener">
+            {navegador.nombre}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p>
+    To stay out of Google Analytics on every site, you can install <a
+      href="https://tools.google.com/dlpage/gaoptout?hl=en"
+      rel="noopener">Google's opt-out add-on</a
+    >.
+  </p>
+
+  <h2>8. How long it is kept</h2>
+  <p>
+    Google Analytics statistics are kept for the period set in that tool, which ranges from two to fourteen months.
+    Hosting providers' technical logs are kept for the time they set for security. Emails you send us are kept for as long
+    as the conversation lasts and a reasonable time to deal with later claims; after that they are deleted.
+  </p>
+
+  <h2>9. Your rights</h2>
+  <p>
+    Under Colombia's Law 1581 of 2012 and its regulatory decrees, you have the right to know, update and rectify your
+    data; to request proof of the authorization you gave us; to know how we use it; to revoke the authorization or ask us
+    to delete it when there is no legal duty to keep it; to consult it free of charge, and to file complaints with the
+    Superintendence of Industry and Commerce, the Colombian data protection authority.
+  </p>
+  <p>
+    If you visit the site from the European Union or another country with an equivalent law, such as the General Data
+    Protection Regulation (GDPR), you also have the right to request access to, rectification, erasure, restriction and
+    portability of your data, to object to its processing and to complain to the data protection authority of your
+    country.
+  </p>
+  <p>
+    To exercise any of these rights, write to <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    with the subject "Personal data" and explain what you need. We answer inquiries within a maximum of ten business days
+    and claims within fifteen business days, as set by Colombian law.
+  </p>
+  <p>
+    Since almost all browsing data is processed by Google, Cloudflare and Supabase, the fastest way to control it is often
+    your browser settings or those providers' tools. We cannot link that data to your name.
+  </p>
+
+  <h2>10. Minors</h2>
+  <p>
+    The site is aimed at adults and does not knowingly collect data from minors. If you believe a minor has sent us their
+    data, write to us and we will delete it.
+  </p>
+
+  <h2>11. Changes to this policy</h2>
+  <p>
+    If the way we process data changes, for example when we add a provider, we will update this page and its date. The
+    general terms of use of the site are in the <a href={rutaAvisoLegal('en')}>legal notice</a>.
+  </p>
+</Institucional>

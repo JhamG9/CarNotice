@@ -1,8 +1,13 @@
 ---
 import Base from './Base.astro';
+import { LOCALE, idiomaDe, textos, type Idioma } from '../i18n';
 import { rutaAvisoLegal, rutaNosotros, rutaPrivacidad } from '../lib/rutas';
 
+const RUTAS = { nosotros: rutaNosotros, avisoLegal: rutaAvisoLegal, privacidad: rutaPrivacidad };
+
 interface Props {
+  /** Cuál de las tres páginas es: de ahí salen sus traducciones. */
+  pagina: keyof typeof RUTAS;
   /** Nombre de la página: va en el h1 y en el título ("… | Mejor Eléctrico"). */
   nombre: string;
   descripcion: string;
@@ -10,21 +15,23 @@ interface Props {
   actualizado?: string;
 }
 
-const { nombre, descripcion, actualizado } = Astro.props;
+const { pagina, nombre, descripcion, actualizado } = Astro.props;
+const idioma: Idioma = idiomaDe(Astro.url);
+const { pie, institucional: t } = textos(idioma);
 const ruta = Astro.url.pathname;
 const paginas = [
-  { nombre: 'Nosotros', href: rutaNosotros() },
-  { nombre: 'Aviso legal', href: rutaAvisoLegal() },
-  { nombre: 'Política de privacidad', href: rutaPrivacidad() },
+  { nombre: pie.nosotros, href: rutaNosotros(idioma) },
+  { nombre: pie.avisoLegal, href: rutaAvisoLegal(idioma) },
+  { nombre: pie.privacidad, href: rutaPrivacidad(idioma) },
 ];
 const fechaLegible = actualizado
-  ? new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+  ? new Intl.DateTimeFormat(LOCALE[idioma], { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
       new Date(actualizado),
     )
   : undefined;
 ---
 
-<Base titulo={`${nombre} | Mejor Eléctrico`} descripcion={descripcion}>
+<Base titulo={`${nombre} | Mejor Eléctrico`} descripcion={descripcion} alternativas={{ es: RUTAS[pagina]('es'), en: RUTAS[pagina]('en') }}>
   <div class="mx-auto max-w-pagina px-4 pt-6 pb-4 md:px-6 md:pt-8">
     <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 xl:gap-14">
       <article class="max-w-articulo min-w-0">
@@ -34,7 +41,7 @@ const fechaLegible = actualizado
           {
             fechaLegible && (
               <p class="t-meta mt-3 text-muted">
-                Última actualización: <time datetime={actualizado}>{fechaLegible}</time>
+                {t.actualizado} <time datetime={actualizado}>{fechaLegible}</time>
               </p>
             )
           }
@@ -46,7 +53,7 @@ const fechaLegible = actualizado
       </article>
 
       <nav aria-labelledby="titulo-sobre-sitio" class="content-start">
-        <h2 id="titulo-sobre-sitio" class="t-lateral barra-corta">Sobre el sitio</h2>
+        <h2 id="titulo-sobre-sitio" class="t-lateral barra-corta">{t.sobreSitio}</h2>
         <ul class="mt-2">
           {
             paginas.map((pagina) => (

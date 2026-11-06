@@ -1,0 +1,33 @@
+---
+import Base from './Base.astro';
+import Comparador from '../components/Comparador.tsx';
+import { idiomaDe, textos } from '../i18n';
+import { obtenerCatalogo } from '../lib/catalogoDatos';
+import { enlacesDeNotas } from '../lib/notas';
+import { rutaComparador } from '../lib/rutas';
+
+/** Comparador libre, en cualquier idioma. Lo usan /es/comparador/ y /en/compare/. */
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).comparador;
+
+// Comparaciones con página propia: el comparador enlaza a la de la pareja elegida, si existe
+const { pares } = await obtenerCatalogo();
+const paginas = pares.map((par) => par.slug);
+const enlacesNotas = await enlacesDeNotas(idioma);
+---
+
+<Base titulo={t.tituloPagina} descripcion={t.descripcionPagina} alternativas={{ es: rutaComparador('es'), en: rutaComparador('en') }}>
+  <div class="mx-auto max-w-pagina px-4 pt-6 md:px-6 md:pt-8">
+    <header class="border-b border-border pb-6">
+      <h1 class="t-seccion barra-corta">{t.h1}</h1>
+      <p class="t-texto mt-4 max-w-articulo text-muted">{t.entradilla}</p>
+    </header>
+
+    <div class="pt-8">
+      <Comparador client:load paginas={paginas} idioma={idioma} enlacesNotas={enlacesNotas} />
+      <noscript>
+        <p class="t-texto text-muted">{t.sinJs}</p>
+      </noscript>
+    </div>
+  </div>
+</Base>

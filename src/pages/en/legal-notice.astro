@@ -1,0 +1,124 @@
+---
+import Institucional from '../../layouts/Institucional.astro';
+import { CORREO_CONTACTO, DOMICILIO } from '../../data/contacto';
+import { rutaPrivacidad } from '../../lib/rutas';
+---
+
+<Institucional
+  pagina="avisoLegal"
+  nombre="Legal notice"
+  descripcion="Terms of use of Mejor Eléctrico: who is responsible for the site, how its content can be used and the scope of the information published."
+  actualizado="2026-10-19"
+>
+  <p>
+    This notice governs access to and use of the website <strong>mejorelectrico.com</strong> (hereinafter, "the site").
+    Anyone who enters and uses the site becomes a user and accepts these terms. If you do not agree with them, you must
+    refrain from using it.
+  </p>
+
+  <h2>1. Details of the party responsible</h2>
+  <ul>
+    <li><strong>Site name:</strong> Mejor Eléctrico</li>
+    <li><strong>Web address:</strong> https://mejorelectrico.com</li>
+    <li><strong>Registered address:</strong> {DOMICILIO}</li>
+    <li>
+      <strong>Email:</strong> <a href={`mailto:${CORREO_CONTACTO}`}>{CORREO_CONTACTO}</a>
+    </li>
+  </ul>
+
+  <h2>2. Purpose of the site</h2>
+  <p>
+    Mejor Eléctrico is a digital publication about vehicles. It offers informative articles (news, launches, guides and
+    test results) and a comparison tool that shows the spec sheets of different cars side by side. Access is free and
+    does not require registration.
+  </p>
+
+  <h2>3. Informative nature of the content</h2>
+  <p>
+    The content of the site is informative and does not constitute technical, legal, tax or financial advice. Prices,
+    tax benefits, traffic rules, ranges, charging times and equipment vary by country, market, trim and date, and the
+    manufacturer may change them without notice.
+  </p>
+  <p>
+    The spec sheets in the comparison tool are prepared from public sources cited in each case. Although we review them
+    carefully, they may contain errors or omissions. Before buying a vehicle or making an important decision, confirm
+    the data with the manufacturer or with the dealer in your country.
+  </p>
+  <p>
+    The scores in the comparison tool are a guide calculated from the available data. They are not a purchase
+    recommendation and do not take price into account.
+  </p>
+
+  <h2>4. Intellectual property</h2>
+  <p>
+    The texts, design, code, comparison charts and the Mejor Eléctrico brand belong to their owner or are used with
+    authorization, and are protected by the applicable copyright and industrial property rules.
+  </p>
+  <p>
+    Vehicle photographs belong to their manufacturers or their authors, and are published with credit, as press material
+    or under free licenses. The brands and model names mentioned belong to their respective owners and are cited only to
+    identify the products.
+  </p>
+  <p>
+    Short excerpts from the articles may be quoted as long as the source is stated with a link to the original article.
+    Any other full or partial reproduction, distribution or transformation of the content requires prior written
+    authorization.
+  </p>
+
+  <h2>5. Use of the site</h2>
+  <p>Users agree to use the site lawfully and not to:</p>
+  <ul>
+    <li>Use it for fraudulent purposes or purposes contrary to the law, morality or public order.</li>
+    <li>Try to access restricted areas, the systems that host it or its databases.</li>
+    <li>Introduce viruses or any program that could harm the site, its providers or other users.</li>
+    <li>
+      Extract the content or the spec sheets in bulk or by automated means (with robots, spiders or similar tools), or
+      place a load on the site that affects its operation.
+    </li>
+    <li>Remove or alter the credits, rights notices or trademarks included in the content.</li>
+  </ul>
+
+  <h2>6. Liability</h2>
+  <p>
+    We do not guarantee that the site will be available without interruption or free of errors, although we try to make
+    it so. We are not liable for damage arising from service interruptions, technical failures, viruses or third-party
+    intrusions beyond our control, or from decisions users make based on the information published.
+  </p>
+  <p>We reserve the right to modify, update or remove content from the site at any time, without prior notice.</p>
+
+  <h2>7. Links</h2>
+  <p>
+    The site includes links to third-party pages, such as the sources of each spec sheet or manufacturers' press rooms.
+    We do not control those pages and are not responsible for their content, availability or privacy policies.
+  </p>
+  <p>
+    Any page of Mejor Eléctrico may be linked from another site, as long as the link does not imply a relationship or
+    endorsement that does not exist and the content is not displayed within frames of another site.
+  </p>
+
+  <h2>8. Advertising</h2>
+  <p>
+    The site may show third-party ads, including those from Google AdSense. Advertisers are responsible for the content
+    of their ads. Showing an ad does not mean that we recommend the product or service advertised.
+  </p>
+
+  <h2>9. Personal data and cookies</h2>
+  <p>
+    The processing of personal data and the use of cookies are explained in the{' '}
+    <a href={rutaPrivacidad('en')}>privacy policy</a>.
+  </p>
+
+  <h2>10. Changes to this notice</h2>
+  <p>
+    We may change this notice to adapt it to changes in the site or the law. The version in force is the one published
+    on this page, with its update date.
+  </p>
+
+  <h2>11. Applicable law</h2>
+  <p>
+    This notice is governed by the laws of the Republic of Colombia. Any dispute will be submitted to the competent
+    judges of Bogotá D.C., without prejudice to the rights that the law of the user's country of residence grants them as
+    a consumer.
+  </p>
+  <p>If any clause of this notice is void or unenforceable, the others will remain in force.</p>
+</Institucional>

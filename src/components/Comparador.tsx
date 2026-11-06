@@ -3,10 +3,10 @@ import BuscadorCarro from './BuscadorCarro';
 import GraficoRadar from './GraficoRadar';
 import {
   CAMPOS_POR_AREA,
-  SECCIONES,
   buscarFila,
   calcularEjes,
   calcularVeredicto,
+  creditoFoto,
   enumerar,
   formatearValor,
   valorDe,
@@ -15,15 +15,19 @@ import {
   nombreCompleto,
   nombreMercado,
   nombreModelo,
+  nombreVersion,
   obtenerVehiculos,
   resumirAreas,
+  secciones as seccionesDe,
   textoOtroNombre,
+  type ClaveArea,
   type Fila,
   type Vehiculo,
   type Veredicto,
 } from '../lib/vehiculos';
 import { slugModelo, slugPar } from '../lib/catalogo';
 import { rutaComparacion, rutaComparadorCon, rutaModelo, rutaNota } from '../lib/rutas';
+import { textos, type Idioma } from '../i18n';
 
 type Estado = 'cargando' | 'listo' | 'error';
 type Lado = 'a' | 'b';
@@ -62,14 +66,30 @@ function Anillo({ valor, lado, tamano = 56 }: { valor: number | null; lado: Lado
   );
 }
 
-function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado: Lado; puntaje: number | null }) {
+function TarjetaVehiculo({
+  vehiculo,
+  lado,
+  puntaje,
+  idioma,
+  enlacesNotas,
+}: {
+  vehiculo: Vehiculo;
+  lado: Lado;
+  puntaje: number | null;
+  idioma: Idioma;
+  enlacesNotas: Record<string, string>;
+}) {
+  const { comparador: t, ficha: f } = textos(idioma);
+  const credito = vehiculo.image_credit ? creditoFoto(vehiculo.image_credit, idioma) : null;
+  // En otro idioma, la nota es la traducida; sin traducción, la original
+  const nota = vehiculo.article_slug ? (enlacesNotas[vehiculo.article_slug] ?? rutaNota(vehiculo.article_slug)) : null;
   return (
     <div className="min-w-0">
       {vehiculo.image_url ? (
         <figure>
           <img
             src={vehiculo.image_url}
-            alt={`Foto de referencia: ${nombreModelo(vehiculo)}`}
+            alt={f.fotoDeReferencia(nombreModelo(vehiculo))}
             width="1600"
             height="900"
             loading="eager"
@@ -77,13 +97,13 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
           />
           {vehiculo.image_credit && (
             <figcaption className="t-meta mt-1 text-muted">
-              Foto de referencia:{' '}
+              {f.fotoReferencia}:{' '}
               {vehiculo.image_source_url ? (
                 <a href={vehiculo.image_source_url} target="_blank" rel="noopener" className="underline hover:text-accent">
-                  {vehiculo.image_credit}
+                  {credito}
                 </a>
               ) : (
-                vehiculo.image_credit
+                credito
               )}
             </figcaption>
           )}
@@ -94,39 +114,39 @@ function TarjetaVehiculo({ vehiculo, lado, puntaje }: { vehiculo: Vehiculo; lado
       <div className="mt-3 flex items-start gap-3 border-t-[3px] pt-3" style={{ borderColor: COLOR[lado] }}>
         <div className="min-w-0 flex-1">
           <h2 className="t-lateral">{nombreModelo(vehiculo)}</h2>
-          {vehiculo.latam_name && <p className="mt-1 text-[15px] font-bold text-heading">{textoOtroNombre(vehiculo)}</p>}
+          {vehiculo.latam_name && <p className="mt-1 text-[15px] font-bold text-heading">{textoOtroNombre(vehiculo, idioma)}</p>}
           <p className="mt-1 text-[15px] text-muted">
-            {vehiculo.version} · {vehiculo.model_year} · Ficha de {nombreMercado(vehiculo.market)}
+            {nombreVersion(vehiculo, idioma)} · {vehiculo.model_year} · {f.fichaDe(nombreMercado(vehiculo.market, idioma))}
           </p>
           <p className="flex flex-wrap gap-x-5">
             <a
-              href={rutaModelo(slugModelo(vehiculo))}
+              href={rutaModelo(slugModelo(vehiculo), idioma)}
               className="mt-1 inline-flex min-h-11 items-center text-[15px] font-bold text-accent hover:underline"
             >
-              Ficha del modelo
+              {t.fichaModelo}
             </a>
-            {vehiculo.article_slug && (
+            {nota && (
               <a
-                href={rutaNota(vehiculo.article_slug)}
+                href={nota}
                 className="mt-1 inline-flex min-h-11 items-center text-[15px] font-bold text-accent hover:underline"
               >
-                Leer la nota
+                {t.leerNota}
               </a>
             )}
           </p>
         </div>
         <span className="flex flex-col items-center">
           <Anillo valor={puntaje} lado={lado} />
-          <span className="t-meta mt-1 text-muted">Puntaje</span>
+          <span className="t-meta mt-1 text-muted">{t.puntaje}</span>
         </span>
       </div>
     </div>
   );
 }
 
-function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Vehiculo; otro: Vehiculo; lado: Lado; gana: boolean }) {
+function Celda({ fila, vehiculo, otro, lado, gana, idioma }: { fila: Fila; vehiculo: Vehiculo; otro: Vehiculo; lado: Lado; gana: boolean; idioma: Idioma }) {
   const valor = valorDe(fila, vehiculo);
-  const texto = formatearValor(fila, valor);
+  const texto = formatearValor(fila, valor, idioma);
   const valorOtro = valorDe(fila, otro);
   // La barra solo aparece en filas con ganador posible y con los dos datos
   const conBarra = Boolean(fila.mejor) && typeof valor === 'number' && typeof valorOtro === 'number';
@@ -135,7 +155,7 @@ function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Veh
   return (
     <div className="min-w-0">
       {texto === null ? (
-        <span className="text-[15px] text-muted">Sin dato</span>
+        <span className="text-[15px] text-muted">{textos(idioma).ficha.sinDato}</span>
       ) : (
         <span className="flex flex-wrap items-center gap-x-2 text-[17px] leading-6">
           {/* En los sí o no, un punto del color del carro cuando lo tiene */}
@@ -146,7 +166,7 @@ function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Veh
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M2 6.5l2.5 2.5L10 3.5" />
               </svg>
-              Mejor
+              {textos(idioma).comparador.mejor}
             </span>
           )}
         </span>
@@ -161,7 +181,7 @@ function Celda({ fila, vehiculo, otro, lado, gana }: { fila: Fila; vehiculo: Veh
 }
 
 /** Primera fila de cada tabla: qué carro va en cada columna. */
-function EncabezadoCarros({ a, b }: { a: Vehiculo; b: Vehiculo }) {
+function EncabezadoCarros({ a, b, idioma }: { a: Vehiculo; b: Vehiculo; idioma: Idioma }) {
   return (
     // Los lectores de pantalla ya oyen el nombre del carro en cada celda (sr-only)
     <div
@@ -182,7 +202,7 @@ function EncabezadoCarros({ a, b }: { a: Vehiculo; b: Vehiculo }) {
           />
           <span className="min-w-0">
             <span className="block text-[15px] leading-5 font-bold text-heading">{nombreModelo(v)}</span>
-            <span className="block text-[13px] leading-4 text-muted">{v.version}</span>
+            <span className="block text-[13px] leading-4 text-muted">{nombreVersion(v, idioma)}</span>
           </span>
         </span>
       ))}
@@ -191,24 +211,25 @@ function EncabezadoCarros({ a, b }: { a: Vehiculo; b: Vehiculo }) {
 }
 
 /** Fila de tabla con los dos valores y el ganador marcado. */
-function FilaComparada({ fila, a, b }: { fila: Fila; a: Vehiculo; b: Vehiculo }) {
+function FilaComparada({ fila, a, b, idioma }: { fila: Fila; a: Vehiculo; b: Vehiculo; idioma: Idioma }) {
   const quien = ganador(fila, a, b);
   return (
     <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-b border-border py-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-8">
       <dt className="col-span-2 text-[15px] text-muted md:col-span-1 md:text-[17px] md:leading-6 md:text-ink">{fila.etiqueta}</dt>
       <dd>
-        <span className="sr-only">{nombreCompleto(a)}: </span>
-        <Celda fila={fila} vehiculo={a} otro={b} lado="a" gana={quien === 'a'} />
+        <span className="sr-only">{nombreCompleto(a, idioma)}: </span>
+        <Celda fila={fila} vehiculo={a} otro={b} lado="a" gana={quien === 'a'} idioma={idioma} />
       </dd>
       <dd>
-        <span className="sr-only">{nombreCompleto(b)}: </span>
-        <Celda fila={fila} vehiculo={b} otro={a} lado="b" gana={quien === 'b'} />
+        <span className="sr-only">{nombreCompleto(b, idioma)}: </span>
+        <Celda fila={fila} vehiculo={b} otro={a} lado="b" gana={quien === 'b'} idioma={idioma} />
       </dd>
     </div>
   );
 }
 
-function BloqueVeredicto({ veredicto, a, b }: { veredicto: Veredicto; a: Vehiculo; b: Vehiculo }) {
+function BloqueVeredicto({ veredicto, a, b, idioma }: { veredicto: Veredicto; a: Vehiculo; b: Vehiculo; idioma: Idioma }) {
+  const t = textos(idioma).comparador;
   const ganadorV = veredicto.ganador === 'a' ? a : veredicto.ganador === 'b' ? b : null;
   const areasGanadas = veredicto.ganador === 'a' ? veredicto.motivosA.length : veredicto.motivosB.length;
   const lados = [
@@ -218,56 +239,52 @@ function BloqueVeredicto({ veredicto, a, b }: { veredicto: Veredicto; a: Vehicul
 
   return (
     <div className="mt-10 border border-border bg-surface p-5 md:p-8">
-      <p className="t-meta tracking-[1.5px] text-muted uppercase">El veredicto</p>
+      <p className="t-meta tracking-[1.5px] text-muted uppercase">{t.veredicto}</p>
       <p className="mt-3 font-titular text-[24px] leading-[30px] font-bold text-heading md:text-[28px] md:leading-[34px]">
         {ganadorV ? (
           <>
-            Tu elección: <span className="text-accent">{nombreCompleto(ganadorV)}</span>
-            {veredicto.margen === 'por poco' ? ', por poco' : ''}. Va por delante en {areasGanadas} de{' '}
-            {veredicto.ejesComparados} áreas.
+            {t.tuEleccion} <span className="text-accent">{nombreCompleto(ganadorV, idioma)}</span>
+            {veredicto.margen === 'por poco' ? t.porPoco : ''}
+            {t.vaDelante(areasGanadas, veredicto.ejesComparados)}
           </>
         ) : (
-          <>
-            Están parejos: {nombreModelo(a)} va por delante en {veredicto.motivosA.length} y {nombreModelo(b)} en{' '}
-            {veredicto.motivosB.length} de {veredicto.ejesComparados} áreas.
-          </>
+          t.parejos(nombreModelo(a), veredicto.motivosA.length, nombreModelo(b), veredicto.motivosB.length, veredicto.ejesComparados)
         )}
       </p>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8">
         {lados.map(({ lado, vehiculo, motivos }) => (
           <div key={lado} className="border-t-[3px] pt-4" style={{ borderColor: COLOR[lado] }}>
-            <p className="text-[17px] leading-6 font-bold text-heading">{nombreCompleto(vehiculo)}</p>
+            <p className="text-[17px] leading-6 font-bold text-heading">{nombreCompleto(vehiculo, idioma)}</p>
             <p className="mt-2 text-[17px] leading-6">
               {motivos.length > 0
-                ? `Elígelo si lo que más te importa es ${enumerar(motivos)}.`
-                : 'No supera al otro en ninguna área medida.'}
+                ? t.eligelo(enumerar(motivos, idioma))
+                : t.noSupera}
             </p>
           </div>
         ))}
       </div>
 
       <p className="mt-6 text-[14px] leading-5 text-muted">
-        El puntaje y el veredicto salen del promedio de las {veredicto.ejesComparados} áreas con dato en los dos carros.
-        No tienen en cuenta el precio, que suele ser lo que más pesa al decidir.
-        {veredicto.ejesSinDato.length > 0 &&
-          ` Quedaron por fuera, por falta de datos: ${enumerar(veredicto.ejesSinDato.map((nombre) => nombre.toLowerCase()))}.`}
+        {t.notaVeredicto(veredicto.ejesComparados)}
+        {veredicto.ejesSinDato.length > 0 && t.porFuera(enumerar(veredicto.ejesSinDato.map((nombre) => nombre.toLowerCase()), idioma))}
       </p>
     </div>
   );
 }
 
-function MayoresDiferencias({ a, b }: { a: Vehiculo; b: Vehiculo }) {
-  const lista = mayoresDiferencias(a, b);
+function MayoresDiferencias({ a, b, idioma }: { a: Vehiculo; b: Vehiculo; idioma: Idioma }) {
+  const t = textos(idioma).comparador;
+  const lista = mayoresDiferencias(a, b, idioma);
   if (lista.length === 0) return null;
   return (
     <section aria-labelledby="titulo-diferencias" className="mt-14">
-      <h2 id="titulo-diferencias" className="t-seccion barra-corta">Mayores diferencias</h2>
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <h2 id="titulo-diferencias" className="t-seccion barra-corta">{t.mayoresDiferencias}</h2>
+      <div className="relative mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full min-w-[560px] text-left text-[15px]">
           <thead>
             <tr className="border-b border-border">
-              <th scope="col" className="t-meta px-4 py-3 font-bold tracking-[1px] text-muted uppercase">Dato</th>
+              <th scope="col" className="t-meta px-4 py-3 font-bold tracking-[1px] text-muted uppercase">{t.dato}</th>
               <th scope="col" className="t-meta px-4 py-3 font-bold tracking-[1px] text-heading uppercase">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="inline-block size-2 rounded-full" style={{ backgroundColor: COLOR.a }} aria-hidden="true" />
@@ -280,15 +297,15 @@ function MayoresDiferencias({ a, b }: { a: Vehiculo; b: Vehiculo }) {
                   {nombreModelo(b)}
                 </span>
               </th>
-              <th scope="col" className="t-meta px-4 py-3 text-right font-bold tracking-[1px] text-muted uppercase">Ventaja</th>
+              <th scope="col" className="t-meta px-4 py-3 text-right font-bold tracking-[1px] text-muted uppercase">{t.ventaja}</th>
             </tr>
           </thead>
           <tbody>
             {lista.map(({ fila, ganador: quien, ventaja }) => (
               <tr key={fila.campo} className="border-b border-border last:border-b-0">
                 <th scope="row" className="px-4 py-3 font-normal text-muted">{fila.etiqueta}</th>
-                <td className={`px-4 py-3 tabular-nums ${quien === 'a' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, a))}</td>
-                <td className={`px-4 py-3 tabular-nums ${quien === 'b' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, b))}</td>
+                <td className={`px-4 py-3 tabular-nums ${quien === 'a' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, a), idioma)}</td>
+                <td className={`px-4 py-3 tabular-nums ${quien === 'b' ? 'font-bold text-heading' : ''}`}>{formatearValor(fila, valorDe(fila, b), idioma)}</td>
                 <td className="px-4 py-3 text-right">
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap tabular-nums"
@@ -296,7 +313,7 @@ function MayoresDiferencias({ a, b }: { a: Vehiculo; b: Vehiculo }) {
                   >
                     <span className="inline-block size-2 rounded-full" style={{ backgroundColor: COLOR[quien] }} aria-hidden="true" />
                     {ventaja}
-                    <span className="sr-only"> a favor de {nombreModelo(quien === 'a' ? a : b)}</span>
+                    <span className="sr-only">{t.aFavorDe(nombreModelo(quien === 'a' ? a : b))}</span>
                   </span>
                 </td>
               </tr>
@@ -305,19 +322,34 @@ function MayoresDiferencias({ a, b }: { a: Vehiculo; b: Vehiculo }) {
         </table>
       </div>
       <p className="mt-3 text-[14px] leading-5 text-muted">
-        Los datos donde un carro le saca más ventaja al otro, en proporción. La etiqueta lleva el color del carro que gana.
+        {t.notaDiferencias}
       </p>
     </section>
   );
 }
 
 /** Detalle del área elegida en el gráfico: sus filas de la ficha. */
-function DetalleArea({ area, a, b, alCerrar }: { area: string; a: Vehiculo; b: Vehiculo; alCerrar: () => void }) {
-  const filas = (CAMPOS_POR_AREA[area] ?? [])
-    .map(buscarFila)
+function DetalleArea({
+  clave,
+  area,
+  a,
+  b,
+  alCerrar,
+  idioma,
+}: {
+  clave: ClaveArea;
+  area: string;
+  a: Vehiculo;
+  b: Vehiculo;
+  alCerrar: () => void;
+  idioma: Idioma;
+}) {
+  const t = textos(idioma).comparador;
+  const filas = CAMPOS_POR_AREA[clave]
+    .map((campo) => buscarFila(campo, idioma))
     .filter((fila): fila is Fila => Boolean(fila) && (a[fila!.campo] != null || b[fila!.campo] != null));
   return (
-    <div className="mt-6 rounded-lg border border-accent bg-surface p-5 md:p-6" role="region" aria-label={`Detalle de ${area}`}>
+    <div className="mt-6 rounded-lg border border-accent bg-surface p-5 md:p-6" role="region" aria-label={t.detalleDe(area)}>
       <div className="flex items-center justify-between gap-4">
         <h3 className="t-lateral barra-corta">{area}</h3>
         <button
@@ -325,19 +357,19 @@ function DetalleArea({ area, a, b, alCerrar }: { area: string; a: Vehiculo; b: V
           onClick={alCerrar}
           className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-border px-4 text-[15px] hover:border-accent hover:text-accent"
         >
-          Cerrar
+          {t.cerrar}
         </button>
       </div>
       {filas.length === 0 ? (
-        <p className="mt-4 text-[17px] text-muted">Ninguno de los dos carros tiene datos en esta área.</p>
+        <p className="mt-4 text-[17px] text-muted">{t.sinDatosArea}</p>
       ) : (
         <>
         <div className="mt-2">
-          <EncabezadoCarros a={a} b={b} />
+          <EncabezadoCarros a={a} b={b} idioma={idioma} />
         </div>
         <dl>
           {filas.map((fila) => (
-            <FilaComparada key={fila.campo} fila={fila} a={a} b={b} />
+            <FilaComparada key={fila.campo} fila={fila} a={a} b={b} idioma={idioma} />
           ))}
         </dl>
         </>
@@ -355,9 +387,13 @@ interface Props {
   inicialB?: Vehiculo;
   /** Pares de modelos con página propia ("byd-seagull-vs-kia-ev2"), para enlazarla desde el comparador libre. */
   paginas?: string[];
+  idioma?: Idioma;
+  /** Slug de la nota en español → enlace de su traducción, para las fichas que enlazan una nota. */
+  enlacesNotas?: Record<string, string>;
 }
 
-export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) {
+export default function Comparador({ inicialA, inicialB, paginas = [], idioma = 'es', enlacesNotas = {} }: Props) {
+  const t = textos(idioma).comparador;
   const fija = Boolean(inicialA && inicialB);
   const [estado, setEstado] = useState<Estado>(fija ? 'listo' : 'cargando');
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>(fija ? [inicialA!, inicialB!] : []);
@@ -398,7 +434,7 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
   // En una página fija, cambiar de carro lleva al comparador libre con la nueva pareja
   const cambiar = (lado: Lado, slug: string) => {
     if (fija) {
-      window.location.assign(lado === 'a' ? rutaComparadorCon(slug, slugB) : rutaComparadorCon(slugA, slug));
+      window.location.assign(lado === 'a' ? rutaComparadorCon(slug, slugB, idioma) : rutaComparadorCon(slugA, slug, idioma));
       return;
     }
     if (lado === 'a') setSlugA(slug);
@@ -409,7 +445,7 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
   if (estado === 'cargando') {
     return (
       <p className="t-texto py-12 text-muted" role="status">
-        Cargando los carros…
+        {t.cargando}
       </p>
     );
   }
@@ -417,14 +453,14 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
   if (estado === 'error') {
     return (
       <div className="py-12" role="alert">
-        <p className="t-lateral text-heading">No se pudieron cargar los carros.</p>
-        <p className="t-texto mt-3 text-muted">Revisa tu conexión y vuelve a intentarlo.</p>
+        <p className="t-lateral text-heading">{t.errorTitulo}</p>
+        <p className="t-texto mt-3 text-muted">{t.errorTexto}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className="mt-6 inline-flex min-h-11 cursor-pointer items-center rounded-full bg-accent px-6 text-[15px] font-bold text-on-accent hover:underline"
         >
-          Reintentar
+          {t.reintentar}
         </button>
       </div>
     );
@@ -436,19 +472,19 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
   if (!a || !b) {
     return (
       <div className="py-12">
-        <p className="t-lateral text-heading">Todavía no hay carros para comparar.</p>
-        <p className="t-texto mt-3 text-muted">Estamos cargando las primeras fichas técnicas. Vuelve pronto.</p>
+        <p className="t-lateral text-heading">{t.vacioTitulo}</p>
+        <p className="t-texto mt-3 text-muted">{t.vacioTexto}</p>
       </div>
     );
   }
 
   const mismoCarro = a.slug === b.slug;
-  const ejes = calcularEjes(a, b);
-  const veredicto = mismoCarro ? null : calcularVeredicto(ejes);
+  const ejes = calcularEjes(a, b, idioma);
+  const veredicto = mismoCarro ? null : calcularVeredicto(ejes, idioma);
   const puntajeA = veredicto ? veredicto.promedioA : null;
   const puntajeB = veredicto ? veredicto.promedioB : null;
   // Solo se muestran las filas donde al menos un carro tiene el dato
-  const secciones = SECCIONES.map((seccion) => ({
+  const secciones = seccionesDe(idioma).map((seccion) => ({
     ...seccion,
     filas: seccion.filas.filter((fila) => valorDe(fila, a) != null || valorDe(fila, b) != null),
   })).filter((seccion) => seccion.filas.length > 0);
@@ -461,60 +497,61 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
   return (
     <div>
       <div ref={buscadores} className="grid scroll-mt-6 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-end md:gap-6">
-        <BuscadorCarro etiqueta="Carro 1" color={COLOR.a} vehiculos={vehiculos} valor={slugA} alCambiar={(s) => cambiar('a', s)} />
+        <BuscadorCarro etiqueta={t.carro1} color={COLOR.a} vehiculos={vehiculos} valor={slugA} alCambiar={(s) => cambiar('a', s)} idioma={idioma} />
         <span className="hidden self-end pb-3 font-titular text-[20px] font-bold text-muted md:block" aria-hidden="true">vs</span>
-        <BuscadorCarro etiqueta="Carro 2" color={COLOR.b} vehiculos={vehiculos} valor={slugB} alCambiar={(s) => cambiar('b', s)} />
+        <BuscadorCarro etiqueta={t.carro2} color={COLOR.b} vehiculos={vehiculos} valor={slugB} alCambiar={(s) => cambiar('b', s)} idioma={idioma} />
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-6">
-        <TarjetaVehiculo vehiculo={a} lado="a" puntaje={puntajeA} />
+        <TarjetaVehiculo vehiculo={a} lado="a" puntaje={puntajeA} idioma={idioma} enlacesNotas={enlacesNotas} />
         <div className="hidden flex-col items-center sm:flex" aria-hidden="true">
           <span className="w-px flex-1 bg-border" />
           <span className="my-3 font-titular text-[20px] font-bold text-muted">VS</span>
           <span className="w-px flex-1 bg-border" />
         </div>
-        <TarjetaVehiculo vehiculo={b} lado="b" puntaje={puntajeB} />
+        <TarjetaVehiculo vehiculo={b} lado="b" puntaje={puntajeB} idioma={idioma} enlacesNotas={enlacesNotas} />
       </div>
 
       {mismoCarro && (
         <p className="mt-6 border-l-[3px] border-accent-bright pl-4 text-[17px] leading-6" role="status">
-          Elegiste el mismo carro en los dos lados. Cambia uno para ver diferencias.
+          {t.mismoCarro}
         </p>
       )}
 
-      {veredicto && <BloqueVeredicto veredicto={veredicto} a={a} b={b} />}
+      {veredicto && <BloqueVeredicto veredicto={veredicto} a={a} b={b} idioma={idioma} />}
 
       {/* Desde el comparador libre, la página fija de esta pareja de modelos, si existe */}
       {!fija && paginas.includes(slugPar(slugModelo(a), slugModelo(b))) && (
         <p className="mt-6 text-[17px] leading-6">
-          <a href={rutaComparacion(slugPar(slugModelo(a), slugModelo(b)))} className="font-bold text-accent underline">
-            Ver la comparación completa: {nombreModelo(a)} vs {nombreModelo(b)}
+          <a href={rutaComparacion(slugPar(slugModelo(a), slugModelo(b)), idioma)} className="font-bold text-accent underline">
+            {t.verCompleta(nombreModelo(a), nombreModelo(b))}
           </a>
         </p>
       )}
 
       <section aria-labelledby="titulo-resumen" className="mt-14">
         <h2 id="titulo-resumen" className="t-seccion barra-corta">
-          ¿En qué es mejor cada uno?
+          {t.enQueEsMejor}
         </h2>
         <div className="mt-6">
           <GraficoRadar
             ejes={ejes}
-            resumen={resumirAreas(ejes, a, b)}
-            nombreA={nombreCompleto(a)}
-            nombreB={nombreCompleto(b)}
+            resumen={resumirAreas(ejes, a, b, idioma)}
+            nombreA={nombreCompleto(a, idioma)}
+            nombreB={nombreCompleto(b, idioma)}
             seleccion={area}
             alElegir={setArea}
+            idioma={idioma}
           />
         </div>
-        {area !== null && <DetalleArea area={ejes[area].nombre} a={a} b={b} alCerrar={() => setArea(null)} />}
+        {area !== null && <DetalleArea clave={ejes[area].clave} area={ejes[area].nombre} a={a} b={b} alCerrar={() => setArea(null)} idioma={idioma} />}
       </section>
 
-      {!mismoCarro && <MayoresDiferencias a={a} b={b} />}
+      {!mismoCarro && <MayoresDiferencias a={a} b={b} idioma={idioma} />}
 
       <section aria-labelledby="titulo-ficha" className="mt-14">
-        <h2 id="titulo-ficha" className="t-seccion barra-corta">Ficha técnica</h2>
-        <nav aria-label="Secciones de la ficha" className="mt-6">
+        <h2 id="titulo-ficha" className="t-seccion barra-corta">{t.fichaTecnica}</h2>
+        <nav aria-label={t.seccionesAria} className="mt-6">
           <ul className="flex flex-wrap gap-2">
             {secciones.map((seccion) => (
               <li key={seccion.id}>
@@ -532,19 +569,17 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
         {secciones.map((seccion) => (
           <div key={seccion.id} id={seccion.id} className="mt-10 scroll-mt-6">
             <h3 className="t-lateral border-b-2 border-heading pb-3">{seccion.titulo}</h3>
-            <EncabezadoCarros a={a} b={b} />
+            <EncabezadoCarros a={a} b={b} idioma={idioma} />
             <dl>
               {seccion.filas.map((fila) => (
-                <FilaComparada key={fila.campo} fila={fila} a={a} b={b} />
+                <FilaComparada key={fila.campo} fila={fila} a={a} b={b} idioma={idioma} />
               ))}
             </dl>
           </div>
         ))}
 
         <p className="mt-8 text-[14px] leading-5 text-muted">
-          "Sin dato" significa que no hay una fuente confiable para ese valor, no que el carro no lo tenga. Cada
-          autonomía va con su ciclo de medición. Si los dos carros no comparten ciclo, el gráfico los compara con un
-          equivalente WLTP estimado (NEDC menos 17 %, CLTC menos 22 %), que es una aproximación.
+          {t.notaFicha}
         </p>
       </section>
 
@@ -568,7 +603,7 @@ export default function Comparador({ inicialA, inicialB, paginas = [] }: Props) 
             onClick={irABuscar}
             className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-full border border-border px-4 text-[15px] font-bold hover:border-accent hover:text-accent"
           >
-            Cambiar
+            {t.cambiar}
           </button>
         </div>
       </div>

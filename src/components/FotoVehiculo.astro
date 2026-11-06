@@ -1,5 +1,6 @@
 ---
-import { nombreModelo, type Vehiculo } from '../lib/vehiculos';
+import { idiomaDe, textos } from '../i18n';
+import { creditoFoto, nombreModelo, type Vehiculo } from '../lib/vehiculos';
 
 /** Foto 16:9 de un vehículo del comparador (public/vehicles/), con su crédito. Sin foto, un marcador. */
 interface Props {
@@ -11,7 +12,10 @@ interface Props {
 }
 
 const { vehiculo, prioritaria = false, sinCredito = false } = Astro.props;
-const alt = `${nombreModelo(vehiculo)}${vehiculo.image_credit ? ', foto de referencia' : ''}`;
+const idioma = idiomaDe(Astro.url);
+const t = textos(idioma).ficha;
+const alt = vehiculo.image_credit ? t.altConCredito(nombreModelo(vehiculo)) : nombreModelo(vehiculo);
+const credito = vehiculo.image_credit ? creditoFoto(vehiculo.image_credit, idioma) : null;
 ---
 
 {
@@ -29,18 +33,18 @@ const alt = `${nombreModelo(vehiculo)}${vehiculo.image_credit ? ', foto de refer
       />
       {!sinCredito && vehiculo.image_credit && (
         <figcaption class="t-meta mt-1 text-muted">
-          Foto de referencia:{' '}
+          {t.fotoReferencia}:{' '}
           {vehiculo.image_source_url ? (
             <a href={vehiculo.image_source_url as string} target="_blank" rel="noopener" class="underline hover:text-accent">
-              {vehiculo.image_credit}
+              {credito}
             </a>
           ) : (
-            vehiculo.image_credit
+            credito
           )}
         </figcaption>
       )}
     </figure>
   ) : (
-    <div class="aspect-video w-full rounded-lg border border-border bg-tint" role="img" aria-label={`${nombreModelo(vehiculo)}, sin foto`} />
+    <div class="aspect-video w-full rounded-lg border border-border bg-tint" role="img" aria-label={t.sinFoto(nombreModelo(vehiculo))} />
   )
 }

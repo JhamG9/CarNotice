@@ -1,5 +1,6 @@
+import { LOCALE, textos, type Idioma } from '../i18n';
 import { slugificar } from './rutas';
-import { calcularEjes, formatearNumero, nombreMercado, nombreModelo, traducir, type Vehiculo } from './vehiculos';
+import { calcularEjes, enumerar, formatearNumero, nombreMercado, nombreModelo, traducir, type Vehiculo } from './vehiculos';
 
 /**
  * Catálogo de modelos y comparaciones con página propia.
@@ -136,8 +137,8 @@ export function rivales(modelo: Modelo, pares: Par[], cantidad = 6): Par[] {
 export const otroDelPar = (par: Par, modelo: Modelo) => (par.a.slug === modelo.slug ? par.b : par.a);
 
 /** "Europa y Colombia" */
-export const nombresMercados = (mercados: string[]) =>
-  new Intl.ListFormat('es', { type: 'conjunction' }).format(mercados.map(nombreMercado));
+export const nombresMercados = (mercados: string[], idioma: Idioma = 'es') =>
+  enumerar(mercados.map((m) => nombreMercado(m, idioma)), idioma);
 
 const CICLOS = [
   { campo: 'range_wltp_km', nombre: 'WLTP' },
@@ -158,22 +159,27 @@ export function autonomiaPrincipal(v: Vehiculo): { km: number; ciclo: string; co
 }
 
 /** "SUV compacto eléctrico", a partir de la carrocería, el tamaño y las motorizaciones del modelo. */
-export function tipoDeModelo(modelo: Modelo): string {
+export function tipoDeModelo(modelo: Modelo, idioma: Idioma = 'es'): string {
+  const t = textos(idioma).carros;
   const v = modelo.representativa;
-  const carroceria = traducir('body_style', v.body_style as string);
-  const tamano = v.segment === 'luxury' ? 'de lujo' : traducir('segment', v.segment as string).toLowerCase();
-  const motores = [...new Set(modelo.versiones.map((x) => traducir('powertrain', x.powertrain as string).toLowerCase()))];
-  return `${carroceria} ${tamano} ${new Intl.ListFormat('es', { type: 'disjunction' }).format(motores)}`;
+  const nombre = traducir('body_style', v.body_style as string, idioma);
+  // En inglés va en medio de la frase: minúscula, salvo las siglas ("compact electric SUV")
+  const carroceria = idioma === 'es' ? nombre : nombre.replace(/^[A-Z][a-z]+/, (palabra) => palabra.toLowerCase());
+  const tamano = v.segment === 'luxury' ? t.tamanoLujo : traducir('segment', v.segment as string, idioma).toLowerCase();
+  const motores = [...new Set(modelo.versiones.map((x) => traducir('powertrain', x.powertrain as string, idioma).toLowerCase()))];
+  return t.tipoModelo(carroceria, tamano, new Intl.ListFormat(LOCALE[idioma], { type: 'disjunction' }).format(motores));
 }
 
 /** Rango "de 42,2 a 61 kWh" (o una sola cifra) de un campo numérico entre las versiones. */
-export function rango(versiones: Vehiculo[], campo: string, unidad: string): string | null {
+export function rango(versiones: Vehiculo[], campo: string, unidad: string, idioma: Idioma = 'es'): string | null {
   const valores = versiones.map((v) => v[campo]).filter((x): x is number => typeof x === 'number');
   if (valores.length === 0) return null;
   const [min, max] = [Math.min(...valores), Math.max(...valores)];
-  return min === max ? `${formatearNumero(min)} ${unidad}` : `de ${formatearNumero(min)} a ${formatearNumero(max)} ${unidad}`;
+  return min === max
+    ? `${formatearNumero(min, idioma)} ${unidad}`
+    : textos(idioma).carros.rango(formatearNumero(min, idioma), formatearNumero(max, idioma), unidad);
 }
 
 /** Puntaje de 0 a 100 de una versión en cada área del gráfico; null si no tiene el dato. */
-export const puntajesPropios = (v: Vehiculo) =>
-  calcularEjes(v, v).map((eje) => ({ nombre: eje.nombre, detalle: eje.detalle, valor: eje.a }));
+export const puntajesPropios = (v: Vehiculo, idioma: Idioma = 'es') =>
+  calcularEjes(v, v, idioma).map((eje) => ({ nombre: eje.nombre, detalle: eje.detalle, valor: eje.a }));

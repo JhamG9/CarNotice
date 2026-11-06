@@ -6,15 +6,15 @@
  * en ese idioma, el enlace sigue llevando a la página en español.
  */
 import type { Idioma } from '../i18n';
-import { rutaComparador, rutaModelo } from '../lib/rutas';
+import { rutaCarros, rutaComparador, rutaModelo } from '../lib/rutas';
 
 interface Props {
   idioma: Idioma;
   /** Slug en español → ruta de la nota en cada idioma (de traduccionesDeNotas). */
-  traducciones: Map<string, Partial<Record<Idioma, string>>>;
+  traducciones?: Map<string, Partial<Record<Idioma, string>>>;
 }
 
-const { idioma, traducciones } = Astro.props;
+const { idioma, traducciones = new Map() } = Astro.props;
 const html = await Astro.slots.render('default');
 
 const reescrito = html.replace(/href="\/es\/(notas|carros|comparador)\/([^"]*)"/g, (original, seccion: string, resto: string) => {
@@ -24,7 +24,7 @@ const reescrito = html.replace(/href="\/es\/(notas|carros|comparador)\/([^"]*)"/
     const destino = traducciones.get(slug)?.[idioma];
     return destino ? `href="${destino}${restoTras}"` : original;
   }
-  if (seccion === 'carros' && slug) return `href="${rutaModelo(slug, idioma)}${restoTras}"`;
+  if (seccion === 'carros') return `href="${slug ? rutaModelo(slug, idioma) : rutaCarros(idioma)}${restoTras}"`;
   if (seccion === 'comparador') return `href="${rutaComparador(idioma)}${resto}"`;
   return original;
 });

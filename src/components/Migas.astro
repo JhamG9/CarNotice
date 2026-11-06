@@ -1,4 +1,6 @@
 ---
+import { idiomaDe, textos } from '../i18n';
+
 /**
  * Ruta de migas de pan ("Inicio › Carros › Kia EV2") con su JSON-LD BreadcrumbList.
  * El último elemento es la página actual: va sin enlace y con aria-current.
@@ -20,7 +22,7 @@ const jsonLd = JSON.stringify({
 }).replace(/</g, '\\u003c');
 ---
 
-<nav aria-label="Ruta de navegación" class="text-[14px] leading-5 text-muted">
+<nav aria-label={textos(idiomaDe(Astro.url)).migas.aria} class="text-[14px] leading-5 text-muted">
   <ol class="flex flex-wrap items-center gap-x-2">
     {
       migas.map((miga, i) => (

@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { buscarVehiculos, marcas, muestraVariada, nombreMercado, nombreModelo, textoOtroNombre, type Vehiculo } from '../lib/vehiculos';
+import { textos, type Idioma } from '../i18n';
+import { buscarVehiculos, marcas, muestraVariada, nombreMercado, nombreModelo, nombreVersion, textoOtroNombre, type Vehiculo } from '../lib/vehiculos';
 
 const MAX_MUESTRA = 8;
 
@@ -9,12 +10,14 @@ interface Props {
   vehiculos: Vehiculo[];
   valor: string;
   alCambiar: (slug: string) => void;
+  idioma?: Idioma;
 }
 
-const detalle = (v: Vehiculo) => `${v.version} · ${v.model_year} · ${nombreMercado(v.market)}`;
+const detalle = (v: Vehiculo, idioma: Idioma) => `${nombreVersion(v, idioma)} · ${v.model_year} · ${nombreMercado(v.market, idioma)}`;
 
 /** Campo de búsqueda con lista de sugerencias (patrón combobox de ARIA). */
-export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCambiar }: Props) {
+export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCambiar, idioma = 'es' }: Props) {
+  const t = textos(idioma).comparador;
   const id = useId();
   const idLista = `${id}-lista`;
   const elegido = vehiculos.find((v) => v.slug === valor);
@@ -75,7 +78,7 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
     }
   }
 
-  const texto = abierto ? consulta : elegido ? `${nombreModelo(elegido)} ${elegido.version}` : '';
+  const texto = abierto ? consulta : elegido ? `${nombreModelo(elegido)} ${nombreVersion(elegido, idioma)}` : '';
 
   return (
     <div ref={contenedor} className="relative">
@@ -110,7 +113,7 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
           aria-activedescendant={abierto && visibles[activo] ? `${id}-op-${activo}` : undefined}
           autoComplete="off"
           spellCheck={false}
-          placeholder="Escribe una marca o un modelo"
+          placeholder={t.placeholder}
           value={texto}
           onFocus={() => {
             setAbierto(true);
@@ -130,13 +133,13 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
         <div className="absolute right-0 left-0 z-20 mt-1 max-h-[480px] overflow-y-auto rounded-lg border border-border bg-surface shadow-lg md:right-auto md:w-[min(460px,calc(100vw-2rem))]">
           {!vacia && resultados.length > 0 && (
             <p className="border-b border-border px-3 py-2 text-[13px] text-muted">
-              {resultados.length === 1 ? '1 carro' : `${resultados.length} carros`}
+              {t.nCarros(resultados.length)}
             </p>
           )}
           {vacia && (
             <div className="border-b border-border px-3 pt-3 pb-2">
               <p className="text-[13px] text-muted">
-                {vehiculos.length} carros de {listaMarcas.length} marcas. Escribe o elige una marca:
+                {t.carrosMarcas(vehiculos.length, listaMarcas.length)}
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {listaMarcas.map(({ marca, total }) => (
@@ -156,18 +159,18 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-[13px] font-bold text-heading">Algunos para empezar</p>
+              <p className="mt-2 text-[13px] font-bold text-heading">{t.paraEmpezar}</p>
             </div>
           )}
         <ul
           id={idLista}
           role="listbox"
-          aria-label={`Resultados para ${etiqueta}`}
+          aria-label={t.resultadosPara(etiqueta)}
           className="py-1"
         >
           {visibles.length === 0 ? (
             <li className="px-4 py-3 text-[15px] text-muted" role="presentation">
-              Ningún carro coincide con "{consulta}".
+              {t.sinCoincidencias(consulta)}
             </li>
           ) : (
             visibles.map((v, i) => (
@@ -189,8 +192,8 @@ export default function BuscadorCarro({ etiqueta, color, vehiculos, valor, alCam
                 <span className="min-w-0">
                   <span className="block truncate text-[15px] font-bold text-heading">{nombreModelo(v)}</span>
                   <span className="block truncate text-[13px] text-muted">
-                    {detalle(v)}
-                    {v.latam_name && ` · ${textoOtroNombre(v)}`}
+                    {detalle(v, idioma)}
+                    {v.latam_name && ` · ${textoOtroNombre(v, idioma)}`}
                   </span>
                 </span>
               </li>

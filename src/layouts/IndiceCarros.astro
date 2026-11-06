@@ -1,0 +1,112 @@
+---
+import Base from './Base.astro';
+import FotoVehiculo from '../components/FotoVehiculo.astro';
+import Migas from '../components/Migas.astro';
+import { autonomiaPrincipal, nombresMercados, tipoDeModelo } from '../lib/catalogo';
+import { obtenerCatalogo } from '../lib/catalogoDatos';
+import { rutaCarros, rutaComparador, rutaInicio, rutaModelo } from '../lib/rutas';
+import { conMillas } from '../lib/vehiculos';
+import { idiomaDe, textos } from '../i18n';
+
+/** Índice de modelos, en cualquier idioma. Lo usan /es/carros/ y /en/cars/. */
+const idioma = idiomaDe(Astro.url);
+const { carros: t, migas } = textos(idioma);
+const { modelos, pares } = await obtenerCatalogo();
+
+// Por tamaño, de menor a mayor; dentro de cada uno, por nombre
+const ORDEN = ['mini', 'small', 'compact', 'midsize', 'large', 'luxury'] as const;
+const grupos = ORDEN.map((segmento) => ({
+  segmento,
+  nombre: t.grupos[segmento],
+  modelos: modelos.filter((m) => m.representativa.segment === segmento),
+})).filter((g) => g.modelos.length > 0);
+
+const marcas = new Set(modelos.map((m) => m.marca)).size;
+const descripcion = t.descripcionIndice(modelos.length, marcas, pares.length);
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: t.listaNombre,
+  numberOfItems: modelos.length,
+  itemListElement: modelos.map((m, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: m.nombre,
+    url: new URL(rutaModelo(m.slug, idioma), Astro.site).href,
+  })),
+}).replace(/</g, '\\u003c');
+---
+
+<Base titulo={t.tituloIndice} descripcion={descripcion} alternativas={{ es: rutaCarros('es'), en: rutaCarros('en') }}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </Fragment>
+
+  <div class="mx-auto max-w-pagina px-4 pt-2 md:px-6 md:pt-4">
+    <Migas migas={[{ nombre: migas.inicio, href: rutaInicio(idioma) }, { nombre: migas.carros, href: rutaCarros(idioma) }]} />
+
+    <header class="border-b border-border pb-6">
+      <h1 class="t-seccion barra-corta">{t.h1}</h1>
+      <p class="t-texto mt-4 max-w-articulo text-muted">{descripcion}</p>
+      <nav aria-label={t.tamanosAria} class="mt-6">
+        <ul class="flex flex-wrap gap-2">
+          {
+            grupos.map((g) => (
+              <li>
+                <a
+                  href={`#${g.segmento}`}
+                  class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-[15px] transition-colors duration-150 hover:border-accent hover:text-accent"
+                >
+                  {g.nombre} <span class="ml-1.5 text-muted">{g.modelos.length}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    {
+      modelos.length === 0 && (
+        <p class="t-texto mt-8 text-muted">{t.vacio}</p>
+      )
+    }
+
+    {
+      grupos.map((g) => (
+        <section id={g.segmento} aria-labelledby={`titulo-${g.segmento}`} class="mt-12 scroll-mt-6">
+          <h2 id={`titulo-${g.segmento}`} class="t-lateral barra-corta">
+            {g.nombre}
+          </h2>
+          <ul class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {g.modelos.map((m) => {
+              const a = autonomiaPrincipal(m.representativa);
+              return (
+                <li class="relative">
+                  <FotoVehiculo vehiculo={m.representativa} sinCredito />
+                  <p class="t-meta mt-3 tracking-[1px] text-accent uppercase">{m.marca}</p>
+                  <h3 class="t-tarjeta mt-1">
+                    <a href={rutaModelo(m.slug, idioma)} class="enlace-titular after:absolute after:inset-0">
+                      {m.nombre}
+                    </a>
+                  </h3>
+                  <p class="mt-2 text-[15px] leading-6 text-muted">
+                    {tipoDeModelo(m, idioma)}
+                    {a && ` · ${conMillas(a.km, idioma)} ${a.ciclo}`}
+                    <br />
+                    {t.nVersiones(m.versiones.length)} · {nombresMercados(m.mercados, idioma)}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))
+    }
+
+    <p class="mt-14 border-t border-border pt-8 text-[17px]">
+      {t.noVes} <a href={rutaComparador(idioma)} class="font-bold text-accent hover:underline">{t.comparaMedida}</a>.
+    </p>
+  </div>
+</Base>

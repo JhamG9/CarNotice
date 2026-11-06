@@ -68,6 +68,21 @@ def decodificar(proyecto, ruta, tempo):
     return np.frombuffer(raw, dtype=np.float32).copy()
 
 
+def normalizar(proyecto, entrada, salida, objetivo=-14.0, pico=-1.5):
+    """Lleva la voz a -14 LUFS con una ganancia fija (dos pasadas de loudnorm en modo lineal). La pasada única de
+    loudnorm comprime la dinámica y apaga la voz; esta solo sube o baja el volumen. Si con la ganancia el pico pasara
+    de `pico`, se baja el objetivo lo justo en vez de comprimir."""
+    b, env = buscar_ffmpeg(proyecto)
+    r = subprocess.run([b, "-hide_banner", "-i", entrada, "-af", f"loudnorm=I={objetivo}:TP={pico}:print_format=json",
+                        "-f", "null", "-"], capture_output=True, text=True, env=env)
+    m = json.loads(r.stderr[r.stderr.rfind("{"):r.stderr.rfind("}") + 1])
+    i_in, tp_in = float(m["input_i"]), float(m["input_tp"])
+    objetivo = min(objetivo, i_in + (pico - tp_in))  # sin pasar del pico: así loudnorm no cambia a modo dinámico
+    filtro = (f"loudnorm=I={objetivo:.2f}:TP={pico}:LRA=20:linear=true:measured_I={m['input_i']}:measured_TP={m['input_tp']}"
+              f":measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}")
+    ff(proyecto, ["-y", "-i", entrada, "-af", filtro, "-ar", str(SR), "-ac", "1", salida])
+
+
 def guardar_wav(ruta, x):
     y = x / (np.abs(x).max() + 1e-9) * 0.9
     with wave.open(ruta, "wb") as w:
@@ -530,7 +545,7 @@ def main():
     sil_frase = [sum(silabas(w) for w, _, _ in fp) for fp in frases_pal]
     avisos = avisos_ritmo(B, E, sil_frase, [" ".join(w for w, _, _ in fp) for fp in frases_pal])
 
-    # audio final: paso alto, cola de silencio y normalizado a -14 LUFS (como los reels de referencia)
+    # audio final: paso alto, cola de silencio y normalizado a -14 LUFS sin comprimir (como los reels de referencia)
     x = paso_alto(x)
     x = np.concatenate([x, np.zeros(int(a.cola * SR), dtype=np.float32)])
     total = len(x) / SR
@@ -538,7 +553,7 @@ def main():
     voz = os.path.join(proy, "public", "voz.wav")
     tmp = voz + ".tmp.wav"
     guardar_wav(tmp, x)
-    ff(proy, ["-y", "-i", tmp, "-af", "loudnorm=I=-14:TP=-1.5:LRA=7", "-ar", str(SR), "-ac", "1", voz])
+    normalizar(proy, tmp, voz)
     os.remove(tmp)
 
     frases = []

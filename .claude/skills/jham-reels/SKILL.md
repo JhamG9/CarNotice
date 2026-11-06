@@ -16,7 +16,7 @@ datos y un vídeo con una etiqueta, el vídeo. El reel `reel-deepal` del usuario
 
 - 1080×1920, 30 fps, 25–59 s (`revisar.py` falla si pasa de 59; para otro tope, `"duracionMax"` en el plan). Fondo con estilo, una escena por frase y nada quieto más de 0,6 s.
 - La escena principal es `Clips`: vídeo oficial a pantalla completa con un título corto y etiquetas.
-- La voz se genera en local con Chatterbox y la voz 01 del usuario. También puede grabarla él o usar ElevenLabs.
+- La voz se genera en local con VoxCPM2 y la voz de referencia `assets/voz/voz02.wav` (elegidas por el usuario el 2026-11-06). También puede grabarla él o usar ElevenLabs.
 - La música se compone sola con los cortes del reel, sin derechos de terceros.
 - Hay 17 escenas más (titular, lista, comparación, contador, CTA…) para cuando no haya imagen.
 - Estilo por defecto: `noche`, con subtítulos en línea. Personaje opcional con poses.
@@ -164,10 +164,20 @@ La hace `reel.py`. Solo si hay que lanzarla aparte:
   ```
 
   La primera vez instala el entorno en `~/.cache/jham-reels/venv` y baja los modelos. Genera juntas las frases seguidas
-  con el texto de `voz`, en bloques, para que la entonación continúe; compara lo que oye Whisper con `texto`, une los
-  bloques y alinea. Si Whisper entiende mal un bloque, repite la toma hasta 3 veces. Si una palabra sigue mal, cambia su
+  con el texto de `voz`, en bloques, para que la entonación continúe. Cada toma se juzga por lo que oye Whisper frente a
+  `texto`, por su ritmo frente al resto de bloques y por si deja ruido al final (lo corta); si falla, repite hasta 3
+  tomas. Después une los bloques y alinea. Si una palabra sigue mal, cambia su
   `voz` a mano (`ciclo` salió mejor como `síclo`) y repite con `--solo`. No aceleres la voz: si el reel queda largo, recorta
   texto. Tú no oyes el audio: dile al usuario que lo escuche. Los nombres nuevos van en `assets/voz/pronunciacion.json`.
+
+  Motor por defecto: `voxcpm2` con 16 pasos y la voz `voz02.wav`, sin instrucción de tono (48 kHz, la más natural y
+  la mejor con la R y la RR en las pruebas del 2026-11-06; baja 3,2 GB la primera vez; un reel de 50 s tarda ~1,5 min).
+  Bloques de 260 caracteres como mucho: en bloques más largos la voz se va apagando. No pidas un tono (`--tono`) ni
+  emparejes la velocidad (`--emparejar`) salvo que el usuario lo pida: en las pruebas, los dos empeoraron la voz. `--motor chatterbox` (o
+  `"motorVoz": "chatterbox"` en el plan) usa el anterior, más rápido. `voz01.wav` es la referencia anterior.
+
+  Las cifras, unidades y monedas las pasa a palabras `pronunciacion.py` (`--probar "texto"` muestra cómo las leería).
+  Si lee mal un caso nuevo, arréglalo ahí y añádelo a `scripts/probar_pronunciacion.py`.
 - **Música**: al terminar de alinear, `~/.cache/jham-reels/venv/bin/python SKILL/scripts/musica.py --proyecto ~/reel`.
   Vuelve a crearla si cambian los tiempos. Marca con `"sensible": true` las frases sobre muertes o temas serios.
 - **ElevenLabs**: `python3 SKILL/scripts/voz.py --proyecto ~/reel` saca el texto con etiquetas y los

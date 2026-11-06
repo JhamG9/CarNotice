@@ -34,6 +34,10 @@ Busca el síntoma. Si no está, lee el mensaje de error entero: casi todos dicen
 | La voz tiene música o ruido de fondo | La alineación busca pausas: pide la voz sola, sin música (la música se añade después en la app). |
 | Formato de audio raro (m4a, ogg, opus, vídeo) | alinear.py lo convierte con ffmpeg; si no puede, pide un MP3 o WAV. |
 | Ha quedado demasiado lento o rápido | `--tempo 1.05` acelera un 5 % sin cambiar el tono; `--pausa 0.2` recorta más los silencios. |
+| La voz lee mal una cifra, unidad o moneda («km/h», «US$») | `pronunciacion.py --probar "texto"` muestra lo que dirá. Corrige `pronunciacion.py`, añade el caso a `probar_pronunciacion.py` y córrelo. En un reel ya hecho, borra el `voz` de esa frase y vuelve a lanzar. |
+| La R o la RR suenan flojas («caro» por «carro») | Comprueba que se usó `voxcpm2` (el de por defecto): en la prueba de pares (pero/perro, caro/carro…) acertó 39 de 40 frente a 33 de Chatterbox. Si sigue, repite ese bloque con `--solo N`. |
+| Un bloque va mucho más rápido o lento que los demás | Repítelo con `--solo N`. `--emparejar` ajusta la velocidad al unir, pero deja un leve sonido metálico. |
+| La voz empieza bien y se va apagando o volviendo robótica | Bloques demasiado largos: baja `--max-caracteres` (260 por defecto en voxcpm2). |
 
 ## Render
 

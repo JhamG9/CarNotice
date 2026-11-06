@@ -6,6 +6,7 @@ import CuerpoTraducido from '../components/CuerpoTraducido.astro';
 import Migas from '../components/Migas.astro';
 import { idiomaDe, textos } from '../i18n';
 import { enlacesDeNotas, traduccionesDeNotas } from '../lib/notas';
+import { analizarPar } from '../lib/analisis';
 import { rivales, type Par } from '../lib/catalogo';
 import { obtenerCatalogo } from '../lib/catalogoDatos';
 import {
@@ -24,7 +25,7 @@ interface Props {
 
 const { par } = Astro.props;
 const idioma = idiomaDe(Astro.url);
-const { comparacion: t, areas: nombresAreas, migas } = textos(idioma);
+const { comparacion: t, areas: nombresAreas, migas, analisis: tAnalisis } = textos(idioma);
 const { pares } = await obtenerCatalogo();
 const { a, b, va, vb, mercado } = par;
 
@@ -60,6 +61,9 @@ const titulo = t.titulo(a.nombre, b.nombre);
 const conMarca = `${titulo} | Mejor Eléctrico`;
 const tituloPagina = conMarca.length <= 60 ? conMarca : titulo;
 const imagenSocial = new URL(rutaImagenComparacion(par.slug, idioma), Astro.site).href;
+
+// Análisis escrito con las cifras de las dos fichas: distinto en cada par porque salen de sus datos
+const analisis = analizarPar(a, b, va, vb, idioma);
 
 // Preguntas que la gente busca ("¿cuál tiene más autonomía?"), respondidas con los datos de la tabla
 const preguntas = areas
@@ -148,6 +152,28 @@ const jsonLd = JSON.stringify({
               </CuerpoTraducido>
             )}
           </div>
+        </section>
+      )
+    }
+
+    {
+      analisis.secciones.length > 0 && (
+        <section aria-labelledby="titulo-datos" class="mt-14">
+          <h2 id="titulo-datos" class="t-seccion barra-corta">
+            {tAnalisis.titulo}
+          </h2>
+          <div class="cuerpo-nota mt-6 max-w-articulo">
+            {analisis.secciones.map((s) => (
+              <>
+                <h3>{s.titulo}</h3>
+                {s.parrafos.map((p) => (
+                  <p>{p}</p>
+                ))}
+              </>
+            ))}
+            {analisis.cierre && <p>{analisis.cierre}</p>}
+          </div>
+          <p class="mt-4 text-[14px] leading-5 text-muted">{tAnalisis.nota}</p>
         </section>
       )
     }

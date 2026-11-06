@@ -1,3 +1,4 @@
+import { analisisEn } from './analisis';
 import type { Textos } from './es';
 
 /** Textos de la interfaz en inglés. Mismas claves que es.ts. */
@@ -356,6 +357,8 @@ export const en: Textos = {
     notaGrafico:
       'The bar under each figure is the area score, from 0 to 100, measured against fixed ranges (for example, range goes from 0 to 800 km, or 497 mi). Those scores draw the chart and produce the overall score.',
   },
+  /** Análisis automático de cada comparación (src/lib/analisis.ts). */
+  analisis: analisisEn,
   comparacion: {
     titulo: (a, b) => `${a} vs ${b}: which one is better?`,
     fichasDe: (mercado) => `${mercado} specs`,

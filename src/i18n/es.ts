@@ -1,3 +1,4 @@
+import { analisisEs } from './analisis';
 /**
  * Textos de la interfaz en español. Cada texto nuevo de la interfaz se escribe aquí y en en.ts
  * (TypeScript avisa si falta en alguno).
@@ -387,6 +388,8 @@ export const es = {
     notaGrafico:
       'La barra bajo cada dato es el puntaje del área, de 0 a 100, medido contra rangos fijos (por ejemplo, la autonomía va de 0 a 800 km). Con esos puntajes se dibuja el gráfico y se calcula el puntaje general.',
   },
+  /** Análisis automático de cada comparación (src/lib/analisis.ts). */
+  analisis: analisisEs,
   comparacion: {
     titulo: (a: string, b: string) => `${a} vs ${b}: ¿cuál es mejor?`,
     fichasDe: (mercado: string) => `fichas de ${mercado}`,

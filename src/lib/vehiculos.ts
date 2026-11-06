@@ -322,7 +322,7 @@ const CON_GASOLINA = ['range_extender', 'plug_in_hybrid'];
  * Autonomía total del carro en un ciclo. En rango extendido e híbridos enchufables es la combinada,
  * medida en el mismo ciclo que su autonomía eléctrica; así solo se comparan cifras del mismo ciclo.
  */
-function autonomiaEnCiclo(v: Vehiculo, ciclo: Ciclo): number | null {
+export function autonomiaEnCiclo(v: Vehiculo, ciclo: Ciclo): number | null {
   const total = v[ciclo.campo];
   if (typeof total === 'number') return total;
   const combinada = v.combined_range_km;
@@ -359,7 +359,7 @@ function autonomiaEstimada(v: Vehiculo): { ciclo: Ciclo; km: number; wltp: numbe
 }
 
 /** Cómo se compara la autonomía de dos carros: en un ciclo común o, si no lo hay, estimada en WLTP. */
-function comparacionAutonomia(a: Vehiculo, b: Vehiculo) {
+export function comparacionAutonomia(a: Vehiculo, b: Vehiculo) {
   const ciclo = cicloComun(a, b);
   if (ciclo) return { tipo: 'comun' as const, ciclo };
   const ea = autonomiaEstimada(a);

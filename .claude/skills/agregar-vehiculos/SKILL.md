@@ -140,7 +140,7 @@ Igual que `completar-vehiculos`, pero solo con el slug nuevo:
 ### 8. Foto
 
 Sigue la sección "Imagen del vehículo" de `CLAUDE.md`:
-- Fotos de sala de prensa del fabricante o de Wikimedia Commons con licencia libre (CC0, CC BY o CC BY-SA). En Commons, revisa autor, licencia y que no haya solicitud de borrado (`{{delete}}` o `{{copyvio}}`).
+- Fotos de la página oficial de la marca o de su sala de prensa, primero la del país de la ficha. Si no hay una que sirva, de Wikimedia Commons con licencia libre (CC0, CC BY o CC BY-SA). En Commons, revisa autor, licencia y que no haya solicitud de borrado (`{{delete}}` o `{{copyvio}}`).
 - Compara con el diseño que se vende en ese mercado. Si no hay foto del modelo exacto, sirve la de un modelo hermano, y `image_credit` empieza por su nombre.
 - Recorta a 1600 × 900 en WebP y comprueba que pese menos de 300 KB.
 - Por defecto, muéstrala y espera un sí. En modo delegado, revísala tú (Read de la imagen) y decide.

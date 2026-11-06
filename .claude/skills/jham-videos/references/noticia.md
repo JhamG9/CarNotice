@@ -35,7 +35,9 @@ noticia que tenga conflicto. En el plan: `"formato": "noticia"` (activa la revis
 4. **Preguntas abiertas entre capítulos**: la última frase de cada capítulo deja algo pendiente; la primera del
    siguiente lo retoma.
 5. **El gancho se ve, no solo se dice**: la primera escena es vídeo con el titular encima (`Clips` con `lineas`).
-6. **Honestidad**: el gancho no promete lo que el vídeo no da. Nada de «increíble» ni «nadie te lo cuenta» sin un dato.
+6. **Fuera del gancho, imagen limpia**: texto grande solo en 3–5 cifras clave de la historia. El resto lo cuenta la
+   voz sobre el vídeo; un dato fuerte sin texto se marca con `"golpe": true`.
+7. **Honestidad**: el gancho no promete lo que el vídeo no da. Nada de «increíble» ni «nadie te lo cuenta» sin un dato.
 
 ## Recursos de vídeo
 

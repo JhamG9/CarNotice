@@ -33,11 +33,16 @@ un golpe cada 40 s como mucho y el gancho en vídeo.
 
 - 1920×1080, 30 fps, de 4 a 15 min (`"duracionMax"` en el plan; por defecto 900 s). Unas 150 palabras por minuto.
 - 4 a 8 capítulos. Cada frase que abre uno lleva `"capitulo": "Nombre"`; `capitulos.py` los arma para YouTube.
-- Escena principal: `Clips` a pantalla completa con vídeo o foto real (`"imagen"` en vez de `"video"` hace un zoom
-  lento). Título abajo a la izquierda, crédito arriba a la derecha.
-- Las demás escenas (titular, contador, cifras, ficha, lista, comparación, barras, pregunta, tachado, cta…) se
-  dibujan centradas, arriba de la franja de subtítulos. Mismo catálogo que los reels.
-- Sin personaje con poses (en horizontal no cabe bien). Subtítulos en línea, abajo.
+- **Casi todo imagen.** Escena principal: `Clips` a pantalla completa con vídeo o foto real (`"imagen"` en vez de
+  `"video"` hace un zoom lento), **sin texto encima**: los datos los cuenta la voz. Crédito arriba a la derecha.
+- **Texto grande solo en el gancho y en 3–5 golpes** (5 hasta 10 min, 7 en vídeos más largos): las cifras clave de la
+  historia, como tarjeta (contador, tachado, barras, comparación, pregunta) o como `lineas` sobre el vídeo. Cuentan
+  igual. `enganche.py` lo revisa.
+- **Etiquetas `texto` de los clips**: solo para nombrar lo que se ve (marca o modelo cuando no es obvio), una cada
+  15 s como mucho. Nada de resumir con ellas lo que dice la voz.
+- **Golpes sin texto**: un dato fuerte dicho sobre el vídeo también es un golpe. Márcalo con `"golpe": true` en la
+  frase (con una pausa antes, si se puede); cuenta para el ritmo sin poner nada escrito.
+- Sin personaje con poses (en horizontal no cabe bien).
 - Miniatura de 1280×720: título de 2–3 líneas cortas a la izquierda e imagen real a la derecha.
 
 ## Flujo
@@ -89,7 +94,7 @@ Igual que el de los reels (`../jham-reels/references/escenas.md`) más estos cam
 ```json
 {
   "titulo": "Batería LFP, NMC o de sodio",
-  "estilo": "noche", "transicion": "suave", "subtitulos": "linea", "personaje": false,
+  "estilo": "noche", "transicion": "suave", "subtitulos": "no", "efectos": "pocos", "pausaCapitulo": 1.2, "personaje": false,
   "duracionMax": 900, "pesoMax": 0,
   "capituloInicial": "Introducción",
   "formato": "noticia",
@@ -131,7 +136,7 @@ python3 SKILL/scripts/video.py --proyecto ~/video-…                 # todo, in
 
 ### 10. Entregar y publicar
 
-- Dale a la persona el vídeo, la miniatura y, en el chat, título y descripción (de `salida/youtube.txt`). Para mejorar
+- Dale a la persona el vídeo, la miniatura, `salida/subtitulos.srt` (se sube en YouTube Studio → Subtítulos → Subir archivo) y, en el chat, título y descripción (de `salida/youtube.txt`). Para mejorar
   el título y la miniatura usa `yt-package`; para la descripción y las búsquedas, `yt-seo`.
 - Publicar lo decide la persona en cada vídeo. Con su aprobación:
 
@@ -142,6 +147,42 @@ node SKILL/scripts/publicar-video.mjs borrador salida/video.mp4 "Título" salida
   `borrador` lo deja privado; `oculto … --confirmo`, sin listar; `publicar … --confirmo`, público. `--ia` marca la voz
   sintética, como pide YouTube. Usa la conexión de YouTube de jham-reels (`youtube-token.mjs`, el mismo `.env`).
 - Después de 2–3 días, `yt-retention` con la exportación de retención de YouTube Studio dice dónde se fue la gente.
+
+## Ritmo tranquilo (por defecto)
+
+Un vídeo largo no es un reel estirado: lo que en 50 s da energía, en 5 minutos cansa. Por eso `video.py` ya hace esto
+sin pedirlo (cada cosa se cambia en el plan):
+
+| Qué | Por defecto | En el plan |
+|---|---|---|
+| Música | `musica_fondo.py`: 84 bpm, colchón y arpegio suave, ~13 dB bajo la voz; con pulso solo en el gancho y el cierre; sin subidas de ruido | `"musica": {"tension": [n]}` oscurece antes del giro; `{"estilo": "reel"}` vuelve a la rápida |
+| Efectos de sonido | Pocos: el arranque, la entrada de cada capítulo y el golpe de las cifras que sorprenden, más bajos. Nada de swoosh en cada toma | `"efectos": "pocos" \| "todos" \| "ninguno"` |
+| Pausa entre capítulos | 1,2 s de silencio antes de cada capítulo (`pausas.py`), con la música subiendo un poco | `"pausaCapitulo": 1.2` (0 la quita) |
+| Voz | La de los reels (VoxCPM2 con voz02) con hasta 0,6 s entre frases; `"exageracion"` solo cuenta con `"motorVoz": "chatterbox"` | `"pausaFrases"`, `"exageracion"` |
+| Subtítulos | Fuera de la imagen (`"subtitulos": "no"` en el plan) y `salida/subtitulos.srt` para subirlo a YouTube como subtítulos (CC): quien quiera los activa, YouTube los indexa y la imagen queda limpia | `"subtitulos": "linea"` los vuelve a pintar |
+
+### Lo que se aprendió de un vídeo de referencia que funciona
+
+Compara Motors, «¡Así es el NUEVO DEEPAL S05 2027!» (5:11, revisado el 2026-11-06). Se tomó el ritmo, no el contenido:
+- **Todo es imagen real a pantalla completa**: vídeo oficial y tomas de recorrido del carro, sin tarjetas. Los datos
+  solo los dice la voz. Aquí igual: imagen limpia y texto grande solo en el gancho y en 3–5 cifras clave.
+- **Corta cada 2,2 s de media** (cada 1,2 s en el primer minuto) y la toma enseña lo que se dice: la pantalla cuando
+  habla de la pantalla. `enganche.py` avisa si la media pasa de 4,5 s (noticia) o 6 s (explicativo).
+- **Música constante y presente** (unos 6–8 dB bajo la voz), sin efectos de sonido. La nuestra va unos 10 dB por debajo.
+- **Sin subtítulos en la imagen.**
+- **Lo que no se copia**: abre con «sean bienvenidos a este canal», no tiene capítulos ni preguntas abiertas, lee la
+  ficha sin decir qué significa cada dato y pide suscribirse solo al final.
+- **Para 5 minutos hacen falta unas 100 tomas**: busca vídeos largos de recorrido (b-roll) en las salas de prensa,
+  no solo los bucles de la web de producto.
+
+Patrones de energía para el guion (de la guía de retención de `AgriciDaniel/claude-youtube`, MIT; sus cifras son
+de la guía, sin fuente verificada):
+- **Calma con picos**: tramos tranquilos y un golpe (cifra, giro, pregunta) cada 30–60 s, no cada frase.
+- **Ancla**: cada 2–3 min, volver en una frase a la pregunta del título («¿y por qué cayó Tesla?»).
+- **Pausa antes de lo importante**: una frase corta y un respiro antes del dato clave.
+- **Bucles abiertos**: cada capítulo termina dejando una pregunta que responde el siguiente.
+- **Una petición pronto**: la de suscribirse o comentar después del primer valor (1–3 min), no solo al final, porque
+  pocos llegan al cierre.
 
 ## Lo que hace que un vídeo largo funcione
 

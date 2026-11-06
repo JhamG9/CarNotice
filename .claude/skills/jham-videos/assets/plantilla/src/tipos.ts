@@ -42,6 +42,8 @@ export type FrasePlan = {
   sinSubtitulos?: boolean;
   /** Esta frase abre un capítulo del vídeo: su nombre sale en los capítulos de YouTube (scripts/capitulos.py). */
   capitulo?: string;
+  /** Dato fuerte dicho sobre el vídeo, sin texto: cuenta como golpe para el ritmo y la música. */
+  golpe?: boolean;
 };
 
 export type PortadaPlan = {
@@ -66,6 +68,8 @@ export type Plan = {
   personaje?: boolean;
   /** false si el reel no tiene voz (modo solo texto). */
   voz?: boolean;
+  /** Efectos de sonido: "pocos" (por defecto en vídeos largos), "todos" (como los reels) o "ninguno". */
+  efectos?: "pocos" | "todos" | "ninguno";
   frases: FrasePlan[];
   portada?: PortadaPlan;
 };

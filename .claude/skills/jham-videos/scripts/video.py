@@ -22,6 +22,25 @@ PY = os.path.expanduser("~/.cache/jham-reels/venv/bin/python")
 HUECO = "1.5"  # en un vídeo largo una escena puede respirar más que en un reel, pero nada quieto más de 1,5 s
 
 
+def escribir_srt(proy, max_palabras=10):
+    """salida/subtitulos.srt con los tiempos de la voz, para subirlo a YouTube como subtítulos (CC) del vídeo."""
+    t = json.load(open(os.path.join(proy, "src", "datos", "tiempos.json"), encoding="utf-8"))
+    hms = lambda s: f"{int(s // 3600):02d}:{int(s % 3600 // 60):02d}:{int(s % 60):02d},{int(round(s % 1 * 1000)) % 1000:03d}"
+    bloques = []
+    for f in t["frases"]:
+        pal = f.get("palabras") or []
+        if not pal:
+            bloques.append((f["inicio"], f["fin"], f["texto"]))
+            continue
+        for k in range(0, len(pal), max_palabras):
+            grupo = pal[k : k + max_palabras]
+            fin = pal[k + max_palabras]["t"] if k + max_palabras < len(pal) else f["fin"]
+            bloques.append((grupo[0]["t"], fin, " ".join(p["w"] for p in grupo)))
+    with open(os.path.join(proy, "salida", "subtitulos.srt"), "w", encoding="utf-8") as out:
+        for n, (a, z, texto) in enumerate(bloques, 1):
+            out.write(f"{n}\n{hms(a)} --> {hms(max(z, a + 0.5))}\n{texto.replace('*', '').strip()}\n\n")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--proyecto", default=".")
@@ -54,15 +73,23 @@ def main():
     if a.audio:
         s, _ = paso("alinear audio", [PY, os.path.join(REELS, "alinear.py"), os.path.abspath(a.audio), "--proyecto", proy])
     else:
-        s, _ = paso("voz", [PY, os.path.join(REELS, "voz_local.py"), "--proyecto", proy])
+        # voz más calmada que la de los reels: menos exageración y algo más de aire entre frases
+        p0 = json.load(open(os.path.join(proy, "src", "datos", "plan.json"), encoding="utf-8"))
+        s, _ = paso("voz", [PY, os.path.join(REELS, "voz_local.py"), "--proyecto", proy,
+                            "--exageracion", str(p0.get("exageracion", 0.55)), "--pausa", str(p0.get("pausaFrases", 0.6))])
         i = s.find("Comprobación")
         informe.append("## Voz\n```\n" + s[i:s.find("voz unida", i)].strip() + "\n```")
     avisos = [l for l in s.splitlines() if l.startswith("AVISO")]
     if avisos:
         informe.append("## Avisos del alineado\n" + "\n".join(f"- {x}" for x in avisos))
     plan = json.load(open(os.path.join(proy, "src", "datos", "plan.json"), encoding="utf-8"))
+    s, _ = paso("pausas entre capítulos", [PY, os.path.join(AQUI, "pausas.py"), "--proyecto", proy])
+    informe.append("## Pausas\n" + s.strip())
     if not a.sin_musica and plan.get("musica") is not False:
-        s, _ = paso("música", [PY, os.path.join(REELS, "musica.py"), "--proyecto", proy])
+        # por defecto la música tranquila de vídeo largo; "musica": {"estilo": "reel"} usa la rápida de los reels
+        rapida = isinstance(plan.get("musica"), dict) and plan["musica"].get("estilo") == "reel"
+        script = os.path.join(REELS, "musica.py") if rapida else os.path.join(AQUI, "musica_fondo.py")
+        s, _ = paso("música", [PY, script, "--proyecto", proy])
         informe.append("## Música\n" + s.strip())
     s, c = paso("capítulos", [sys.executable, os.path.join(AQUI, "capitulos.py"), "--proyecto", proy], parar=False)
     informe.append("## Capítulos\n```\n" + s.strip() + "\n```")
@@ -90,7 +117,10 @@ def main():
                 sys.exit("Paró en «vídeo». Todo está en salida/video.log")
             break
         video = "salida/borrador.mp4" if a.borrador else "salida/video.mp4"
-        s, c = paso("ritmo", [PY, os.path.join(REELS, "ritmo.py"), video, "--tiempos", "src/datos/tiempos.json", "--hueco", HUECO], parar=False)
+        # sin subtítulos en pantalla, las palabras ya no cuentan como movimiento: una toma de unos 3 s (como en los
+        # vídeos largos de referencia, que cortan cada 2–3 s) no es un hueco
+        hueco = HUECO if plan.get("subtitulos", "linea") != "no" else "3.0"
+        s, c = paso("ritmo", [PY, os.path.join(REELS, "ritmo.py"), video, "--tiempos", "src/datos/tiempos.json", "--hueco", hueco], parar=False)
         informe.append("## Ritmo\n" + s.strip())
         paso("portada", ["node", "render.mjs", "portada"])
         s, c = paso("revisión del vídeo", [PY, os.path.join(REELS, "revisar.py"), "--proyecto", proy, "--video", video], parar=False)
@@ -111,6 +141,7 @@ def main():
         open(os.path.join(proy, "salida", "descripcion.txt"), "w", encoding="utf-8").write(desc)
         with open(os.path.join(proy, "salida", "youtube.txt"), "w", encoding="utf-8") as f:
             f.write(f"TÍTULO\n{yt.get('titulo', plan.get('titulo', ''))}\n\nCATEGORÍA\n{yt.get('categoria', '26')}\n\nDESCRIPCIÓN\n{desc}")
+    escribir_srt(proy)
     with open(os.path.join(proy, "salida", "informe.md"), "w", encoding="utf-8") as f:
         f.write(f"# Informe de {plan.get('titulo', 'vídeo')} ({time.time() - t0:.0f} s)\n\n" + "\n\n".join(informe) + "\n")
     print(f"LISTO en {time.time() - t0:.0f} s → salida/informe.md")

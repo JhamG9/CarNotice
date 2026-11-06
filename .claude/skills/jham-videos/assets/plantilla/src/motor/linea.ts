@@ -223,6 +223,29 @@ ESCENAS.forEach((esc) => {
 });
 EFECTOS.sort((x, y) => x.en - y.en);
 
+// Vídeo largo: los efectos de cada cambio de toma o de título (swoosh, whoosh, tic, pop) cansan en varios minutos.
+// Con "efectos": "pocos" (por defecto aquí) solo suenan el arranque, el primer efecto de cada capítulo y el golpe de
+// las cifras que sorprenden, más bajos. "efectos": "todos" deja los de los reels; "ninguno" los quita.
+const MODO_EFECTOS: string = PLAN.efectos ?? "pocos";
+if (MODO_EFECTOS !== "todos") {
+  const GOLPE = new Set(["contador", "tachado", "pregunta", "comparacion", "objecion"]);
+  const vistos = new Set<number>();
+  const quedan = EFECTOS.filter((x) => {
+    if (MODO_EFECTOS === "ninguno") return false;
+    const esc = ESCENAS.find((e) => x.en >= e.ini && x.en < e.fin) ?? ESCENAS[0];
+    const fr = PLAN.frases[esc.i] as any;
+    const tipo = fr.escena?.tipo;
+    const abre = (esc.i === 0 || fr.capitulo) && !vistos.has(esc.i);
+    if (abre) {
+      vistos.add(esc.i);
+      return true;
+    }
+    return GOLPE.has(tipo) && ["golpe", "puff", "negacion", "ding", "exito"].includes(x.s);
+  });
+  quedan.forEach((x) => (x.vol = Math.min(x.vol, 0.3) * 0.7));
+  EFECTOS.splice(0, EFECTOS.length, ...quedan);
+}
+
 // Estilo visual: vídeo e imagen reales por delante de las tarjetas, y poco texto en pantalla.
 const CON_IMAGEN = (e: any) =>
   e?.tipo === "imagen" || e?.tipo === "galeria" || (e?.tipo === "propia" && ["Clips", "EscaneoLidar"].includes(e?.nombre)) || !!e?.imagen || !!e?.imagenes?.length;

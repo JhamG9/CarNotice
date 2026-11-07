@@ -12,8 +12,9 @@ Con voxcpm2 se puede pedir un tono en palabras (--tono o "tonoVoz" en el plan); 
 
 Lee el texto de "voz" de cada frase del plan (o "texto" si no tiene) y genera juntas las frases seguidas, para que la
 entonación continúe. Un bloque ya generado con el mismo texto y ajustes no se repite. Cada toma se juzga por lo que oye
-Whisper, por su ritmo (caracteres por segundo frente al resto de bloques) y por si deja ruido al final; si falla en
-algo, repite hasta 3 tomas y se queda con la mejor. Con --emparejar, al unir ajusta como mucho un 6 % los bloques que
+Whisper, por su huella de voz (que suene como la referencia, no con otro timbre o acento), por su ritmo (caracteres
+por segundo frente al resto de bloques) y por si deja ruido al final; si falla en algo, repite hasta 4 tomas y se
+queda con la mejor. Con --emparejar, al unir ajusta como mucho un 6 % los bloques que
 van más rápidos o lentos que el resto (deja un leve sonido metálico, por eso no se hace por defecto).
 
 Opciones: --referencia audio.wav (otra voz, 6-15 s), --exageracion 0.7 y --cfg 0.5 (chatterbox), --pasos 16 (voxcpm2),
@@ -49,7 +50,11 @@ SR = 48000
 SILENCIO = 0.25
 PAUSA = 0.45  # pausa máxima dentro de la voz: más que la de alinear.py, para no igualar el ritmo natural
 UMBRAL = 0.8
-INTENTOS = 3
+INTENTOS = 4
+PARECIDO_VOZ = 0.88  # huella de voz mínima frente a la referencia: por debajo suena a otra persona o con otro acento
+HUELLA = os.path.expanduser("~/.cache/jham-reels/modelos/3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx")
+HUELLA_URL = ("https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/"
+              "3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx")
 TOLERANCIA_RITMO = 0.12  # una toma que se aparta más que esto del ritmo de las demás se repite
 EMPAREJAR = 0.06  # ajuste máximo de velocidad de un bloque al unir
 COLA = 0.45  # voz o ruido que sigue más de esto tras la última palabra se corta
@@ -115,6 +120,42 @@ class Voz:
         self.motor, self.a, self.whisper = motor, a, mlx_whisper
         self.modelo = load_model(MOTORES[motor]["repo"])
         self.sr = self.modelo.sample_rate
+        self.extractor = None
+        try:
+            import sherpa_onnx
+            if not os.path.exists(HUELLA):
+                import urllib.request
+                os.makedirs(os.path.dirname(HUELLA), exist_ok=True)
+                urllib.request.urlretrieve(HUELLA_URL, HUELLA + ".tmp")
+                os.replace(HUELLA + ".tmp", HUELLA)
+            self.extractor = sherpa_onnx.SpeakerEmbeddingExtractor(
+                sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=HUELLA, num_threads=2))
+            self.ref = self._huella(a.referencia)
+        except Exception as e:  # sin el modelo de huella se sigue, pero sin comprobar que la voz sea la misma
+            print(f"AVISO: no se pudo cargar la huella de voz ({e}); no se comprobará que cada toma suene como la referencia.")
+
+    def _huella(self, ruta):
+        import numpy as np
+        from math import gcd
+        from scipy.io import wavfile
+        from scipy.signal import resample_poly
+        sr, x = wavfile.read(ruta)
+        x = x.astype(np.float32)
+        if x.ndim > 1:
+            x = x.mean(axis=1)
+        if np.abs(x).max() > 1.5:
+            x /= 32768
+        g = gcd(sr, 16000)
+        x = resample_poly(x, 16000 // g, sr // g).astype(np.float32)
+        s = self.extractor.create_stream()
+        s.accept_waveform(16000, x)
+        s.input_finished()
+        v = np.array(self.extractor.compute(s))
+        return v / np.linalg.norm(v)
+
+    def parecido_voz(self, ruta):
+        """Coseno entre la huella de la toma y la de la referencia (1 = la misma voz). None si no hay modelo."""
+        return float(self._huella(ruta) @ self.ref) if self.extractor else None
 
     def ajustes(self):
         return ajustes(self.motor, self.a)
@@ -122,8 +163,12 @@ class Voz:
     def generar(self, texto, ruta):
         import numpy as np
         from scipy.io import wavfile
+        kw = dict(self.ajustes())
+        if kw.pop("copiar_forma", False):
+            # además del timbre, el modelo sigue la forma de hablar de la referencia (con su transcripción)
+            kw.update(prompt_audio=self.a.referencia, prompt_text=transcripcion(self.a.referencia))
         partes = [np.array(r.audio, dtype=np.float32)
-                  for r in self.modelo.generate(text=texto, ref_audio=self.a.referencia, verbose=False, **self.ajustes())]
+                  for r in self.modelo.generate(text=texto, ref_audio=self.a.referencia, verbose=False, **kw)]
         audio = np.concatenate(partes) if partes else np.zeros(1, dtype=np.float32)
         wavfile.write(ruta, self.sr, audio)
         return audio
@@ -151,10 +196,19 @@ class Voz:
         return total - fin
 
 
+def transcripcion(referencia):
+    """Texto exacto de la voz de referencia (voz02.wav → voz02.txt), o None si no hay."""
+    ruta = os.path.splitext(referencia)[0] + ".txt"
+    return open(ruta, encoding="utf-8").read().strip() if os.path.exists(ruta) else None
+
+
 def ajustes(motor, a):
     if motor == "chatterbox":
         return {"lang_code": "es", "exaggeration": a.exageracion, "cfg_weight": a.cfg}
     extra = {"instruct": a.tono} if a.tono else {}
+    # copiar la forma de hablar choca con una instrucción de tono (el modelo la lee en voz alta)
+    if not a.tono and not a.solo_timbre and transcripcion(a.referencia):
+        extra["copiar_forma"] = True
     return {"inference_timesteps": a.pasos, **extra}
 
 
@@ -177,6 +231,8 @@ def main():
     ap.add_argument("--exageracion", type=float, default=0.7, help="energía (chatterbox)")
     ap.add_argument("--cfg", type=float, default=0.5, help="cuánto se ciñe al texto y a la referencia (chatterbox)")
     ap.add_argument("--pasos", type=int, default=16, help="pasos de difusión, más = más calidad y más lento (voxcpm2)")
+    ap.add_argument("--solo-timbre", action="store_true",
+                    help="voxcpm2: copia solo el timbre de la referencia, no su forma de hablar (sin usar voz02.txt)")
     ap.add_argument("--tono", default=None, help='cómo debe sonar, en palabras (voxcpm2; también "tonoVoz" en el plan)')
     ap.add_argument("--max-caracteres", type=int, default=None, help="largo máximo de un bloque (voxcpm2 260, chatterbox 450)")
     ap.add_argument("--sin-alinear", action="store_true")
@@ -235,18 +291,22 @@ def main():
             p = parecido(oido_esperado, oido)
             cps = ritmo(voz, palabras, len(audio) / voz_motor.sr)
             desvio = abs(cps / objetivo - 1) if objetivo else 0.0
-            # primero que se entienda; entre las que se entienden, la de ritmo más parecido al resto
-            nota = (p >= UMBRAL, -max(desvio - TOLERANCIA_RITMO, 0), p)
+            pv = voz_motor.parecido_voz(wav)
+            misma_voz = pv is None or pv >= PARECIDO_VOZ
+            # primero que se entienda; luego que suene como la referencia; luego el ritmo más parecido al resto
+            nota = (p >= UMBRAL, misma_voz, -max(desvio - TOLERANCIA_RITMO, 0), pv or 0, p)
             if mejor is None or nota > mejor["nota"]:
-                mejor = {"nota": nota, "oido": oido, "p": p, "cps": cps, "cola": cola, "intento": intento}
+                mejor = {"nota": nota, "oido": oido, "p": p, "cps": cps, "cola": cola, "intento": intento, "voz": pv}
                 shutil.copy(wav, copia)
-            if p >= UMBRAL and desvio <= TOLERANCIA_RITMO:
+            if p >= UMBRAL and misma_voz and desvio <= TOLERANCIA_RITMO:
                 break
         shutil.move(copia, wav)
-        indice[pre] = {"clave": clave, "oido": mejor["oido"], "cps": round(mejor["cps"], 2)}
+        indice[pre] = {"clave": clave, "oido": mejor["oido"], "cps": round(mejor["cps"], 2),
+                       "voz": round(mejor["voz"], 3) if mejor["voz"] is not None else None}
         json.dump(indice, open(ruta_ind, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         extra = f" · cola de {mejor['cola']:.1f} s cortada" if mejor["cola"] > 0 else ""
-        print(f"{k}/{len(bloques)} toma {mejor['intento']} · {mejor['cps']:.1f} car/s{extra} · {voz[:60]}", flush=True)
+        pv = f" · voz {mejor['voz']:.2f}" if mejor["voz"] is not None else ""
+        print(f"{k}/{len(bloques)} toma {mejor['intento']} · {mejor['cps']:.1f} car/s{pv}{extra} · {voz[:60]}", flush=True)
 
     print("\nComprobación (lo que oye Whisper frente al texto de pantalla):")
     dudosos = []
@@ -258,6 +318,11 @@ def main():
         print(f"{'  ' if p >= UMBRAL else '? '}{k:2d}. {p:.0%}  {oido}")
     if dudosos:
         print(f"\nREVISA los bloques {dudosos}: cambia el \"voz\" de sus frases y repítelos con --solo.")
+    otra_voz = [k for k in range(1, len(bloques) + 1)
+                if (indice[f"b{k:02d}"].get("voz") or 1) < PARECIDO_VOZ]
+    if otra_voz:
+        print(f"AVISO: los bloques {otra_voz} no suenan del todo como la voz de referencia (huella < {PARECIDO_VOZ}) "
+              "ni tras repetirlos: escúchalos y repítelos con --solo, o cambia su texto (exclamaciones y nombres en inglés lo empeoran).")
 
     # ritmo parejo: cada bloque se lleva hacia la mediana, como mucho un EMPAREJAR
     velocidades = [indice[f"b{k:02d}"].get("cps") for k in range(1, len(bloques) + 1)]

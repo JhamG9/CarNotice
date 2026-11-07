@@ -11,6 +11,7 @@ Uso: python pronunciacion.py --proyecto ~/reel
 - Nombres y siglas según assets/voz/pronunciacion.json (LiDAR → láidar). Añade ahí los nuevos.
 - Códigos de modelo con letras y cifras (EV3, S05, L03, X3) se leen letra a letra y la cifra entera
   (o dígito a dígito si empieza por cero), usando el diccionario para las letras si las tiene.
+- Quita las exclamaciones (¡Hola! → Hola.): con ellas la voz grita y cambia de timbre. El texto en pantalla las conserva.
 - "sensible": true si la frase habla de muertes, accidentes o enfermedad (la música no hará ahí su subida).
 No toca el "voz" ni el "sensible" que ya existan, ni el "texto". Avisa de las siglas que no conoce.
 """
@@ -186,6 +187,8 @@ def cifras(t, dic=None):
 
 def a_voz(texto, dic):
     t = texto.replace("*", "")
+    # sin exclamaciones: con «¡…!» VoxCPM2 grita y la voz deja de sonar como la referencia (prueba del 2026-11-06)
+    t = re.sub(r"\s*!+", ".", t.replace("¡", "")).replace("?.", "?").replace("..", ".")
     # primero los nombres (S05 lleva cifras); una unidad tras una cifra ("1 kW") la lee cifras() con su concordancia
     for k in sorted(dic, key=len, reverse=True):
         t = re.sub(rf"(?<!\d)(?<!\d\s)(?<!\w){re.escape(k)}(?!\w)", dic[k], t)

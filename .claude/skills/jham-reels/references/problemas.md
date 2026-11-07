@@ -37,6 +37,8 @@ Busca el síntoma. Si no está, lee el mensaje de error entero: casi todos dicen
 | La voz lee mal una cifra, unidad o moneda («km/h», «US$») | `pronunciacion.py --probar "texto"` muestra lo que dirá. Corrige `pronunciacion.py`, añade el caso a `probar_pronunciacion.py` y córrelo. En un reel ya hecho, borra el `voz` de esa frase y vuelve a lanzar. |
 | La R o la RR suenan flojas («caro» por «carro») | Comprueba que se usó `voxcpm2` (el de por defecto): en la prueba de pares (pero/perro, caro/carro…) acertó 39 de 40 frente a 33 de Chatterbox. Si sigue, repite ese bloque con `--solo N`. |
 | Un bloque va mucho más rápido o lento que los demás | Repítelo con `--solo N`. `--emparejar` ajusta la velocidad al unir, pero deja un leve sonido metálico. |
+| La voz suena con otro acento, «fuerte» o como otra persona en un bloque | `voz_local.py` avisa con la huella de voz (< 0,88). Repite ese bloque con `--solo N`; si sigue, quita del `voz` exclamaciones y palabras en inglés. |
+| La voz suena más gruesa o áspera que voz02 | Comprueba que existe `assets/voz/voz02.txt` (la transcripción exacta de voz02): sin ella solo se copia el timbre. No uses `--solo-timbre`. |
 | La voz empieza bien y se va apagando o volviendo robótica | Bloques demasiado largos: baja `--max-caracteres` (260 por defecto en voxcpm2). |
 
 ## Render

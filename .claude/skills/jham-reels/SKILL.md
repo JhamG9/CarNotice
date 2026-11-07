@@ -165,13 +165,17 @@ La hace `reel.py`. Solo si hay que lanzarla aparte:
 
   La primera vez instala el entorno en `~/.cache/jham-reels/venv` y baja los modelos. Genera juntas las frases seguidas
   con el texto de `voz`, en bloques, para que la entonación continúe. Cada toma se juzga por lo que oye Whisper frente a
-  `texto`, por su ritmo frente al resto de bloques y por si deja ruido al final (lo corta); si falla, repite hasta 3
-  tomas. Después une los bloques y alinea. Si una palabra sigue mal, cambia su
+  `texto`, por su huella de voz (que suene como `voz02.wav` y no con otro timbre o acento; mínimo 0,88), por su ritmo
+  frente al resto de bloques y por si deja ruido al final (lo corta); si falla, repite hasta 4 tomas. La voz no lee
+  exclamaciones (`pronunciacion.py` las cambia por punto): con «¡…!» el modelo grita y cambia de timbre. Después une los bloques y alinea. Si una palabra sigue mal, cambia su
   `voz` a mano (`ciclo` salió mejor como `síclo`) y repite con `--solo`. No aceleres la voz: si el reel queda largo, recorta
   texto. Tú no oyes el audio: dile al usuario que lo escuche. Los nombres nuevos van en `assets/voz/pronunciacion.json`.
 
   Motor por defecto: `voxcpm2` con 16 pasos y la voz `voz02.wav`, sin instrucción de tono (48 kHz, la más natural y
   la mejor con la R y la RR en las pruebas del 2026-11-06; baja 3,2 GB la primera vez; un reel de 50 s tarda ~1,5 min).
+  Copia el timbre y también la forma de hablar de voz02, con su transcripción exacta en `voz02.txt`: así la voz se
+  mantiene pareja y delicada en audios largos (sin ella se va volviendo más grave y áspera). Si cambias la voz de
+  referencia, pon a su lado un `.txt` con lo que dice, palabra por palabra. `--solo-timbre` usa solo el timbre.
   Bloques de 260 caracteres como mucho: en bloques más largos la voz se va apagando. No pidas un tono (`--tono`) ni
   emparejes la velocidad (`--emparejar`) salvo que el usuario lo pida: en las pruebas, los dos empeoraron la voz. `--motor chatterbox` (o
   `"motorVoz": "chatterbox"` en el plan) usa el anterior, más rápido. `voz01.wav` es la referencia anterior.

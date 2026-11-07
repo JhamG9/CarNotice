@@ -29,6 +29,7 @@ CASOS = {
     "Carga 2× más rápido: +181 km": "Carga dos veces más rápido: más ciento ochenta y un kilómetros",
     "En 2,05 s": "En dos coma cero cinco segundos",
     "a −7 °C": "A menos siete grados",
+    "¡Hola! ¿Lo comprarías?! Llegó el EV3!": "Hola. ¿Lo comprarías? Llegó el e uve tres.",
     "Vende 1.234.567 carros": "Vende un millón doscientos treinta y cuatro mil quinientos sesenta y siete carros",
 }
 

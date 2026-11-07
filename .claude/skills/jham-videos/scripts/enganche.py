@@ -96,6 +96,8 @@ def main():
     primera = plan["frases"][0]["escena"]
     if formato == "noticia" and not (tipo(primera) == "Clips" and any(c.get("video") for c in primera.get("clips", []))):
         avisos.append("El gancho del formato noticia debe ser vídeo con el titular encima (Clips con video y lineas).")
+    if total < 480:
+        avisos.insert(0, f"PROBLEMA: dura {total / 60:.1f} min y el mínimo son 8 (anuncios intermedios de YouTube). Añade capítulos con datos y fuente.")
     print(f"Formato: {formato} · {total / 60:.1f} min · vídeo en movimiento {pv:.0%} · imagen real {pr:.0%} · tramo más largo sin golpe {tramo_max[0]:.0f} s · una toma cada {toma:.1f} s · texto grande en {len(textos)} frases")
     for x in avisos:
         print(f"AVISO: {x}")

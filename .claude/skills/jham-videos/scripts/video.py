@@ -16,6 +16,8 @@ import subprocess
 import sys
 import time
 
+DURACION_MIN = 480  # 8 min: mínimo para anuncios intermedios de YouTube (decisión del 2026-11-07)
+PALABRAS_POR_SEGUNDO = 2.6  # medido en el primer vídeo: 836 palabras = 319 s con pausas
 AQUI = os.path.dirname(os.path.abspath(__file__))
 REELS = os.path.join(os.path.dirname(os.path.dirname(AQUI)), "jham-reels", "scripts")
 PY = os.path.expanduser("~/.cache/jham-reels/venv/bin/python")
@@ -67,6 +69,15 @@ def main():
             sys.exit(f"Paró en «{nombre}». Todo está en salida/video.log")
         return salida, r.returncode
 
+    # mínimo de 8 minutos, sin excepción: desde ahí YouTube deja poner anuncios en medio (la prioridad es monetizar).
+    # Se mira antes de la voz (por palabras, ~2,6 por segundo con las pausas) para no gastar en un guion corto.
+    p_min = json.load(open(os.path.join(proy, "src", "datos", "plan.json"), encoding="utf-8"))
+    palabras = sum(len(re.sub(r"[*/]", " ", fr["texto"]).split()) for fr in p_min["frases"])
+    if palabras / PALABRAS_POR_SEGUNDO < DURACION_MIN:
+        falta = int(DURACION_MIN * PALABRAS_POR_SEGUNDO - palabras) + 1
+        sys.exit(f"El guion tiene {palabras} palabras, unos {palabras / PALABRAS_POR_SEGUNDO / 60:.1f} min: el mínimo son "
+                 f"{DURACION_MIN // 60} min (unas {int(DURACION_MIN * PALABRAS_POR_SEGUNDO)} palabras). Faltan unas {falta}: "
+                 "añade capítulos con datos y fuente (references/guion-largo.md), no estires las frases.")
     if not os.path.exists(PY):
         paso("entorno", [sys.executable, os.path.join(REELS, "voz_local.py"), "--entorno"])
     paso("pronunciación y frases sensibles", [PY, os.path.join(REELS, "pronunciacion.py"), "--proyecto", proy])
@@ -85,6 +96,10 @@ def main():
     plan = json.load(open(os.path.join(proy, "src", "datos", "plan.json"), encoding="utf-8"))
     s, _ = paso("pausas entre capítulos", [PY, os.path.join(AQUI, "pausas.py"), "--proyecto", proy])
     informe.append("## Pausas\n" + s.strip())
+    dur = json.load(open(os.path.join(proy, "src", "datos", "tiempos.json"), encoding="utf-8")).get("duracion", 0)
+    if dur < DURACION_MIN:
+        sys.exit(f"Con la voz, el vídeo dura {dur / 60:.1f} min: el mínimo son {DURACION_MIN // 60} min. "
+                 "Añade un capítulo con datos y fuente y vuelve a lanzar (la voz ya hecha no se repite).")
     if not a.sin_musica and plan.get("musica") is not False:
         # por defecto la música tranquila de vídeo largo; "musica": {"estilo": "reel"} usa la rápida de los reels
         rapida = isinstance(plan.get("musica"), dict) and plan["musica"].get("estilo") == "reel"
@@ -132,11 +147,15 @@ def main():
         fuentes = os.path.join(proy, "salida", "FUENTES.md")
         desc = f"{yt.get('descripcion', limpio(plan['frases'][0]['texto']))}\n\n"
         if yt.get("enlace"):
-            desc += f"La nota completa, con todas las fuentes: {yt['enlace']}\n\n"
+            desc += f"Más detalles y fuentes: {yt['enlace']}\n\n"
         if os.path.exists(caps):
             desc += "Capítulos\n" + open(caps, encoding="utf-8").read() + "\n"
-        if os.path.exists(fuentes):
-            desc += "Fuentes\n" + open(fuentes, encoding="utf-8").read()
+        # Las fuentes de la descripción salen de "youtube.fuentes" del plan ([nombre, url]); FUENTES.md es el registro de
+        # trabajo (descargas, permisos) y no se pega tal cual: traería archivos que no se usaron.
+        if yt.get("fuentes"):
+            desc += "Fuentes\n" + "".join(f"- {n}: {u}\n" for n, u in yt["fuentes"])
+        else:
+            informe.append("## Descripción\nFalta \"youtube.fuentes\" en el plan: la descripción sale sin fuentes. Añádelas ([nombre, url]) y relanza.")
         # descripcion.txt va tal cual a publicar-video.mjs; youtube.txt lleva además el título, para revisarlo
         open(os.path.join(proy, "salida", "descripcion.txt"), "w", encoding="utf-8").write(desc)
         with open(os.path.join(proy, "salida", "youtube.txt"), "w", encoding="utf-8") as f:

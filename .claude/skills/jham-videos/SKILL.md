@@ -1,6 +1,6 @@
 ---
 name: jham-videos
-description: Crea vídeos largos horizontales para YouTube (de 4 a 15 minutos, 1920×1080) sobre cualquier tema - carros, productos para perros, zapatos, viajes, finanzas - con guion por capítulos y datos con fuente, imágenes y vídeos oficiales o con licencia libre, voz local, música propia, capítulos de YouTube, miniatura de 1280×720, descripción y subida por la API. Usa el mismo motor de jham-reels en horizontal. Úsala siempre que pidan un vídeo largo, un vídeo para YouTube que no sea Short, un vídeo explicativo, una guía en vídeo o "convertir esta nota en vídeo".
+description: Crea vídeos largos horizontales para YouTube (de 8 a 15 minutos, 1920×1080) sobre cualquier tema - carros, productos para perros, zapatos, viajes, finanzas - con guion por capítulos y datos con fuente, imágenes y vídeos oficiales o con licencia libre, voz local, música propia, capítulos de YouTube, miniatura de 1280×720, descripción y subida por la API. Usa el mismo motor de jham-reels en horizontal. Úsala siempre que pidan un vídeo largo, un vídeo para YouTube que no sea Short, un vídeo explicativo, una guía en vídeo o "convertir esta nota en vídeo".
 ---
 
 # jham-videos
@@ -31,7 +31,11 @@ un golpe cada 40 s como mucho y el gancho en vídeo.
 
 ## Cómo es un vídeo de esta skill
 
-- 1920×1080, 30 fps, de 4 a 15 min (`"duracionMax"` en el plan; por defecto 900 s). Unas 150 palabras por minuto.
+- 1920×1080, 30 fps, **de 8 a 15 min, sin excepción** (`"duracionMax"` en el plan; por defecto 900 s). Desde 8 min YouTube permite
+  anuncios en medio del vídeo, y la prioridad del canal es monetizar (decisión del 2026-11-07). Hacen falta **unas 1.250
+  palabras de guion como mínimo** (con la voz y las pausas salen unas 2,6 palabras por segundo). `video.py` se detiene antes
+  de generar la voz si el guion no llega, y otra vez si con la voz dura menos de 8 min; `enganche.py` lo marca como
+  PROBLEMA. Se llega con más capítulos con datos y fuente, nunca estirando frases (ver `references/guion-largo.md`).
 - 4 a 8 capítulos. Cada frase que abre uno lleva `"capitulo": "Nombre"`; `capitulos.py` los arma para YouTube.
 - **Casi todo imagen.** Escena principal: `Clips` a pantalla completa con vídeo o foto real (`"imagen"` en vez de
   `"video"` hace un zoom lento), **sin texto encima**: los datos los cuenta la voz. Crédito arriba a la derecha.
@@ -81,6 +85,10 @@ Copia la plantilla horizontal, instala (1–2 min la primera vez) y comprueba na
 
 - Vídeo oficial: `python3 ../jham-reels/scripts/buscar_recursos.py URL --marca x --proyecto ~/video-…` (references/recursos.md
   de jham-reels). En horizontal el vídeo se ve entero: `foco` casi nunca hace falta.
+- **No te quedes con las webs en español.** Busca también la web oficial del país de la marca, aunque esté en chino u
+  otro idioma (Deepal, Avatr, BYD, XPeng… en su web china): suele tener más vídeos y de más calidad, y un vídeo largo
+  necesita muchas tomas. Cómo hacerlo, con sus reglas (dominio oficial, crédito, CLTC sin convertir, nada de redes
+  chinas), en «Fuentes en chino u otros idiomas» de `../jham-reels/references/recursos.md`.
 - Fotos con licencia libre: Wikimedia Commons (CC0, CC BY, CC BY-SA), con autor y licencia en `fuente` y la página en
   `salida/FUENTES.md`. Imágenes de la persona: a `public/imagenes/`.
 - **No uses vídeos de canales de YouTube de las marcas**: YouTube los reclama por Content ID aunque sean oficiales. Sí
@@ -98,7 +106,8 @@ Igual que el de los reels (`../jham-reels/references/escenas.md`) más estos cam
   "duracionMax": 900, "pesoMax": 0,
   "capituloInicial": "Introducción",
   "formato": "noticia",
-  "youtube": { "titulo": "≤100 caracteres", "descripcion": "2–3 frases", "enlace": "https://…/nota/", "categoria": "2" },
+  "youtube": { "titulo": "≤100 caracteres", "descripcion": "2–3 frases", "enlace": "https://…/nota/", "categoria": "2",
+               "fuentes": [["Ficha del carro (ev-database)", "https://…"], ["Imágenes y vídeos", "Tesla y BYD Europa, webs oficiales"]] },
   "frases": [
     { "texto": "…", "capitulo": "El precio", "entrada": "semitono", "escena": { … } }
   ],
@@ -136,7 +145,7 @@ python3 SKILL/scripts/video.py --proyecto ~/video-…                 # todo, in
 
 ### 10. Entregar y publicar
 
-- Dale a la persona el vídeo, la miniatura, `salida/subtitulos.srt` (se sube en YouTube Studio → Subtítulos → Subir archivo) y, en el chat, título y descripción (de `salida/youtube.txt`). Para mejorar
+- Dale a la persona el vídeo, la miniatura y, en el chat, título y descripción (de `salida/youtube.txt`). Para mejorar
   el título y la miniatura usa `yt-package`; para la descripción y las búsquedas, `yt-seo`.
 - Publicar lo decide la persona en cada vídeo. Con su aprobación:
 
@@ -144,8 +153,17 @@ python3 SKILL/scripts/video.py --proyecto ~/video-…                 # todo, in
 node SKILL/scripts/publicar-video.mjs borrador salida/video.mp4 "Título" salida/descripcion.txt --portada=salida/portada.png --ia --categoria=2
 ```
 
-  `borrador` lo deja privado; `oculto … --confirmo`, sin listar; `publicar … --confirmo`, público. `--ia` marca la voz
-  sintética, como pide YouTube. Usa la conexión de YouTube de jham-reels (`youtube-token.mjs`, el mismo `.env`).
+  `borrador` lo deja privado; `oculto … --confirmo`, sin listar; `publicar … --confirmo`, público. `--ia` marca el
+  contenido como alterado o sintético en YouTube. Usa la conexión de YouTube de jham-reels (`youtube-token.mjs`, el
+  mismo `.env`).
+- **Subtítulos:** se suben solos con el vídeo (`salida/subtitulos.srt`, en español, como subtítulos CC). Necesitan el
+  permiso `youtube.force-ssl`: la primera vez, la persona reconecta el canal con
+  `node ../jham-reels/scripts/youtube-token.mjs --reconectar` (abre `http://127.0.0.1:4391/` y acepta con
+  mejorelectrico9@gmail.com). Para un vídeo ya subido: `publicar-video.mjs subtitulos <id> --subtitulos=salida/subtitulos.srt`.
+- **Descripción:** lleva las fuentes de los datos (`"youtube": {"fuentes": [["nombre", "url"], …]}` en el plan) y el
+  crédito de las imágenes. Citar fuentes no afecta a la monetización y da credibilidad. No hace falta escribir en la
+  descripción que la voz es de IA (decisión de quien administra del 2026-11-07); lo que pide YouTube es la casilla
+  de contenido alterado o sintético cuando el contenido realista pueda confundirse con real.
 - Después de 2–3 días, `yt-retention` con la exportación de retención de YouTube Studio dice dónde se fue la gente.
 
 ## Ritmo tranquilo (por defecto)

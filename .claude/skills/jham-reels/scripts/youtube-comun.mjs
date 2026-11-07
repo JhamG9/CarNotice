@@ -2,9 +2,10 @@
 
 export const CANAL = '@mejorelectrico';
 
-// Subir vídeos y su portada, leer el canal y leer las estadísticas de cada Short.
+// Subir vídeos y su portada, leer el canal, leer las estadísticas y subir subtítulos (este último pide force-ssl).
 export const ALCANCES = [
   'https://www.googleapis.com/auth/youtube.upload',
+  'https://www.googleapis.com/auth/youtube.force-ssl',
   'https://www.googleapis.com/auth/youtube.readonly',
   'https://www.googleapis.com/auth/yt-analytics.readonly',
 ];

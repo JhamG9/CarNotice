@@ -539,8 +539,12 @@ def main():
 
     info, asr = None, []
     if motor == "asr":
-        B, E, ts, info, asr = tiempos_por_asr(x, frases_pal, modelo)
-    else:
+        try:
+            B, E, ts, info, asr = tiempos_por_asr(x, frases_pal, modelo)
+        except Exception as e:  # p. ej. un audio largo (vídeos de 9+ min) que el modelo no acepta de una vez
+            print(f"AVISO: el reconocimiento de voz falló ({str(e)[:80]}…); se alinea por sílabas.")
+            motor = "silabas"
+    if motor != "asr":
         B, E, ts = tiempos_por_silabas(x, frases_pal)
     sil_frase = [sum(silabas(w) for w, _, _ in fp) for fp in frases_pal]
     avisos = avisos_ritmo(B, E, sil_frase, [" ".join(w for w, _, _ in fp) for fp in frases_pal])

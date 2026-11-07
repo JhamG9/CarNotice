@@ -7,10 +7,12 @@
 //
 // Con --json=client_secret_….json (el archivo que ofrece Google al crear el cliente) no hay que pegar nada:
 // http://127.0.0.1:4391/ lleva directo a la pantalla de permisos. Borra ese archivo después.
+// Con --reconectar usa el ID y la clave que ya están en .env: sirve para aceptar permisos nuevos (por ejemplo, el de
+// subir subtítulos) sin volver a pegar nada.
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, chmodSync, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
-import { RUTA_ENV } from './meta-comun.mjs';
+import { RUTA_ENV, leerEnv } from './meta-comun.mjs';
 import { CANAL, ALCANCES, leerRespuestaGoogle } from './youtube-comun.mjs';
 
 const PROYECTO = 'mejor-electrico-reels';
@@ -23,7 +25,17 @@ const CLIENTES = `https://console.cloud.google.com/auth/clients?project=${PROYEC
 let pendiente = null;
 
 const rutaJson = process.argv.find((a) => a.startsWith('--json='))?.slice('--json='.length);
-const cliente = rutaJson ? JSON.parse(readFileSync(rutaJson, 'utf8')).installed : null;
+const reconectar = process.argv.includes('--reconectar');
+const envActual = reconectar ? leerEnv() : {};
+const cliente = rutaJson
+  ? JSON.parse(readFileSync(rutaJson, 'utf8')).installed
+  : reconectar && envActual.YOUTUBE_CLIENT_ID && envActual.YOUTUBE_CLIENT_SECRET
+    ? { client_id: envActual.YOUTUBE_CLIENT_ID, client_secret: envActual.YOUTUBE_CLIENT_SECRET }
+    : null;
+if (reconectar && !cliente) {
+  console.error('No hay ID ni clave de cliente en .env: conecta sin --reconectar.');
+  process.exit(1);
+}
 if (rutaJson && !cliente?.client_id) {
   console.error('Ese JSON no es de un cliente de escritorio.');
   process.exit(1);

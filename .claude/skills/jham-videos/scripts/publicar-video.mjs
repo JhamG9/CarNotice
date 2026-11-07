@@ -6,6 +6,11 @@
 //   node publicar-video.mjs oculto video.mp4 "Título" descripcion.txt --confirmo  sin listar: solo con el enlace
 //   node publicar-video.mjs publicar video.mp4 "Título" descripcion.txt --confirmo
 //   node publicar-video.mjs portada <id del vídeo> --portada=portada.png       vuelve a intentar solo la miniatura
+//   node publicar-video.mjs subtitulos <id del vídeo> --subtitulos=subtitulos.srt   sube solo los subtítulos
+//
+// Los subtítulos (CC, en español) se suben solos con el vídeo: --subtitulos=archivo.srt o, si no se pasa, el
+// subtitulos.srt que esté junto al vídeo. Necesitan el permiso youtube.force-ssl: si la conexión es anterior, se avisa
+// y se arregla una vez con `node ../../jham-reels/scripts/youtube-token.mjs --reconectar`.
 //
 // La descripción va en un archivo de texto (lleva los capítulos y las fuentes). Opciones: --ia declara contenido
 // sintético (voz generada con IA), --portada=archivo.png sube la miniatura y --categoria=N elige la categoría de
@@ -15,6 +20,7 @@
 // Publicar es decisión de la persona: sin --confirmo no se publica nada. Si Google deja privado lo que se pidió
 // público (puede pasar mientras el proyecto no tenga auditoría), se avisa.
 import { existsSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 // La conexión con Google y el .env son los de la skill de reels: un solo canal, un solo token.
 import { leerEnv } from '../../jham-reels/scripts/meta-comun.mjs';
 import { CANAL, leerRespuestaGoogle } from '../../jham-reels/scripts/youtube-comun.mjs';
@@ -29,6 +35,7 @@ const confirmo = opciones.includes('--confirmo');
 const conIA = opciones.includes('--ia');
 const portada = opciones.find((o) => o.startsWith('--portada='))?.split('=')[1];
 const categoria = opciones.find((o) => o.startsWith('--categoria='))?.split('=')[1] ?? '26';
+const opcionSubtitulos = opciones.find((o) => o.startsWith('--subtitulos='))?.split('=')[1];
 // La descripción llega como archivo (capítulos y fuentes) o, si no existe ese archivo, como texto.
 const textoDescripcion = descripcion && existsSync(descripcion) ? readFileSync(descripcion, 'utf8') : (descripcion ?? '');
 
@@ -95,6 +102,36 @@ async function subirPortada(token, videoId) {
   }
 }
 
+// Los subtítulos tampoco tumban un vídeo ya subido: si fallan, se avisa cómo reintentarlo.
+async function subirSubtitulos(token, videoId, ruta) {
+  if (!ruta || !existsSync(ruta)) return;
+  try {
+    const frontera = `----subtitulos${Date.now()}`;
+    const metadatos = JSON.stringify({ snippet: { videoId, language: 'es', name: 'Español', isDraft: false } });
+    const cuerpo = Buffer.concat([
+      Buffer.from(`--${frontera}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadatos}\r\n`),
+      Buffer.from(`--${frontera}\r\nContent-Type: application/octet-stream\r\n\r\n`),
+      readFileSync(ruta),
+      Buffer.from(`\r\n--${frontera}--\r\n`),
+    ]);
+    await leerRespuestaGoogle(
+      await fetch(`${SUBIDAS}/captions?uploadType=multipart&part=snippet`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${frontera}` },
+        body: cuerpo,
+      }),
+    );
+    console.log('YouTube: subtítulos en español subidos.');
+  } catch (error) {
+    const permiso = /insufficient|scope|403/i.test(error.message);
+    console.error(
+      permiso
+        ? 'YouTube: faltan permisos para los subtítulos. Reconecta una vez con youtube-token.mjs --reconectar y súbelos con: publicar-video.mjs subtitulos ' + videoId + ' --subtitulos=' + ruta
+        : `YouTube: no se pudieron subir los subtítulos: ${error.message}`,
+    );
+  }
+}
+
 async function subir(token, privacidad) {
   if (!titulo) salir('Falta el título.');
   if (titulo.length > 100) salir(`El título tiene ${titulo.length} caracteres; YouTube acepta 100.`);
@@ -136,6 +173,7 @@ async function subir(token, privacidad) {
     console.log('YouTube: Google lo dejó privado (el proyecto no tiene auditoría). Se cambia a público en YouTube Studio.');
   }
   await subirPortada(token, video.id);
+  await subirSubtitulos(token, video.id, opcionSubtitulos ?? join(dirname(archivo), 'subtitulos.srt'));
   return video.id;
 }
 
@@ -146,6 +184,9 @@ try {
   } else if (accion === 'portada' && archivo && portada) {
     // Aquí `archivo` es el id de un vídeo ya subido: sirve para reintentar una portada que falló.
     await subirPortada(token, archivo);
+  } else if (accion === 'subtitulos' && archivo && opcionSubtitulos) {
+    // Aquí `archivo` es el id de un vídeo ya subido.
+    await subirSubtitulos(token, archivo, opcionSubtitulos);
   } else if (accion === 'borrador' && archivo) {
     await verificar(token);
     await subir(token, 'private');

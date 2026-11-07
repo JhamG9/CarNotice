@@ -2,6 +2,7 @@
 // un texto a mano debajo, un sobre que sale volando hacia los mensajes, confeti e iconos que saltan
 // por turnos para que la pantalla no se quede quieta al final. Con `seguir` ("@cuenta") añade abajo una píldora
 // «Síguenos @cuenta» que entra con los iconos: la voz pide comentar y la pantalla pide seguir.
+// En horizontal todo cabe en el LIENZO (y 210–1070): con 2 líneas de texto, la píldora termina hacia y 1040.
 import React from "react";
 import { AbsoluteFill, Easing, spring, useCurrentFrame } from "remotion";
 import { BORDE, C, SOMBRA, SUAVE } from "../motor/actual";
@@ -32,7 +33,7 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
   const qSeguir = usePop(bIconos + 12, { damping: 11, stiffness: 200, mass: 0.6 });
   return (
     <AbsoluteFill>
-      <div style={{ position: "absolute", left: 120, top: 300 + (1 - caja) * 180 + fl, width: 840, height: 340, borderRadius: 44, background: C.tarjeta, boxShadow: SOMBRA, border: BORDE, opacity: Math.min(1, caja * 1.6), transform: `scale(${0.9 + 0.1 * caja})` }}>
+      <div style={{ position: "absolute", left: 120, top: 220 + (1 - caja) * 180 + fl, width: 840, height: 340, borderRadius: 44, background: C.tarjeta, boxShadow: SOMBRA, border: BORDE, opacity: Math.min(1, caja * 1.6), transform: `scale(${0.9 + 0.1 * caja})` }}>
         <div style={{ position: "absolute", top: 40, left: 0, right: 0, textAlign: "center", fontFamily: F.titulo, fontSize: 76, color: C.tarjetaTexto, letterSpacing: -1.5 }}>{verbo}</div>
         <div
           style={{
@@ -67,11 +68,11 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
         </div>
       </div>
       {sobre > 0 && sobre < 1 && (
-        <div style={{ position: "absolute", left: 830 + sobre * 170, top: 470 - sobre * 260 - Math.sin(sobre * Math.PI) * 60, transform: `rotate(${sobre * 25 - 8}deg) scale(${1 - 0.45 * sobre})`, opacity: Math.min(1, sobre * 6) * (1 - Math.max(0, sobre - 0.75) * 4) }}>
+        <div style={{ position: "absolute", left: 830 + sobre * 170, top: 390 - sobre * 260 - Math.sin(sobre * Math.PI) * 60, transform: `rotate(${sobre * 25 - 8}deg) scale(${1 - 0.45 * sobre})`, opacity: Math.min(1, sobre * 6) * (1 - Math.max(0, sobre - 0.75) * 4) }}>
           <Icono nombre="mail" tam={110} color={C.texto} />
         </div>
       )}
-      <div style={{ position: "absolute", top: 700, left: 0, right: 0, textAlign: "center", fontFamily: F.mano, fontWeight: 700, fontSize: 72, color: C.acento, lineHeight: 1.15, transform: "rotate(-3deg)" }}>
+      <div style={{ position: "absolute", top: 590, left: 0, right: 0, textAlign: "center", fontFamily: F.mano, fontWeight: 700, fontSize: 72, color: C.acento, lineHeight: 1.15, transform: "rotate(-3deg)" }}>
         {lineas.map((l, k) => {
           const t0 = bTexto + k * 14;
           const m = lerp(f, t0 - 4, t0 + 12, 0, 1, Easing.inOut(Easing.quad));
@@ -82,7 +83,7 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
           );
         })}
       </div>
-      <div style={{ position: "absolute", top: 715 + Math.max(1, lineas.length) * 84, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 34 }}>
+      <div style={{ position: "absolute", top: 630 + Math.max(1, lineas.length) * 80, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 34 }}>
         {icos.map((nombre, k) => {
           const q = usePop(bIconos + k * 3, { damping: 9, stiffness: 240, mass: 0.5 });
           const fase = (f - bIconos - 18 - k * 5) % 26;
@@ -96,7 +97,7 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
         })}
       </div>
       {seguir && (
-        <div style={{ position: "absolute", top: 1190, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: Math.min(1, qSeguir * 1.4) }}>
+        <div style={{ position: "absolute", top: 670 + Math.max(1, lineas.length) * 80 + 124, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: Math.min(1, qSeguir * 1.4) }}>
           <div style={{ display: "flex", alignItems: "center", gap: 22, padding: "26px 44px", borderRadius: 999, background: C.tarjeta, boxShadow: SOMBRA, border: BORDE, transform: `scale(${(0.8 + 0.2 * qSeguir) * (1 + 0.05 * bump(f, bIconos + 40, 12))})` }}>
             <Icono nombre="user-plus" tam={56} color={C.acento} />
             <span style={{ fontFamily: F.titulo, fontSize: 52, color: C.tarjetaTexto, letterSpacing: -1 }}>Síguenos</span>
@@ -104,7 +105,7 @@ const Cta: React.FC<PropsEscena> = ({ p, b }) => {
           </div>
         </div>
       )}
-      <Confeti desde={bTexto + 6} x={540} y={470} n={60} fuerza={1.25} />
+      <Confeti desde={bTexto + 6} x={540} y={390} n={60} fuerza={1.25} />
     </AbsoluteFill>
   );
 };

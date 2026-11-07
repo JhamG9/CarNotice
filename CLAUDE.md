@@ -227,7 +227,7 @@ npm run deploy:pages
 
 - Usa el motor de `jham-reels` en 1920×1080, con sus mismos scripts de voz, alineado, música, ritmo y revisión (`../jham-reels/scripts/`) y el mismo diccionario de pronunciación. Lo propio de la skill está en su carpeta: plantilla horizontal, `preparar.py`, `video.py`, `capitulos.py` y `publicar-video.mjs`.
 - Dos formatos (`"formato"` en el plan): `noticia`, una noticia contada como historia con mucho vídeo real, el que más retiene (dos de cada tres escenas con vídeo en movimiento y un golpe cada 40 s como mucho; lo revisa `enganche.py`), y `explicativo`, para responder una pregunta que se busca.
-- De 4 a 15 minutos, por capítulos (`"capitulo"` en la frase que abre cada uno). `capitulos.py` arma los capítulos de YouTube y valida sus reglas. Miniatura de 1280×720.
+- De 8 a 15 minutos, sin excepción: desde 8 YouTube permite anuncios intermedios y la prioridad es monetizar (decisión de quien administra del 2026-11-07). `video.py` se detiene si el guion no llega. Por capítulos (`"capitulo"` en la frase que abre cada uno). `capitulos.py` arma los capítulos de YouTube y valida sus reglas. Miniatura de 1280×720.
 - Cada vídeo se trabaja en su propia carpeta fuera del proyecto (`~/video-<tema>`), como los reels.
 - Imágenes: oficiales de salas de prensa o con licencia libre (Wikimedia Commons), siempre con crédito en pantalla y en `salida/FUENTES.md`. No usar vídeos de los canales de YouTube de las marcas: YouTube los reclama.
 - Publicar lo decide la persona en cada vídeo. `publicar-video.mjs` lo sube como vídeo normal (no Short), con miniatura, descripción con capítulos y la marca de contenido sintético (`--ia`), por la misma conexión de YouTube de los reels.

@@ -8,6 +8,29 @@ páginas oficiales de cada marca, empresa o entidad que nombra el guion.
 1. La página del producto (`marca.com/producto`): suele tener vídeos en bucle de alta calidad.
 2. La sala de prensa o «media resources»: vídeos de recurso (b-roll) e imágenes con condiciones de uso.
 3. La página de prensa del fabricante del componente del que se habla.
+4. **La web oficial del país de origen, aunque esté en otro idioma.** No te quedes en las páginas en español: las marcas
+   chinas (Deepal, Changan, Avatr, BYD, Geely, Zeekr, XPeng, Leapmotor, NIO, Xiaomi…) suelen tener en su web china
+   más vídeos, en mejor calidad y antes que en cualquier otro país. Lo mismo vale para otras marcas y su país (la web
+   alemana de una marca alemana, la japonesa de una japonesa). Ver «Fuentes en chino u otros idiomas».
+
+## Fuentes en chino u otros idiomas
+
+- **Dónde:** la web oficial de la marca en su país (`.cn` o `.com.cn`, o la versión «中文» de la global) y su sala de
+  prensa (新闻中心, 媒体中心, 下载中心). Si no conoces la dirección, búscala en la web («Deepal 官网», «深蓝汽车 官网») y
+  ábrela con `buscar_recursos.py`, como cualquier otra. Comprueba que el dominio es de la marca, no de un distribuidor
+  ni de un portal de noticias.
+- **Qué vale:** los mismos recursos que en cualquier web oficial (vídeos de producto, imágenes de prensa) con las mismas
+  reglas de permisos y crédito («Vídeo: Deepal China»). No uses vídeos de redes chinas (Bilibili, Douyin, Weibo),
+  aunque sean de la cuenta de la marca: son como los canales de YouTube de las marcas.
+- **Datos:** sirven como fuente, traducidos con cuidado. La autonomía china es del ciclo **CLTC** y no se pasa a WLTP;
+  los precios van en yuanes (CNY) sin convertir salvo con fuente; la versión china puede tener otra batería o equipo
+  que la de Colombia o Europa, así que dilo («en China…»). Pasa por el verificador como cualquier dato.
+- **Muchas webs chinas cargan todo con JavaScript** y `buscar_recursos.py` sale con 0 vídeos y 0 imágenes (pasó con
+  `deepal.com.cn` el 2026-11-07: carga, pero sus imágenes llegan después, desde `files.deepal.com.cn`). Entonces ábrela
+  con el navegador integrado, espera unos segundos, recorre la página y saca las rutas de `video`, `img` y de los
+  recursos cargados; bájalos con `curl` a `recursos/<marca>/`, como se hizo con BYD Europa.
+- **Si la web china no carga o va muy lenta** desde aquí, prueba la versión global de la marca o su sala de prensa
+  internacional; si tampoco, sigue con lo que haya y dilo en la entrega.
 
 Lanza `python3 SKILL/scripts/buscar_recursos.py URL --marca tesla --proyecto ~/reel`. Abre la página con el Chrome del
 equipo, se queda con la versión de escritorio de cada vídeo, los baja y los prepara. Si no encuentra nada o la web lo

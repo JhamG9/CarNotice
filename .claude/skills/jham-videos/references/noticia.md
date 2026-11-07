@@ -45,8 +45,10 @@ noticia que tenga conflicto. En el plan: `"formato": "noticia"` (activa la revis
   los baja, los pasa a 1080p y propone tomas. Anota la fuente en cada clip.
 - Ferias y presentaciones oficiales (transmisiones de la marca en su web, no en su canal de YouTube).
 - No usar vídeos de canales de YouTube (ni de las marcas): YouTube los reclama por Content ID.
-- Planifica 8–15 tomas distintas para un vídeo de 5 minutos; una misma toma no se repite más de dos veces.
+- Planifica 15–25 tomas distintas para un vídeo de 8 minutos; una misma toma no se repite más de dos veces.
 
 ## Duración
 
-De 4 a 8 minutos. Una noticia rara vez sostiene más; si hay material para más, son dos vídeos.
+De 8 a 10 minutos: el mínimo de 8 es obligatorio (anuncios intermedios). Una noticia sola rara vez llega: súmale el
+contexto con fuente (antecedentes, qué significa para el comprador, qué dicen los rivales, qué viene después). Si aun
+así no llega a 8 minutos con datos verificados, es un reel, no un vídeo largo.
